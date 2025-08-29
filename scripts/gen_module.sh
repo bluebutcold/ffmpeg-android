@@ -82,7 +82,7 @@ if [ -z "$FFMPEG_STATIC" ]; then
         libdir="lib"
     fi
     mkdir -p "$libdir"
-    libcpp="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${CLANG_TARGET}/libc++_shared.so"
+    libcpp="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/linux-x86_64/sysroot/usr/lib/${CLANG_TRIPLE}/libc++_shared.so"
     cp "$libcpp" "$libdir/"
     $STRIP "$libdir/libc++_shared.so"
 fi
