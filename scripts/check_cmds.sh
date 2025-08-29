@@ -12,4 +12,4 @@ check() {
     done
 }
 
-check gcc g++ which tar zip sed meson make cmake ninja autoconf automake libtool pkg-config makeinfo gettext gperf bison flex git xz unzip file find cp mv rm ln svn nasm yasm
+check gcc g++ which curl wget tar zip sed meson make cmake ninja autoconf automake libtool pkg-config makeinfo gettext gperf bison flex git xz unzip file find cp mv rm ln svn nasm yasm
