@@ -2,6 +2,7 @@
 check() {
     for cmd in "$@"; do
         printf "checking for %s... " "$cmd"
+        sleep 0.1
         if command -v "$cmd" >/dev/null 2>&1; then
             echo "found"
         else
