@@ -93,4 +93,8 @@ else
     tar -caf ffmpeg.tar.xz bin
 fi
 
-zip -r "${FFMPEG_VERSION}-${type}-android-${ARCH}.zip" META-INF ffmpeg.tar.xz customize.sh module.prop
+FINAL_ZIP="${FFMPEG_VERSION}-${type}-android-${ARCH}.zip"
+zip -r "${FINAL_ZIP}" META-INF ffmpeg.tar.xz customize.sh module.prop
+shopt -s extglob
+rm -rf !("$FINAL_ZIP")
+shopt -u extglob
