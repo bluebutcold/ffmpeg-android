@@ -190,7 +190,7 @@ COMMON_CMAKE_FLAGS=(
 )
 
 DOWNLOADER_SCRIPT="${ROOT_DIR}/scripts/download_sources.sh"
-BUILD_FUNCTIONS="${ROOT_DIR}/scripts/build_functions_linux_android.sh"
+BUILD_FUNCTIONS="${ROOT_DIR}/scripts/build_functions.sh"
 
 for script in "$DOWNLOADER_SCRIPT" "$BUILD_FUNCTIONS"; do
 	if [ -f "$script" ]; then
