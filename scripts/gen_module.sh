@@ -4,14 +4,12 @@ BASE_DIR="${ROOT_DIR}/module"
 mkdir -p "$BASE_DIR"
 cd "$BASE_DIR" || exit 1
 
-# Determine type
 if [ -n "$FFMPEG_STATIC" ]; then
     type="Static"
 else
     type="Dynamic"
 fi
 
-# Generate module.prop
 cat > module.prop <<EOF
 id=FFmpeg
 name=FFmpeg
@@ -21,9 +19,8 @@ author=rhythmcache.t.me
 description=FFmpeg for android | ${type}
 EOF
 
-# Generate customize.sh
+
 cat > customize.sh <<EOF
-#!/bin/sh
 FFMPEG_ARCH="${ANDROID_ABI}"
 ARCH=\$(getprop ro.product.cpu.abi)
 
@@ -43,11 +40,9 @@ EOF
 
 chmod +x customize.sh
 
-# Create META-INF
 mkdir -p "${BASE_DIR}/META-INF/com/google/android"
 cd "${BASE_DIR}/META-INF/com/google/android" || exit 1
 
-# Minimal update-binary for Magisk
 cat > update-binary <<'EOF'
 #!/sbin/sh
 umask 022
