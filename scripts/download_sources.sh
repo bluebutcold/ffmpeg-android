@@ -222,7 +222,7 @@ download_sources() {
         download_file "$SVTAV1_URL" "svtav1.tar.gz" &
         download_file "$FFTW_URL" "fftw.tar.gz" &
         download_file "$LIBFFI_URL" "libffi.tar.gz" &
-        download_file "$FFMPEG_URL" "ffmpeg.tar.gz" &
+        download_file "$FFMPEG_URL" "ffmpeg.tar.xz" &
         wait
         
         # Download extra files
@@ -333,7 +333,7 @@ prepare_sources() {
     [ ! -d libbs2b ] && tar -xf "${DOWNLOAD_DIR}/libbs2b.tar.gz" && mv "$LIBBS2B_VERSION" libbs2b
     [ ! -d fftw ] && tar -xf "${DOWNLOAD_DIR}/fftw.tar.gz" && mv "$FFTW_VERSION" fftw
     [ ! -d libffi ] && tar -xf "${DOWNLOAD_DIR}/libffi.tar.gz" && mv "$LIBFFI_VERSION" libffi
-    [ ! -d FFmpeg ] && tar -xf "${DOWNLOAD_DIR}/ffmpeg.tar.gz" && mv "$FFMPEG_VERSION" FFmpeg
+    [ ! -d FFmpeg ] && tar -xf "${DOWNLOAD_DIR}/ffmpeg.tar.xz" && mv "$FFMPEG_VERSION" FFmpeg
 
     # extract gitHub ZIP files
     for repo_name in "${!GITHUB_REPOS[@]}"; do
