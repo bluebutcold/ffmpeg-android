@@ -3,7 +3,7 @@ check() {
     for cmd in "$@"; do
         printf "checking for %s... " "$cmd"
         if command -v "$cmd" >/dev/null 2>&1; then
-            echo "found ($cmd)"
+            echo "found"
         else
             echo "not found"
             echo "Error: '$cmd' is missing. Aborting."
