@@ -245,7 +245,7 @@ build_harfbuzz
 build_fontconfig
 build_libass
 build_libtheora
-[ "$ARCH" != riscv64 ] && build_rav1e
+[ "$ARCH" != riscv64 ] && build_rav1e #rust doesn't support android riscv64 yet
 build_lcms
 build_libwebp
 build_vmaf
