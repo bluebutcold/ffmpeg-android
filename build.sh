@@ -8,6 +8,8 @@ API_LEVEL="${API_LEVEL:-29}"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
+source "${ROOT_DIR}/scripts/check_cmds.sh"
+
 
 VALID_ARCHES="aarch64 armv7 x86 x86_64 riscv64"
 
