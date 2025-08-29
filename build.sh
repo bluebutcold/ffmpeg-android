@@ -284,5 +284,5 @@ build_fftw
 build_chromaprint
 build_avisynth
 cleanup_pcfiles
-#find "$PREFIX" -iname "*.so" -delete
 build_ffmpeg
+source "$ROOT_DIR/scripts/gen_module.sh"
