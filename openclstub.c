@@ -316,3 +316,107 @@ cl_int clEnqueueCopyImage(cl_command_queue command_queue, cl_mem src_image, cl_m
                          cl_event *event) {
     return CL_INVALID_COMMAND_QUEUE;
 }
+
+// Additional standard OpenCL functions that may be needed
+cl_int clRetainProgram(cl_program program) {
+    return CL_SUCCESS;
+}
+
+cl_int clRetainKernel(cl_kernel kernel) {
+    return CL_SUCCESS;
+}
+
+cl_int clRetainEvent(cl_event event) {
+    return CL_SUCCESS;
+}
+
+cl_int clRetainContext(cl_context context) {
+    return CL_SUCCESS;
+}
+
+cl_int clRetainMemObject(cl_mem memobj) {
+    return CL_SUCCESS;
+}
+
+cl_mem clCreateSubBuffer(cl_context context, cl_mem buffer, cl_uint flags,
+                        cl_uint buffer_create_type, const void *buffer_create_info,
+                        cl_int *errcode_ret) {
+    if (errcode_ret) *errcode_ret = CL_INVALID_CONTEXT;
+    return NULL;
+}
+
+cl_int clEnqueueCopyBuffer(cl_command_queue command_queue, cl_mem src_buffer, cl_mem dst_buffer,
+                          size_t src_offset, size_t dst_offset, size_t size,
+                          cl_uint num_events_in_wait_list, const cl_event *event_wait_list,
+                          cl_event *event) {
+    return CL_INVALID_COMMAND_QUEUE;
+}
+
+cl_int clEnqueueCopyBufferRect(cl_command_queue command_queue, cl_mem src_buffer, cl_mem dst_buffer,
+                              const size_t *src_origin, const size_t *dst_origin, const size_t *region,
+                              size_t src_row_pitch, size_t src_slice_pitch, size_t dst_row_pitch,
+                              size_t dst_slice_pitch, cl_uint num_events_in_wait_list,
+                              const cl_event *event_wait_list, cl_event *event) {
+    return CL_INVALID_COMMAND_QUEUE;
+}
+
+cl_int clEnqueueCopyBufferToImage(cl_command_queue command_queue, cl_mem src_buffer, cl_mem dst_image,
+                                 size_t src_offset, const size_t *dst_origin, const size_t *region,
+                                 cl_uint num_events_in_wait_list, const cl_event *event_wait_list,
+                                 cl_event *event) {
+    return CL_INVALID_COMMAND_QUEUE;
+}
+
+cl_int clEnqueueCopyImageToBuffer(cl_command_queue command_queue, cl_mem src_image, cl_mem dst_buffer,
+                                 const size_t *src_origin, size_t dst_offset, const size_t *region,
+                                 cl_uint num_events_in_wait_list, const cl_event *event_wait_list,
+                                 cl_event *event) {
+    return CL_INVALID_COMMAND_QUEUE;
+}
+
+// Additional utility functions that FFmpeg might use
+cl_int clGetContextInfo(cl_context context, cl_uint param_name, size_t param_value_size,
+                       void *param_value, size_t *param_value_size_ret) {
+    if (param_value_size_ret) *param_value_size_ret = 0;
+    return CL_INVALID_CONTEXT;
+}
+
+cl_int clGetCommandQueueInfo(cl_command_queue command_queue, cl_uint param_name,
+                           size_t param_value_size, void *param_value, size_t *param_value_size_ret) {
+    if (param_value_size_ret) *param_value_size_ret = 0;
+    return CL_INVALID_COMMAND_QUEUE;
+}
+
+cl_int clGetEventInfo(cl_event event, cl_uint param_name, size_t param_value_size,
+                     void *param_value, size_t *param_value_size_ret) {
+    if (param_value_size_ret) *param_value_size_ret = 0;
+    return CL_INVALID_EVENT;
+}
+
+cl_int clGetKernelInfo(cl_kernel kernel, cl_uint param_name, size_t param_value_size,
+                      void *param_value, size_t *param_value_size_ret) {
+    if (param_value_size_ret) *param_value_size_ret = 0;
+    return CL_INVALID_KERNEL;
+}
+
+cl_int clGetKernelWorkGroupInfo(cl_kernel kernel, cl_device_id device, cl_uint param_name,
+                               size_t param_value_size, void *param_value, size_t *param_value_size_ret) {
+    if (param_value_size_ret) *param_value_size_ret = 0;
+    return CL_INVALID_KERNEL;
+}
+
+// Image creation functions
+cl_mem clCreateImage2D(cl_context context, cl_uint flags, const void *image_format,
+                      size_t image_width, size_t image_height, size_t image_row_pitch,
+                      void *host_ptr, cl_int *errcode_ret) {
+    if (errcode_ret) *errcode_ret = CL_INVALID_CONTEXT;
+    return NULL;
+}
+
+cl_mem clCreateImage3D(cl_context context, cl_uint flags, const void *image_format,
+                      size_t image_width, size_t image_height, size_t image_depth,
+                      size_t image_row_pitch, size_t image_slice_pitch, void *host_ptr,
+                      cl_int *errcode_ret) {
+    if (errcode_ret) *errcode_ret = CL_INVALID_CONTEXT;
+    return NULL;
+}
