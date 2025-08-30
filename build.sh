@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -xe
 
 ARCH="${1:-$ARCH}"
 API_LEVEL="${2:-$API_LEVEL}"
@@ -8,7 +8,7 @@ API_LEVEL="${API_LEVEL:-29}"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-source "${ROOT_DIR}/scripts/check_cmds.sh"
+#source "${ROOT_DIR}/scripts/check_cmds.sh"
 
 
 VALID_ARCHES="aarch64 armv7 x86 x86_64 riscv64"
@@ -138,26 +138,6 @@ STRIP_ABS=$(resolve_absolute_path "$STRIP")
 NM_ABS=$(resolve_absolute_path "$NM")
 
 
-SIZE_CFLAGS="-O3 -ffunction-sections -fdata-sections"
-SIZE_CXXFLAGS="-O3 -ffunction-sections -fdata-sections" 
-SIZE_LDFLAGS="-Wl,--gc-sections"
-
-
-MATH_FLAGS="-fno-math-errno -fno-trapping-math -fassociative-math"
-PERF_FLAGS="$MATH_FLAGS -funroll-loops -fomit-frame-pointer"
-ANDROID_FLAGS="-fvisibility=default"
-
-
-CFLAGS="$SIZE_CFLAGS $PERF_FLAGS $ANDROID_FLAGS -DNDEBUG -fPIC"
-CXXFLAGS="$SIZE_CXXFLAGS $PERF_FLAGS $ANDROID_FLAGS -DNDEBUG -fPIC"
-CPPFLAGS="-I$PREFIX/include -DNDEBUG $ANDROID_FLAGS"
-LDFLAGS="$SIZE_LDFLAGS -fPIC -L$PREFIX/lib -Wl,--strip-all"
-
-export CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
-
-SYSROOT="$TOOLCHAIN_ROOT/sysroot"
-export SYSROOT
-
 BUILD_DIR="$ROOT_DIR/build/android/$ARCH"
 PREFIX="$BUILD_DIR/prefix"
 
@@ -168,6 +148,28 @@ mkdir -p "$PREFIX/lib64/pkgconfig"
 export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig:$PREFIX/lib64/pkgconfig:$PKG_CONFIG_PATH"
 
 export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
+
+
+SIZE_CFLAGS="-O3 -ffunction-sections -fdata-sections"
+SIZE_CXXFLAGS="-O3 -ffunction-sections -fdata-sections" 
+SIZE_LDFLAGS="-Wl,--gc-sections"
+
+
+MATH_FLAGS="-fno-math-errno -fno-trapping-math -fassociative-math"
+PERF_FLAGS="$MATH_FLAGS -funroll-loops -fomit-frame-pointer"
+ANDROID_FLAGS="-fvisibility=default"
+
+
+CFLAGS="-DNDEBUG -fPIC"
+CXXFLAGS="-DNDEBUG -fPIC"
+CPPFLAGS="-I$PREFIX/include -DNDEBUG -fPIC"
+LDFLAGS="-fPIC -L$PREFIX/lib"
+
+export CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
+
+SYSROOT="$TOOLCHAIN_ROOT/sysroot"
+export SYSROOT
+
 
 COMMON_CMAKE_FLAGS=(
 	"-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake"
@@ -203,9 +205,34 @@ done
 cleanup_pcfiles(){
 find "$PREFIX" -iname "*.pc" -exec sed -i 's/\s*-lpthread\s*/ /g' {} +
 find "$PREFIX" -iname "*.pc" -exec sed -i 's/\s*-lrt\b\s*/ /g' {} +
+find "$PREFIX" -iname "*.pc" -exec sed -i 's/\s*-llog\b\s*/ /g' {} +
 f="$PREFIX/lib/pkgconfig/x265.pc"; grep -q -- '-l-l:libunwind.a' "$f" && sed -i.bak 's/-l-l:libunwind.a/-lunwind/g' "$f"
+find "$PREFIX" -iname "*.so" -delete
 }
 
+patch_ffmpeg() {
+	cd "$BUILD_DIR/FFmpeg"
+if ! grep -q "int ff_dec_init(" fftools/ffmpeg_dec.c; then
+    sed -i 's/int dec_init(/int ff_dec_init(/g' fftools/ffmpeg_dec.c
+    sed -i 's/int dec_init(/int ff_dec_init(/g' fftools/ffmpeg.h  
+    sed -i 's/dec_init(/ff_dec_init(/g' fftools/ffmpeg_demux.c
+fi
+
+LC_FILE="libavfilter/vf_lcevc.c"
+if grep -q "LCEVC_SendDecoderEnhancementData(lcevc->decoder, in->pts, 0, sd->data, sd->size)" "$LC_FILE"; then
+    sed -i 's/LCEVC_SendDecoderEnhancementData(lcevc->decoder, in->pts, 0, sd->data, sd->size)/LCEVC_SendDecoderEnhancementData(lcevc->decoder, in->pts, sd->data, sd->size)/' "$LC_FILE"
+fi
+if grep -q "LCEVC_SendDecoderBase(lcevc->decoder, in->pts, 0, picture, -1, in)" "$LC_FILE"; then
+    sed -i 's/LCEVC_SendDecoderBase(lcevc->decoder, in->pts, 0, picture, -1, in)/LCEVC_SendDecoderBase(lcevc->decoder, in->pts, picture, 0, in)/' "$LC_FILE"
+fi
+LC_FILE="libavcodec/lcevcdec.c"
+if grep -q "LCEVC_SendDecoderEnhancementData(lcevc->decoder, in->pts, 0, sd->data, sd->size)" "$LC_FILE"; then
+    sed -i 's/LCEVC_SendDecoderEnhancementData(lcevc->decoder, in->pts, 0, sd->data, sd->size)/LCEVC_SendDecoderEnhancementData(lcevc->decoder, in->pts, sd->data, sd->size)/' "$LC_FILE"
+fi
+if grep -q "LCEVC_SendDecoderBase(lcevc->decoder, in->pts, 0, picture, -1, NULL)" "$LC_FILE"; then
+    sed -i 's/LCEVC_SendDecoderBase(lcevc->decoder, in->pts, 0, picture, -1, NULL)/LCEVC_SendDecoderBase(lcevc->decoder, in->pts, picture, 0, NULL)/' "$LC_FILE"
+fi
+}
 
 download_sources
 prepare_sources
@@ -218,6 +245,8 @@ build_openssl
 build_x264
 build_libvpx
 build_xavs
+build_xavs2
+build_davs2
 build_libsrt
 build_openjpeg
 build_liblzma
@@ -283,6 +312,18 @@ build_quirc
 build_fftw
 build_chromaprint
 build_avisynth
+build_fribidi
+build_liblc3
+build_lcevcdec
+build_xeve
+build_xevd
+build_libmodplug
 cleanup_pcfiles
+patch_ffmpeg
+if [ -z "$FFMPEG_STATIC" ]; then
+install_opencl_headers
+build_ocl_icd
+fi
 build_ffmpeg
 source "$ROOT_DIR/scripts/gen_module.sh"
+
