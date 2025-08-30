@@ -71,6 +71,7 @@ typedef void* cl_event;
 #define CL_INVALID_BUFFER_SIZE             -61
 #define CL_INVALID_MIP_LEVEL               -62
 #define CL_INVALID_GLOBAL_WORK_SIZE        -63
+#define CL_PLATFORM_NOT_FOUND_KHR           -1001
 
 // Memory object info
 #define CL_MEM_TYPE                        0x1100
