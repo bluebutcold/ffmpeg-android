@@ -12,18 +12,13 @@ build_ffmpeg() {
 
     if [ -n "$FFMPEG_STATIC" ]; then
     STATIC_FLAG=("-static")
+	OTHER_FLAGS=()
 else
     STATIC_FLAG=()
+	OTHER_FLAGS=(--enable-opencl
+	             --enable-mediacodec
+	             --enable-jni)
     fi
-
-if ! grep -q "static int dec_init(" fftools/ffmpeg_dec.c; then
-    sed -i 's/int dec_init(/static int dec_init(/' fftools/ffmpeg_dec.c
-fi
-
-if ! grep -q "static int dec_init(" fftools/ffmpeg.h; then
-    sed -i 's/int dec_init(/static int dec_init(/' fftools/ffmpeg.h
-fi
-
 
 
 	(make clean && make distclean) || true
@@ -36,15 +31,14 @@ fi
 		--cxx="$CXX_ABS"
 		--ar="$AR_ABS"
 		--nm="$NM_ABS"
-		--strip="$STRIP_ABS"
 		--ranlib="$RANLIB_ABS"
+		--strip="$STRIP_ABS"
 		--arch="$ARCH"
 		"${FLAGS[@]}"
 		--target-os=android
 		--pkg-config-flags=--static
-		--extra-cflags="-I$PREFIX/include -Os -ffunction-sections -DNDEBUG -fdata-sections"
-		--extra-cxxflags="-I$PREFIX/include -Os -ffunction-sections -fdata-sections -DNDEBUG -fPIC -stdlib=libc++_static"
-		--extra-ldflags="-L$PREFIX/lib -L$PREFIX/lib64 ${STATIC_FLAG[@]} -Wl,--gc-sections -Wl,--strip-all"
+		--extra-cflags="-I$PREFIX/include"
+		--extra-ldflags="-L$PREFIX/lib -L$PREFIX/lib64 ${STATIC_FLAG[@]}"
 		--extra-libs="-lm -lstdc++ -lcrypto -lz -lfftw3 -ldl -llzma -lunwind"
 		--disable-shared
 		--disable-debug
@@ -65,6 +59,8 @@ fi
 		--enable-libxvid
 		--enable-libkvazaar
 		--enable-libxavs
+		--enable-libxavs2
+		--enable-libdavs2
 		--enable-libmp3lame
 		--enable-libvorbis
 		--enable-libopus
@@ -109,9 +105,13 @@ fi
 		--enable-libbluray
 		--enable-lcms2
         --enable-avisynth
-		--enable-mediacodec
+		--enable-liblc3
+		--enable-liblcevc-dec
+		--enable-libxeve
+		--enable-libxevd
+		--enable-libmodplug
 		"${NEON[@]}"
-		--enable-jni
+		"${OTHER_FLAGS[@]}"
 	)
 
 	./configure "${CONFIGURE_FLAGS[@]}"
@@ -120,12 +120,6 @@ fi
 
 	echo "[+] FFmpeg built successfully "
 }
-
-
-
-
-
-
 
 build_zlib() {
 	echo "[+] Building zlib for $ARCH..."
@@ -1960,6 +1954,7 @@ build_flite() {
 	(make clean && make distclean) || true
 
 	./configure \
+	    --host=$HOST \
 		--prefix="$PREFIX" \
 		--disable-shared \
 		--with-audio=none \
@@ -1968,12 +1963,11 @@ build_flite() {
 		LDFLAGS="$LDFLAGS" \
 		AR="$AR" \
 		RANLIB="$RANLIB_ABS" \
-		STRIP="$STRIP-ABS" \
-		--host="$HOST"
+		STRIP="$STRIP_ABS"
 
-	[ ! -f "$(pwd)/main/flite_voice_list.c" ] && bash "$(pwd)/tools/make_voice_list" > "main/flite_voice_list.c"
+	[ ! -f "$(pwd)/main/flite_voice_list.c" ] && chmod +x "$(pwd)/tools/make_voice_list" && "$(pwd)/tools/make_voice_list" > "main/flite_voice_list.c"
 
-	make -j"$(nproc)"
+	make -j$(nproc)
 	make install
 }
 
@@ -2278,4 +2272,293 @@ build_avisynth(){
 
 	make -j$(nproc)
 	make install
+}
+
+build_fribidi() {
+	echo "[+] Building FriBidi for $ARCH..."
+
+	cd "$BUILD_DIR/fribidi" || exit 1
+	rm -rf build && mkdir build
+
+	S_CFLAGS=$(echo "$CFLAGS" | xargs -n1 | sed '/^$/d; s/.*/'"'"'&'"'"'/' | paste -sd, -)
+	S_LDFLAGS=$(echo "$LDFLAGS" | xargs -n1 | sed '/^$/d; s/.*/'"'"'&'"'"'/' | paste -sd, -)
+
+	meson setup build . \
+		--cross-file /dev/fd/63 \
+		--prefix="$PREFIX" \
+		--buildtype=release \
+		-Ddefault_library=static \
+		-Dbin=false \
+		-Ddocs=false \
+		-Dtests=false \
+		-Ddeprecated=false \
+		63<<EOF
+[binaries]
+c = '$CC_ABS'
+cpp = '$CXX_ABS'
+ar = '$AR_ABS'
+nm = '$NM_ABS'
+strip = '$STRIP_ABS'
+pkg-config = 'pkg-config'
+
+[built-in options]
+c_args = [${S_CFLAGS}]
+c_link_args = [${S_LDFLAGS}]
+
+[host_machine]
+system = 'android'
+cpu_family = '${ARCH}'
+cpu = '${ARCH}'
+endian = 'little'
+EOF
+
+	ninja -C build -j"$(nproc)"
+	ninja -C build install
+}
+
+build_liblc3() {
+	cd "$BUILD_DIR/liblc3"
+	rm -rf build && mkdir build
+	
+	S_CFLAGS=$(echo "$CFLAGS" | xargs -n1 | sed '/^$/d; s/.*/'"'"'&'"'"'/' | paste -sd, -)
+	S_LDFLAGS=$(echo "$LDFLAGS" | xargs -n1 | sed '/^$/d; s/.*/'"'"'&'"'"'/' | paste -sd, -)
+
+	meson setup out . \
+		--cross-file /dev/fd/63 \
+		--prefix="$PREFIX" \
+		--buildtype=release \
+		-Ddefault_library=static \
+		-Dtools=false \
+		-Dpython=false \
+		63<<EOF
+[binaries]
+c = '$CC_ABS'
+cpp = '$CXX_ABS'
+ar = '$AR_ABS'
+nm = '$NM_ABS'
+strip = '$STRIP_ABS'
+pkg-config = 'pkg-config'
+
+[built-in options]
+c_args = [${S_CFLAGS}]
+c_link_args = [${S_LDFLAGS}]
+
+[host_machine]
+system = 'android'
+cpu_family = '${ARCH}'
+cpu = '${ARCH}'
+endian = 'little'
+EOF
+
+	ninja -C out
+	ninja -C out install
+}
+
+
+build_lcevcdec() {
+    echo "[+] Building LCEVCdec for $ARCH..."
+
+    cd "$BUILD_DIR/LCEVCdec" || exit 1
+    rm -rf out
+    mkdir out && cd out || exit 1
+
+    cmake .. \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+        -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+        "${COMMON_CMAKE_FLAGS[@]}" \
+        -DBUILD_SHARED_LIBS=OFF \
+        -DVN_SDK_EXECUTABLES=OFF \
+        -DVN_SDK_UNIT_TESTS=OFF \
+        -DVN_SDK_BENCHMARK=OFF \
+        -DVN_SDK_DOCS=OFF
+
+    make -j"$(nproc)" || exit 1
+    make install || exit 1
+
+		PC_FILE="$PREFIX/lib/pkgconfig/lcevc_dec.pc"
+    if [ -f "$PC_FILE" ]; then
+        VERSION_LINE=$(grep -E '^Version:' "$PC_FILE")
+        if [ -z "$(echo "$VERSION_LINE" | cut -d' ' -f2)" ]; then
+            echo "[*] lcevc_dec.pc has no version, adding 4.0.1"
+            sed -i 's/^Version:.*/Version: 5.0.1/' "$PC_FILE"
+        fi
+    fi
+}
+
+
+build_xeve() {
+    echo "[+] Building XEVE for $ARCH..."
+	echo "v0.5.1" > "$BUILD_DIR/xeve/version.txt"
+
+
+    cd "$BUILD_DIR/xeve" || exit 1
+    rm -rf out
+    mkdir out && cd out || exit 1
+
+	    ARM_FLAG=FALSE
+
+	case "$ARCH" in
+        armv7|aarch64) ARM_FLAG=TRUE ;;
+    esac
+
+    cmake .. \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+        -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+        "${COMMON_CMAKE_FLAGS[@]}" \
+        -DSET_PROF=MAIN \
+        -DARM="$ARM_FLAG"
+
+    make -j"$(nproc)" || exit 1
+    make install || exit 1
+
+	if [ ! -e "$PREFIX/lib/libxeve.a" ]; then
+	if [ -f "$PREFIX/lib/xeve/libxeve.a" ]; then
+    ln -s "$PREFIX/lib/xeve/libxeve.a" "$PREFIX/lib/libxeve.a"
+	fi
+    fi
+
+
+}
+
+
+build_xevd() {
+    cd "$BUILD_DIR/xevd" || exit 1
+
+    if [ ! -f "version.txt" ]; then
+        echo "v0.5.1" > version.txt
+    fi
+
+    rm -rf out && mkdir -p out && cd out || exit 1
+
+    ARM_FLAG=FALSE
+    case "$ARCH" in
+        armv7|aarch64) ARM_FLAG=TRUE ;;
+    esac
+
+    cmake .. \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+        -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+        "${COMMON_CMAKE_FLAGS[@]}" \
+        -DBUILD_SHARED_LIBS=OFF \
+        -DSET_PROF=MAIN \
+        -DARM="$ARM_FLAG"
+
+    make -j"$(nproc)"
+    make install
+	
+	if [ ! -e "$PREFIX/lib/libxevd.a" ]; then
+	if [ -f "$PREFIX/lib/xevd/libxevd.a" ]; then
+    ln -s "$PREFIX/lib/xevd/libxevd.a" "$PREFIX/lib/libxevd.a"
+    fi
+    fi
+}
+
+build_xavs2() {
+	cd "$BUILD_DIR/xavs2/build/linux"
+ 
+    ASMMM=""
+
+     case "$ARCH" in
+        x86|x86_64)
+            ;;
+        armv7|aarch64|riscv64)
+            ASMMM="--disable-asm"
+            ;;
+    esac
+	  ./configure \
+        --prefix="$PREFIX" \
+        --host="$HOST" \
+        --disable-cli \
+        --enable-static \
+		--enable-strip \
+        --enable-pic \
+		"${ASMMM}" \
+        --extra-cflags="$CFLAGS" \
+        --extra-ldflags="$LDFLAGS"
+
+		make -j$(nproc)
+		make install
+
+}
+
+
+build_davs2() {
+	cd "$BUILD_DIR/davs2/build/linux"
+ 
+    ASMMM=""
+
+     case "$ARCH" in
+        x86|x86_64)
+            ;;
+        armv7|aarch64|riscv64)
+            ASMMM="--disable-asm"
+            ;;
+    esac
+	  ./configure \
+        --prefix="$PREFIX" \
+        --host="$HOST" \
+        --disable-cli \
+        --enable-static \
+		--enable-strip \
+        --enable-pic \
+		"${ASMMM}" \
+        --extra-cflags="$CFLAGS" \
+        --extra-ldflags="$LDFLAGS"
+
+		make -j$(nproc)
+		make install
+}
+
+build_libmodplug() {
+    echo "[+] Building libmodplug for $ARCH..."
+
+    cd "$BUILD_DIR/libmodplug" || exit 1
+    rm -rf build && mkdir build && cd build || exit 1
+
+
+    cmake .. \
+        -DCMAKE_BUILD_TYPE=Release \
+		"${COMMON_CMAKE_FLAGS[@]}" \
+        -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+        -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+        -DBUILD_SHARED_LIBS=OFF
+
+    make -j"$(nproc)" || exit 1
+    make install || exit 1
+}
+
+install_opencl_headers() {
+    cd "$BUILD_DIR/OpenCL-Headers" || exit 1
+    cmake -S . -B build -DCMAKE_INSTALL_PREFIX="$PREFIX" || exit 1
+    cmake --build build --target install || exit 1
+}
+
+build_ocl_icd() {
+    echo "[+] Building ocl-icd for $ARCH..."
+    
+    cd "$BUILD_DIR/ocl-icd" || exit 1
+    if [ ! -f configure ]; then
+        autoreconf -fiv
+        if [ $? -ne 0 ]; then
+            echo "Error: autoreconf failed"
+            return 1
+        fi
+    fi
+    ./configure \
+	    --host="$HOST" \
+        --prefix="$PREFIX" \
+        --enable-official-khronos-headers \
+        --disable-debug \
+        --enable-pthread-once \
+		ac_cv_func_malloc_0_nonnull=yes \
+        ac_cv_func_realloc_0_nonnull=yes
+
+    make -j"$(nproc)" || exit 1
+    make install || exit 1
+    
+    echo "[+] ocl-icd built successfully"
+    return 0
 }
