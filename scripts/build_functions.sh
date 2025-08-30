@@ -1965,7 +1965,8 @@ build_flite() {
 		RANLIB="$RANLIB_ABS" \
 		STRIP="$STRIP_ABS"
 
-	[ ! -f "$(pwd)/main/flite_voice_list.c" ] && chmod +x "$(pwd)/tools/make_voice_list" && "$(pwd)/tools/make_voice_list" > "main/flite_voice_list.c"
+	[ ! -f "$(pwd)/main/flite_voice_list.c" ] && bash "$(pwd)/tools/make_voice_list"
+	cp "$(pwd)/flite_voice_list.c" "$(pwd)/main/flite_voice_list.c"
 
 	make -j$(nproc)
 	make install
