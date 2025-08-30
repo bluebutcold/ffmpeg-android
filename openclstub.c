@@ -420,3 +420,232 @@ cl_mem clCreateImage3D(cl_context context, cl_uint flags, const void *image_form
     if (errcode_ret) *errcode_ret = CL_INVALID_CONTEXT;
     return NULL;
 }
+
+// Context creation
+cl_context clCreateContextFromType(const void *properties, cl_uint device_type,
+                                  void *pfn_notify, void *user_data, cl_int *errcode_ret) {
+    if (errcode_ret) *errcode_ret = CL_DEVICE_NOT_FOUND;
+    return NULL;
+}
+
+// Sampler functions
+cl_mem clCreateSampler(cl_context context, cl_uint normalized_coords, cl_uint addressing_mode,
+                      cl_uint filter_mode, cl_int *errcode_ret) {
+    if (errcode_ret) *errcode_ret = CL_INVALID_CONTEXT;
+    return NULL;
+}
+
+cl_int clRetainSampler(cl_mem sampler) {
+    return CL_SUCCESS;
+}
+
+cl_int clReleaseSampler(cl_mem sampler) {
+    return CL_SUCCESS;
+}
+
+cl_int clGetSamplerInfo(cl_mem sampler, cl_uint param_name, size_t param_value_size,
+                       void *param_value, size_t *param_value_size_ret) {
+    if (param_value_size_ret) *param_value_size_ret = 0;
+    return CL_INVALID_SAMPLER;
+}
+
+// User events
+cl_event clCreateUserEvent(cl_context context, cl_int *errcode_ret) {
+    if (errcode_ret) *errcode_ret = CL_INVALID_CONTEXT;
+    return NULL;
+}
+
+cl_int clSetUserEventStatus(cl_event event, cl_int execution_status) {
+    return CL_INVALID_EVENT;
+}
+
+// Event callbacks
+cl_int clSetEventCallback(cl_event event, cl_int command_exec_callback_type,
+                         void *pfn_notify, void *user_data) {
+    return CL_INVALID_EVENT;
+}
+
+// Queue operations
+cl_int clEnqueueMarker(cl_command_queue command_queue, cl_event *event) {
+    return CL_INVALID_COMMAND_QUEUE;
+}
+
+cl_int clEnqueueBarrier(cl_command_queue command_queue) {
+    return CL_INVALID_COMMAND_QUEUE;
+}
+
+cl_int clEnqueueMarkerWithWaitList(cl_command_queue command_queue, cl_uint num_events_in_wait_list,
+                                  const cl_event *event_wait_list, cl_event *event) {
+    return CL_INVALID_COMMAND_QUEUE;
+}
+
+cl_int clEnqueueBarrierWithWaitList(cl_command_queue command_queue, cl_uint num_events_in_wait_list,
+                                   const cl_event *event_wait_list, cl_event *event) {
+    return CL_INVALID_COMMAND_QUEUE;
+}
+
+cl_int clEnqueueTask(cl_command_queue command_queue, cl_kernel kernel,
+                    cl_uint num_events_in_wait_list, const cl_event *event_wait_list,
+                    cl_event *event) {
+    return CL_INVALID_COMMAND_QUEUE;
+}
+
+cl_int clEnqueueNativeKernel(cl_command_queue command_queue, void (*user_func)(void *),
+                            void *args, size_t cb_args, cl_uint num_mem_objects,
+                            const cl_mem *mem_list, const void **args_mem_loc,
+                            cl_uint num_events_in_wait_list, const cl_event *event_wait_list,
+                            cl_event *event) {
+    return CL_INVALID_COMMAND_QUEUE;
+}
+
+// Kernel info functions
+cl_int clCreateKernelsInProgram(cl_program program, cl_uint num_kernels,
+                               cl_kernel *kernels, cl_uint *num_kernels_ret) {
+    if (num_kernels_ret) *num_kernels_ret = 0;
+    return CL_INVALID_PROGRAM;
+}
+
+cl_int clGetKernelArgInfo(cl_kernel kernel, cl_uint arg_indx, cl_uint param_name,
+                         size_t param_value_size, void *param_value, size_t *param_value_size_ret) {
+    if (param_value_size_ret) *param_value_size_ret = 0;
+    return CL_INVALID_KERNEL;
+}
+
+// Compiler functions
+cl_int clUnloadCompiler(void) {
+    return CL_SUCCESS;
+}
+
+cl_int clUnloadPlatformCompiler(cl_platform_id platform) {
+    return CL_SUCCESS;
+}
+
+// OpenCL 2.0 functions
+cl_command_queue clCreateCommandQueueWithProperties(cl_context context, cl_device_id device,
+                                                   const void *properties, cl_int *errcode_ret) {
+    if (errcode_ret) *errcode_ret = CL_INVALID_CONTEXT;
+    return NULL;
+}
+
+cl_mem clCreateSamplerWithProperties(cl_context context, const void *sampler_properties,
+                                    cl_int *errcode_ret) {
+    if (errcode_ret) *errcode_ret = CL_INVALID_CONTEXT;
+    return NULL;
+}
+
+// SVM (Shared Virtual Memory) functions - OpenCL 2.0
+void* clSVMAlloc(cl_context context, cl_uint flags, size_t size, cl_uint alignment) {
+    return NULL;
+}
+
+void clSVMFree(cl_context context, void *svm_pointer) {
+    // No-op
+}
+
+cl_int clEnqueueSVMFree(cl_command_queue command_queue, cl_uint num_svm_pointers,
+                       void *svm_pointers[], void (*pfn_free_func)(cl_command_queue, cl_uint, void *[], void *),
+                       void *user_data, cl_uint num_events_in_wait_list,
+                       const cl_event *event_wait_list, cl_event *event) {
+    return CL_INVALID_COMMAND_QUEUE;
+}
+
+cl_int clEnqueueSVMMemcpy(cl_command_queue command_queue, cl_uint blocking_copy,
+                         void *dst_ptr, const void *src_ptr, size_t size,
+                         cl_uint num_events_in_wait_list, const cl_event *event_wait_list,
+                         cl_event *event) {
+    return CL_INVALID_COMMAND_QUEUE;
+}
+
+cl_int clEnqueueSVMMemFill(cl_command_queue command_queue, void *svm_ptr, const void *pattern,
+                          size_t pattern_size, size_t size, cl_uint num_events_in_wait_list,
+                          const cl_event *event_wait_list, cl_event *event) {
+    return CL_INVALID_COMMAND_QUEUE;
+}
+
+cl_int clEnqueueSVMMap(cl_command_queue command_queue, cl_uint blocking_map, cl_uint flags,
+                      void *svm_ptr, size_t size, cl_uint num_events_in_wait_list,
+                      const cl_event *event_wait_list, cl_event *event) {
+    return CL_INVALID_COMMAND_QUEUE;
+}
+
+cl_int clEnqueueSVMUnmap(cl_command_queue command_queue, void *svm_ptr,
+                        cl_uint num_events_in_wait_list, const cl_event *event_wait_list,
+                        cl_event *event) {
+    return CL_INVALID_COMMAND_QUEUE;
+}
+
+cl_int clSetKernelArgSVMPointer(cl_kernel kernel, cl_uint arg_index, const void *arg_value) {
+    return CL_INVALID_KERNEL;
+}
+
+cl_int clSetKernelExecInfo(cl_kernel kernel, cl_uint param_name, size_t param_value_size,
+                          const void *param_value) {
+    return CL_INVALID_KERNEL;
+}
+
+// Extension function address queries
+void* clGetExtensionFunctionAddress(const char *function_name) {
+    return NULL;
+}
+
+void* clGetExtensionFunctionAddressForPlatform(cl_platform_id platform, const char *function_name) {
+    return NULL;
+}
+
+// ICD functions
+cl_int clIcdGetPlatformIDsKHR(cl_uint num_entries, cl_platform_id *platforms, cl_uint *num_platforms) {
+    if (num_platforms) *num_platforms = 0;
+    return CL_PLATFORM_NOT_FOUND_KHR;
+}
+
+// OpenGL interop functions (commonly used)
+cl_mem clCreateFromGLBuffer(cl_context context, cl_uint flags, cl_uint bufobj, cl_int *errcode_ret) {
+    if (errcode_ret) *errcode_ret = CL_INVALID_CONTEXT;
+    return NULL;
+}
+
+cl_mem clCreateFromGLTexture(cl_context context, cl_uint flags, cl_uint target,
+                            cl_int miplevel, cl_uint texture, cl_int *errcode_ret) {
+    if (errcode_ret) *errcode_ret = CL_INVALID_CONTEXT;
+    return NULL;
+}
+
+cl_mem clCreateFromGLTexture2D(cl_context context, cl_uint flags, cl_uint target,
+                              cl_int miplevel, cl_uint texture, cl_int *errcode_ret) {
+    if (errcode_ret) *errcode_ret = CL_INVALID_CONTEXT;
+    return NULL;
+}
+
+cl_mem clCreateFromGLTexture3D(cl_context context, cl_uint flags, cl_uint target,
+                              cl_int miplevel, cl_uint texture, cl_int *errcode_ret) {
+    if (errcode_ret) *errcode_ret = CL_INVALID_CONTEXT;
+    return NULL;
+}
+
+cl_mem clCreateFromGLRenderbuffer(cl_context context, cl_uint flags, cl_uint renderbuffer,
+                                 cl_int *errcode_ret) {
+    if (errcode_ret) *errcode_ret = CL_INVALID_CONTEXT;
+    return NULL;
+}
+
+cl_int clGetGLObjectInfo(cl_mem memobj, cl_uint *gl_object_type, cl_uint *gl_object_name) {
+    return CL_INVALID_MEM_OBJECT;
+}
+
+cl_int clGetGLTextureInfo(cl_mem memobj, cl_uint param_name, size_t param_value_size,
+                         void *param_value, size_t *param_value_size_ret) {
+    if (param_value_size_ret) *param_value_size_ret = 0;
+    return CL_INVALID_MEM_OBJECT;
+}
+
+cl_int clEnqueueAcquireGLObjects(cl_command_queue command_queue, cl_uint num_objects,
+                                const cl_mem *mem_objects, cl_uint num_events_in_wait_list,
+                                const cl_event *event_wait_list, cl_event *event) {
+    return CL_INVALID_COMMAND_QUEUE;
+}
+
+cl_int clEnqueueReleaseGLObjects(cl_command_queue command_queue, cl_uint num_objects,
+                                const cl_mem *mem_objects, cl_uint num_events_in_wait_list,
+                                const cl_event *event_wait_list, cl_event *event) {
+    return CL_INVALID_COMMAND_QUEUE;
+}
