@@ -100,6 +100,15 @@ declare -A GITHUB_REPOS=(
     ["chromaprint"]="acoustid/chromaprint"
     ["libcaca"]="cacalabs/libcaca"
     ["flite"]="festvox/flite"
+    ["LCEVCdec"]="v-novaltd/LCEVCdec"
+    ["liblc3"]="google/liblc3"
+    ["xeve"]="mpeg5/xeve"
+    ["xevd"]="mpeg5/xevd"
+    ["xavs2"]="rhythmcache/xavs2"
+    ["davs2"]="pkuvcl/davs2"
+    ["libmodplug"]="Konstanty/libmodplug"
+    ["OpenCL-Headers"]="KhronosGroup/OpenCL-Headers"
+    ["ocl-icd"]="OCL-dev/ocl-icd"
 )
 
 # github repos that need recursive cloning 
