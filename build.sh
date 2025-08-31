@@ -8,31 +8,38 @@ API_LEVEL="${API_LEVEL:-29}"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-#source "${ROOT_DIR}/scripts/check_cmds.sh"
-
-
 VALID_ARCHES="aarch64 armv7 x86 x86_64 riscv64"
 
 if [[ -z "$ARCH" || ! " $VALID_ARCHES " =~ $ARCH ]]; then
-	echo "Usage: $0 <aarch64|armv7|x86|x86_64> [API_LEVEL]"
-	echo "Default API_LEVEL: 29"
-	exit 1
+    echo "Usage: $0 <aarch64|armv7|x86|x86_64|riscv64> [API_LEVEL]"
+    echo "Default API_LEVEL: 29"
+    exit 1
 fi
 
 
+if [[ "$API_LEVEL" -gt 35 ]]; then
+    echo "ERROR: API_LEVEL greater than 35 is not supported (got $API_LEVEL)"
+    exit 1
+fi
+
 if [[ -z "$ANDROID_NDK_ROOT" ]]; then
-	echo "ERROR: ANDROID_NDK_ROOT environment variable is not set"
-	exit 1
+    echo "ERROR: ANDROID_NDK_ROOT environment variable is not set"
+    exit 1
 fi
 
 if [[ ! -d "$ANDROID_NDK_ROOT" ]]; then
-	echo "ERROR: ANDROID_NDK_ROOT directory does not exist: $ANDROID_NDK_ROOT"
-	exit 1
+    echo "ERROR: ANDROID_NDK_ROOT directory does not exist: $ANDROID_NDK_ROOT"
+    exit 1
 fi
+
 
 if [[ "$ARCH" == "riscv64" && "$API_LEVEL" -lt 35 ]]; then
     export API_LEVEL=35
 fi
+
+
+source "${ROOT_DIR}/scripts/check_cmds.sh"
+
 
 case "$(uname -s)" in
 	Linux)  HOST_OS=linux ;;
@@ -151,21 +158,26 @@ export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
 
 
 SIZE_CFLAGS="-O3 -ffunction-sections -fdata-sections"
-SIZE_CXXFLAGS="-O3 -ffunction-sections -fdata-sections" 
+SIZE_CXXFLAGS="-O3 -ffunction-sections -fdata-sections"
 SIZE_LDFLAGS="-Wl,--gc-sections"
 
 
 MATH_FLAGS="-fno-math-errno -fno-trapping-math -fassociative-math"
 PERF_FLAGS="$MATH_FLAGS -funroll-loops -fomit-frame-pointer"
-ANDROID_FLAGS="-fvisibility=default"
 
 
-CFLAGS="-DNDEBUG -fPIC"
-CXXFLAGS="-DNDEBUG -fPIC"
+ANDROID_FLAGS="-fvisibility=default -fPIC"
+
+
+CFLAGS="$SIZE_CFLAGS $PERF_FLAGS $ANDROID_FLAGS -DNDEBUG"
+CXXFLAGS="$SIZE_CXXFLAGS $PERF_FLAGS $ANDROID_FLAGS -DNDEBUG"
 CPPFLAGS="-I$PREFIX/include -DNDEBUG -fPIC"
-LDFLAGS="-fPIC -L$PREFIX/lib"
+LDFLAGS="-L$PREFIX/lib -Wl,-rpath,$PREFIX/lib $SIZE_LDFLAGS -fPIC"
+
 
 export CFLAGS CXXFLAGS CPPFLAGS LDFLAGS
+
+
 
 SYSROOT="$TOOLCHAIN_ROOT/sysroot"
 export SYSROOT
@@ -193,8 +205,10 @@ COMMON_CMAKE_FLAGS=(
 
 DOWNLOADER_SCRIPT="${ROOT_DIR}/scripts/download_sources.sh"
 BUILD_FUNCTIONS="${ROOT_DIR}/scripts/build_functions.sh"
+FFMPEG_BUILDER="${ROOT_DIR}/scripts/ffmpeg.sh"
 
-for script in "$DOWNLOADER_SCRIPT" "$BUILD_FUNCTIONS"; do
+
+for script in "$DOWNLOADER_SCRIPT" "$BUILD_FUNCTIONS" "$FFMPEG_BUILDER"; do
 	if [ -f "$script" ]; then
 		source "$script"
 	else
@@ -210,33 +224,15 @@ f="$PREFIX/lib/pkgconfig/x265.pc"; grep -q -- '-l-l:libunwind.a' "$f" && sed -i.
 find "$PREFIX" -iname "*.so" -delete
 }
 
-patch_ffmpeg() {
-	cd "$BUILD_DIR/FFmpeg"
-if ! grep -q "int ff_dec_init(" fftools/ffmpeg_dec.c; then
-    sed -i 's/int dec_init(/int ff_dec_init(/g' fftools/ffmpeg_dec.c
-    sed -i 's/int dec_init(/int ff_dec_init(/g' fftools/ffmpeg.h  
-    sed -i 's/dec_init(/ff_dec_init(/g' fftools/ffmpeg_demux.c
-fi
-
-LC_FILE="libavfilter/vf_lcevc.c"
-if grep -q "LCEVC_SendDecoderEnhancementData(lcevc->decoder, in->pts, 0, sd->data, sd->size)" "$LC_FILE"; then
-    sed -i 's/LCEVC_SendDecoderEnhancementData(lcevc->decoder, in->pts, 0, sd->data, sd->size)/LCEVC_SendDecoderEnhancementData(lcevc->decoder, in->pts, sd->data, sd->size)/' "$LC_FILE"
-fi
-if grep -q "LCEVC_SendDecoderBase(lcevc->decoder, in->pts, 0, picture, -1, in)" "$LC_FILE"; then
-    sed -i 's/LCEVC_SendDecoderBase(lcevc->decoder, in->pts, 0, picture, -1, in)/LCEVC_SendDecoderBase(lcevc->decoder, in->pts, picture, 0, in)/' "$LC_FILE"
-fi
-LC_FILE="libavcodec/lcevcdec.c"
-if grep -q "LCEVC_SendDecoderEnhancementData(lcevc->decoder, in->pts, 0, sd->data, sd->size)" "$LC_FILE"; then
-    sed -i 's/LCEVC_SendDecoderEnhancementData(lcevc->decoder, in->pts, 0, sd->data, sd->size)/LCEVC_SendDecoderEnhancementData(lcevc->decoder, in->pts, sd->data, sd->size)/' "$LC_FILE"
-fi
-if grep -q "LCEVC_SendDecoderBase(lcevc->decoder, in->pts, 0, picture, -1, NULL)" "$LC_FILE"; then
-    sed -i 's/LCEVC_SendDecoderBase(lcevc->decoder, in->pts, 0, picture, -1, NULL)/LCEVC_SendDecoderBase(lcevc->decoder, in->pts, picture, 0, NULL)/' "$LC_FILE"
-fi
-}
 
 download_sources
 prepare_sources
 apply_extra_setup
+
+if [ -z "$FFMPEG_STATIC" ]; then
+install_opencl_headers
+build_ocl_icd
+fi
 build_zlib
 build_libcaca
 build_udfread
@@ -245,7 +241,7 @@ build_openssl
 build_x264
 build_libvpx
 build_xavs
-build_xavs2
+[ "$ARCH" != "riscv64" ] && build_xavs2
 build_davs2
 build_libsrt
 build_openjpeg
@@ -315,15 +311,10 @@ build_avisynth
 build_fribidi
 build_liblc3
 build_lcevcdec
-build_xeve
-build_xevd
+[ "$ARCH" != "armv7" ] && [ "$ARCH" != "riscv64" ] && build_xeve
+[ "$ARCH" != "armv7" ] && [ "$ARCH" != "riscv64" ] && build_xevd
 build_libmodplug
 cleanup_pcfiles
 patch_ffmpeg
-if [ -z "$FFMPEG_STATIC" ]; then
-install_opencl_headers
-build_ocl_icd
-fi
 build_ffmpeg
 source "$ROOT_DIR/scripts/gen_module.sh"
-
