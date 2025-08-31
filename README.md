@@ -41,4 +41,4 @@ FFMPEG_STATIC=1 ./build.sh aarch64 29
 
 ## FFmpeg Features
 
-See `./scripts/ffmpeg.sh` for complete list of enabled codecs and features.
+See `(./scripts/ffmpeg.sh)[ffmpeg.sh]` for complete list of enabled codecs and features.
