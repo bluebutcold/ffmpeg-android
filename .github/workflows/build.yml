@@ -50,6 +50,7 @@ jobs:
             nasm \
             yasm \
             zip \
+            ruby \
             
       - name: Install pipx and meson
         run: |
