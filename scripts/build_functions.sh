@@ -1,126 +1,5 @@
 #!/bin/bash
 
-build_ffmpeg() {
-	echo "Building FFmpeg for $ARCH..."
-	cd "$BUILD_DIR/FFmpeg" || exit 1
-
-	FLAGS=()
-	[ "$ARCH" != "riscv64" ] && FLAGS=(--enable-librav1e)
-
-	NEON=()
-	[[ "$ARCH" == "aarch64" || "$ARCH" == "armv7" ]] && NEON=(--enable-neon)
-
-    if [ -n "$FFMPEG_STATIC" ]; then
-    STATIC_FLAG=("-static")
-	OTHER_FLAGS=()
-else
-    STATIC_FLAG=()
-	OTHER_FLAGS=(--enable-opencl
-	             --enable-mediacodec
-	             --enable-jni)
-    fi
-
-
-	(make clean && make distclean) || true
-
-	CONFIGURE_FLAGS=(
-		--enable-cross-compile
-		--prefix="$PREFIX"
-		--host-cc="$(which gcc)"
-		--cc="$CC_ABS"
-		--cxx="$CXX_ABS"
-		--ar="$AR_ABS"
-		--nm="$NM_ABS"
-		--ranlib="$RANLIB_ABS"
-		--strip="$STRIP_ABS"
-		--arch="$ARCH"
-		"${FLAGS[@]}"
-		--target-os=android
-		--pkg-config-flags=--static
-		--extra-cflags="-I$PREFIX/include"
-		--extra-ldflags="-L$PREFIX/lib -L$PREFIX/lib64 ${STATIC_FLAG[@]}"
-		--extra-libs="-lm -lstdc++ -lcrypto -lz -lfftw3 -ldl -llzma -lunwind"
-		--disable-shared
-		--disable-debug
-		--disable-doc
-		--enable-gpl
-		--enable-version3
-		--enable-libx264
-		--enable-libx265
-		--enable-libvpx
-		--enable-libaom
-		--enable-libdav1d
-		--enable-libharfbuzz
-		--enable-libbs2b
-		--enable-libgsm
-		--enable-libtheora
-		--enable-libopenjpeg
-		--enable-libwebp
-		--enable-libxvid
-		--enable-libkvazaar
-		--enable-libxavs
-		--enable-libxavs2
-		--enable-libdavs2
-		--enable-libmp3lame
-		--enable-libvorbis
-		--enable-libopus
-		--enable-libtwolame
-		--enable-libsoxr
-		--enable-libvo-amrwbenc
-		--enable-libopencore-amrnb
-		--enable-libopencore-amrwb
-		--enable-libvvenc
-		--enable-libilbc
-		--enable-libcodec2
-		--enable-libmysofa
-		--enable-libopenmpt
-		--enable-libfreetype
-		--enable-libfontconfig
-		--enable-libfribidi
-		--enable-libass
-		--enable-libxml2
-		--enable-openssl
-		--enable-zlib
-		--enable-bzlib
-		--enable-libsrt
-		--enable-libzmq
-		--enable-librist
-		--enable-libaribb24
-		--enable-libvmaf
-		--enable-libzimg
-		--enable-liblensfun
-		--enable-libflite
-		--enable-libssh
-		--enable-libsvtav1
-		--enable-libuavs3d
-		--enable-librtmp
-		--enable-libgme
-		--enable-libjxl
-		--enable-vapoursynth
-		--enable-libqrencode
-		--enable-libquirc
-		--enable-libcaca
-		--enable-chromaprint
-		--enable-libspeex
-		--enable-libbluray
-		--enable-lcms2
-        --enable-avisynth
-		--enable-liblc3
-		--enable-liblcevc-dec
-		--enable-libxeve
-		--enable-libxevd
-		--enable-libmodplug
-		"${NEON[@]}"
-		"${OTHER_FLAGS[@]}"
-	)
-
-	./configure "${CONFIGURE_FLAGS[@]}"
-	make -j"$(nproc)"
-	make install
-
-	echo "[+] FFmpeg built successfully "
-}
-
 build_zlib() {
 	echo "[+] Building zlib for $ARCH..."
 	cd "$BUILD_DIR/zlib" || exit 1
@@ -1471,8 +1350,8 @@ build_libcodec2_native() {
 
     cmake "$BUILD_DIR/libcodec2" \
         -DCMAKE_BUILD_TYPE=Release \
-        -DCMAKE_C_COMPILER="$(which gcc)" \
-        -DCMAKE_CXX_COMPILER="$(which g++)" \
+        -DCMAKE_C_COMPILER="${HOST_CC}" \
+        -DCMAKE_CXX_COMPILER="${HOST_CXX}" \
         -DUNITTEST=FALSE
 
     make -j"$(nproc)" || exit 1
@@ -1947,30 +1826,49 @@ build_lensfun() {
 }
 
 build_flite() {
-	echo "[+] Building flite for $ARCH..."
 
-	cd "$BUILD_DIR/flite" || exit 1
+cd "$BUILD_DIR/flite" || exit 1
 
-	(make clean && make distclean) || true
+(make clean && make distclean) || true
 
-	./configure \
-	    --host=$HOST \
-		--prefix="$PREFIX" \
-		--disable-shared \
-		--with-audio=none \
-		CC="$CC_ABS" \
-		CFLAGS="$CFLAGS" \
-		LDFLAGS="$LDFLAGS" \
-		AR="$AR" \
-		RANLIB="$RANLIB_ABS" \
-		STRIP="$STRIP_ABS"
+bash tools/make_voice_list \
+    usenglish cmu_us_awb cmu_us_kal cmu_us_kal16 cmu_us_rms cmu_us_slt \
+    cmu_grapheme_lang cmu_indic_lang cmulex cmu_grapheme_lex cmu_indic_lex cmu_time_awb \
+    > flite_voice_list.c
 
-	[ ! -f "$(pwd)/main/flite_voice_list.c" ] && bash "$(pwd)/tools/make_voice_list"
-	cp "$(pwd)/flite_voice_list.c" "$(pwd)/main/flite_voice_list.c"
+	bash tools/make_lang_list \
+    usenglish cmu_grapheme_lang cmu_indic_lang \
+    cmulex cmu_grapheme_lex cmu_indic_lex \
+    > flite_lang_list.c
 
-	make -j$(nproc)
-	make install
+	cp flite_lang_list.c main/ 
+
+	cp flite_voice_list.c main/
+
+	cat flite_lang_list.c
+
+	cat flite_lang_list.c
+	sleep 5
+
+autoreconf -fvi
+
+./configure \
+    --host=$HOST \
+    --prefix="$PREFIX" \
+    --disable-shared \
+    --with-audio=none \
+    CC="$CC_ABS" \
+    CFLAGS="$CFLAGS" \
+    LDFLAGS="$LDFLAGS" \
+    AR="$AR" \
+    RANLIB="$RANLIB_ABS" \
+    STRIP="$STRIP_ABS"
+
+make
+make install
+
 }
+
 
 
 build_libbs2b() {
@@ -2390,17 +2288,14 @@ build_lcevcdec() {
 
 build_xeve() {
     echo "[+] Building XEVE for $ARCH..."
-	echo "v0.5.1" > "$BUILD_DIR/xeve/version.txt"
-
-
+    echo "v0.5.1" > "$BUILD_DIR/xeve/version.txt"
     cd "$BUILD_DIR/xeve" || exit 1
     rm -rf out
     mkdir out && cd out || exit 1
 
-	    ARM_FLAG=FALSE
-
-	case "$ARCH" in
-        armv7|aarch64) ARM_FLAG=TRUE ;;
+    ARM_FLAG=FALSE
+    case "$ARCH" in
+        aarch64) ARM_FLAG=TRUE ;;
     esac
 
     cmake .. \
@@ -2414,13 +2309,11 @@ build_xeve() {
     make -j"$(nproc)" || exit 1
     make install || exit 1
 
-	if [ ! -e "$PREFIX/lib/libxeve.a" ]; then
-	if [ -f "$PREFIX/lib/xeve/libxeve.a" ]; then
-    ln -s "$PREFIX/lib/xeve/libxeve.a" "$PREFIX/lib/libxeve.a"
-	fi
+    if [ ! -e "$PREFIX/lib/libxeve.a" ]; then
+        if [ -f "$PREFIX/lib/xeve/libxeve.a" ]; then
+            ln -s "$PREFIX/lib/xeve/libxeve.a" "$PREFIX/lib/libxeve.a"
+        fi
     fi
-
-
 }
 
 
@@ -2463,9 +2356,9 @@ build_xavs2() {
     ASMMM=""
 
      case "$ARCH" in
-        x86|x86_64)
+        x86_64)
             ;;
-        armv7|aarch64|riscv64)
+        x86|armv7|aarch64|riscv64)
             ASMMM="--disable-asm"
             ;;
     esac
@@ -2492,9 +2385,9 @@ build_davs2() {
     ASMMM=""
 
      case "$ARCH" in
-        x86|x86_64)
+        x86_64)
             ;;
-        armv7|aarch64|riscv64)
+        armv7|x86|aarch64|riscv64)
             ASMMM="--disable-asm"
             ;;
     esac
@@ -2505,7 +2398,7 @@ build_davs2() {
         --enable-static \
 		--enable-strip \
         --enable-pic \
-		"${ASMMM}" \
+		 "${ASMMM}" \
         --extra-cflags="$CFLAGS" \
         --extra-ldflags="$LDFLAGS"
 
@@ -2562,4 +2455,20 @@ build_ocl_icd() {
     
     echo "[+] ocl-icd built successfully"
     return 0
+}
+
+build_fdk_aac_free() {
+	cd "$BUILD_DIR/fdk-aac-free"
+
+	(make clean || make distclean) || true
+
+	./configure \
+	 --host="$HOST" \
+	  --prefix="$PREFIX" \
+	  --enable-static \
+	  --disable-shared
+
+	make -j$(nproc)
+
+	make install
 }
