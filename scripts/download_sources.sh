@@ -108,7 +108,7 @@ declare -A GITHUB_REPOS=(
     ["ocl-icd"]="OCL-dev/ocl-icd"
 )
 
-# github repos that need recursive cloning 
+# github repos that need recursive cloning
 declare -A GITHUB_RECURSIVE_REPOS=(
     ["zimg"]="sekrit-twc/zimg"
     ["libplacebo"]="haasn/libplacebo"
@@ -148,23 +148,23 @@ PARALLEL_DOWNLOADS=${PARALLEL_DOWNLOADS:-8}
 get_github_default_branch() {
     local repo="$1"
     local api_url="https://api.github.com/repos/$repo"
-    
+
     # Try to get default branch, fallback to 'main' or 'master'
     local branch
-    branch=$(curl -s "$api_url" 2>/dev/null | grep '"default_branch"' | head -1 | sed 's/.*"default_branch": *"\([^"]*\)".*/\1/')
-    
+    branch=$(curl -s "$api_url" 2> /dev/null | grep '"default_branch"' | head -1 | sed 's/.*"default_branch": *"\([^"]*\)".*/\1/')
+
     if [ -z "$branch" ] || [ "$branch" = "$api_url" ]; then
         # Fallback logic - test which branch exists
-        if curl -s -f -I "https://github.com/$repo/archive/refs/heads/main.zip" >/dev/null 2>&1; then
+        if curl -s -f -I "https://github.com/$repo/archive/refs/heads/main.zip" > /dev/null 2>&1; then
             branch="main"
-        elif curl -s -f -I "https://github.com/$repo/archive/refs/heads/master.zip" >/dev/null 2>&1; then
+        elif curl -s -f -I "https://github.com/$repo/archive/refs/heads/master.zip" > /dev/null 2>&1; then
             branch="master"
         else
             # Default fallback
             branch="main"
         fi
     fi
-    
+
     echo "$branch"
 }
 
@@ -172,7 +172,7 @@ get_github_default_branch() {
 download_file() {
     local url="$1"
     local output="$2"
-    
+
     if [ ! -f "$output" ]; then
         echo "Downloading: $output"
         if ! curl -L --fail --retry 3 --retry-delay 2 "$url" -o "$output"; then
@@ -187,7 +187,7 @@ download_file() {
 
 download_sources() {
     mkdir -p "$DOWNLOAD_DIR"
-    
+
     cd "$DOWNLOAD_DIR" || exit 1
 
     # Download tarballs in parallel using background processes
@@ -201,7 +201,7 @@ download_sources() {
         download_file "$X264_URL" "x264.tar.gz" &
         download_file "$X265_URL" "x265.tar.gz" &
         wait
-        
+
         download_file "$LIBGSM_URL" "libgsm.tar.gz" &
         download_file "$LAME_URL" "lame.tar.gz" &
         download_file "$OPUS_URL" "opus.tar.gz" &
@@ -210,7 +210,7 @@ download_sources() {
         download_file "$DAV1D_URL" "dav1d.tar.gz" &
         download_file "$LIBASS_URL" "libass.tar.gz" &
         wait
-        
+
         download_file "$LIBPNG_URL" "libpng.tar.gz" &
         download_file "$FONTCONFIG_URL" "fontconfig.tar.xz" &
         download_file "$FRIBIDI_URL" "fribidi.tar.xz" &
@@ -220,7 +220,7 @@ download_sources() {
         download_file "$BUDFREAD_URL" "budfread.tar.gz" &
         download_file "$OPENMPT_URL" "openmpt.tar.gz" &
         wait
-        
+
         download_file "$XVID_URL" "xvid.tar.gz" &
         download_file "$LIBSSH_URL" "libssh.tar.xz" &
         download_file "$LIBBS2B_URL" "libbs2b.tar.gz" &
@@ -229,15 +229,15 @@ download_sources() {
         download_file "$LIBFFI_URL" "libffi.tar.gz" &
         download_file "$FFMPEG_URL" "ffmpeg.tar.xz" &
         wait
-        
+
         # Download extra files
         download_file "${EXTRA_FILES[uavs3d_cmakelists]}" "uavs3d_cmakelists.txt" &
         download_file "${EXTRA_FILES[riscv64_config_sub]}" "riscv64_config_sub" &
         wait
     }
 
-    # Download GitHub repos as ZIP archives 
-    
+    # Download GitHub repos as ZIP archives
+
     {
         for repo_name in "${!GITHUB_REPOS[@]}"; do
             {
@@ -248,7 +248,7 @@ download_sources() {
                     download_file "https://github.com/$repo_path/archive/refs/heads/$branch.zip" "${repo_name}.zip"
                 fi
             } &
-            
+
             # Limit concurrent processes
             (($(jobs -r | wc -l) >= PARALLEL_DOWNLOADS)) && wait
         done
@@ -266,7 +266,7 @@ download_sources() {
                     git clone --recursive "https://github.com/$repo_path" "$repo_name"
                 fi
             } &
-            
+
             # Limit concurrent processes
             (($(jobs -r | wc -l) >= PARALLEL_DOWNLOADS)) && wait
         done
@@ -283,8 +283,8 @@ download_sources() {
                     git clone --depth 1 "$repo_url" "$repo_name"
                 fi
             } &
-            
-            # Limit concurrent processes  
+
+            # Limit concurrent processes
             (($(jobs -r | wc -l) >= PARALLEL_DOWNLOADS)) && wait
         done
         wait
@@ -346,14 +346,14 @@ prepare_sources() {
             # find the extracted directory - GitHub zips are named as "reponame-branch"
             # so we need to extract the actual repo name from the GitHub path
             local repo_path="${GITHUB_REPOS[$repo_name]}"
-            local actual_repo_name="${repo_path##*/}"  # get everything after the last /
+            local actual_repo_name="${repo_path##*/}" # get everything after the last /
             local extracted_dir
             extracted_dir=$(find . -maxdepth 1 -type d -name "${actual_repo_name}-*" | head -1)
             if [ -n "$extracted_dir" ]; then
                 mv "$extracted_dir" "$repo_name"
             else
                 echo "Warning: Could not find extracted directory for $repo_name (expected ${actual_repo_name}-*)"
-              
+
                 echo "Available directories:"
                 find . -maxdepth 1 -type d -name "*-*" | head -5
             fi
@@ -377,24 +377,24 @@ prepare_sources() {
 
 apply_extra_setup() {
     local arch_build_dir="${BUILD_DIR}"
-    
+
     if [ -d "$arch_build_dir/uavs3d" ] && [ -f "${DOWNLOAD_DIR}/uavs3d_cmakelists.txt" ]; then
         cp "${DOWNLOAD_DIR}/uavs3d_cmakelists.txt" "$arch_build_dir/uavs3d/source/CMakeLists.txt"
     fi
-    
+
     if [ "$ARCH" = "riscv64" ] && [ -d "$arch_build_dir/xvidcore" ] && [ -f "${DOWNLOAD_DIR}/riscv64_config_sub" ]; then
         cp "${DOWNLOAD_DIR}/riscv64_config_sub" "$arch_build_dir/xvidcore/build/generic/config.sub"
     fi
 
-      if [ "$ARCH" = "riscv64" ] && [ -d "$arch_build_dir/xavs" ] && [ -f "${DOWNLOAD_DIR}/riscv64_config_sub" ]; then
+    if [ "$ARCH" = "riscv64" ] && [ -d "$arch_build_dir/xavs" ] && [ -f "${DOWNLOAD_DIR}/riscv64_config_sub" ]; then
         cp "${DOWNLOAD_DIR}/riscv64_config_sub" "$arch_build_dir/xavs/trunk/config.sub"
     fi
 
-      if [ "$ARCH" = "riscv64" ] && [ -d "$arch_build_dir/xavs2" ] && [ -f "${DOWNLOAD_DIR}/riscv64_config_sub" ]; then
+    if [ "$ARCH" = "riscv64" ] && [ -d "$arch_build_dir/xavs2" ] && [ -f "${DOWNLOAD_DIR}/riscv64_config_sub" ]; then
         cp "${DOWNLOAD_DIR}/riscv64_config_sub" "$arch_build_dir/xavs2/build/linux/config.sub"
     fi
 
-      if [ "$ARCH" = "riscv64" ] && [ -d "$arch_build_dir/davs2" ] && [ -f "${DOWNLOAD_DIR}/riscv64_config_sub" ]; then
+    if [ "$ARCH" = "riscv64" ] && [ -d "$arch_build_dir/davs2" ] && [ -f "${DOWNLOAD_DIR}/riscv64_config_sub" ]; then
         cp "${DOWNLOAD_DIR}/riscv64_config_sub" "$arch_build_dir/davs2/build/linux/config.sub"
     fi
 

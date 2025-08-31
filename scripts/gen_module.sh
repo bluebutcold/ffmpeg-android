@@ -1,6 +1,5 @@
 #!/bin/bash
 
-
 echo "- Generating Module"
 BASE_DIR="${ROOT_DIR}/module"
 mkdir -p "$BASE_DIR"
@@ -12,7 +11,7 @@ else
     type="Dynamic"
 fi
 
-cat > module.prop <<EOF
+cat > module.prop << EOF
 id=FFmpeg
 name=FFmpeg
 version=8.0
@@ -21,8 +20,7 @@ author=rhythmcache.t.me
 description=FFmpeg for android | ${type}
 EOF
 
-
-cat > customize.sh <<EOF
+cat > customize.sh << EOF
 cat > customize.sh <<'EOF'
 FFMPEG_ARCH="${ANDROID_ABI}"
 type="${type}"
@@ -96,7 +94,7 @@ chmod +x customize.sh
 mkdir -p "${BASE_DIR}/META-INF/com/google/android"
 cd "${BASE_DIR}/META-INF/com/google/android" || exit 1
 
-cat > update-binary <<'EOF'
+cat > update-binary << 'EOF'
 #!/sbin/sh
 umask 022
 ui_print() { echo "$1"; }
@@ -116,7 +114,7 @@ install_module
 exit 0
 EOF
 
-cat > updater-script <<EOF
+cat > updater-script << EOF
 #MAGISK
 EOF
 
@@ -137,17 +135,17 @@ if [ -z "$FFMPEG_STATIC" ]; then
     mkdir -p "$libdir"
     libcpp="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${HOST_OS}-x86_64/sysroot/usr/lib/${CLANG_TRIPLE}/libc++_shared.so"
     cp "$libcpp" "$libdir/"
-ffmpeg_libs=(libavdevice.so libavfilter.so libavformat.so libavcodec.so libswresample.so libswscale.so libavutil.so libOpenCL.so)
-for lib in "${ffmpeg_libs[@]}"; do
-    src="$PREFIX/lib/$lib"
-    if [ -f "$src" ]; then
-        cp -a "$src" "$libdir/"
-        $STRIP "$libdir/$lib"
-        echo "- Copied $lib"
-    else
-        echo "- WARNING: $lib not found at $src"
-    fi
-done
+    ffmpeg_libs=(libavdevice.so libavfilter.so libavformat.so libavcodec.so libswresample.so libswscale.so libavutil.so libOpenCL.so)
+    for lib in "${ffmpeg_libs[@]}"; do
+        src="$PREFIX/lib/$lib"
+        if [ -f "$src" ]; then
+            cp -a "$src" "$libdir/"
+            $STRIP "$libdir/$lib"
+            echo "- Copied $lib"
+        else
+            echo "- WARNING: $lib not found at $src"
+        fi
+    done
 fi
 
 if [ -n "$libdir" ]; then
