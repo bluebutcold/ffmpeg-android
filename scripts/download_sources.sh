@@ -10,7 +10,6 @@ OPENSSL_VERSION="openssl-3.5.1"
 X264_VERSION="x264-master"
 X265_VERSION="x265_4.1"
 LIBVPX_VERSION="libvpx-1.15.0"
-AAC_VERSION="fdk-aac-2.0.3"
 LAME_VERSION="lame-3.100"
 OPUS_VERSION="opus-1.5.2"
 VORBIS_VERSION="libvorbis-1.3.7"
@@ -46,7 +45,6 @@ BZIP2_URL="https://github.com/libarchive/bzip2/archive/refs/tags/${BZIP2_VERSION
 OPENSSL_URL="https://github.com/openssl/openssl/releases/download/${OPENSSL_VERSION}/${OPENSSL_VERSION}.tar.gz"
 X264_URL="https://code.videolan.org/videolan/x264/-/archive/master/${X264_VERSION}.tar.gz"
 X265_URL="http://ftp.videolan.org/pub/videolan/x265/${X265_VERSION}.tar.gz"
-AAC_URL="https://downloads.sourceforge.net/opencore-amr/${AAC_VERSION}.tar.gz"
 LAME_URL="https://sourceforge.net/projects/lame/files/lame/3.100/${LAME_VERSION}.tar.gz/download"
 OPUS_URL="https://github.com/xiph/opus/releases/download/v1.5.2/${OPUS_VERSION}.tar.gz"
 VORBIS_URL="https://downloads.xiph.org/releases/vorbis/${VORBIS_VERSION}.tar.xz"
@@ -68,7 +66,6 @@ LIBBS2B_URL="https://sourceforge.net/projects/bs2b/files/libbs2b/3.1.0/${LIBBS2B
 FFTW_URL="https://www.fftw.org/${FFTW_VERSION}.tar.gz"
 LIBFFI_URL="https://github.com/libffi/libffi/releases/download/v3.5.2/${LIBFFI_VERSION}.tar.gz"
 SVTAV1_URL="https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v3.1.0/${SVTAV1_VERSION}.tar.gz"
-
 # GitHub repos that can be downloaded as zip
 declare -A GITHUB_REPOS=(
     ["freetype"]="freetype/freetype"
@@ -205,7 +202,6 @@ download_sources() {
         download_file "$X265_URL" "x265.tar.gz" &
         wait
         
-        download_file "$AAC_URL" "aac.tar.gz" &
         download_file "$LIBGSM_URL" "libgsm.tar.gz" &
         download_file "$LAME_URL" "lame.tar.gz" &
         download_file "$OPUS_URL" "opus.tar.gz" &
@@ -320,7 +316,6 @@ prepare_sources() {
     [ ! -d openssl ] && tar -xf "${DOWNLOAD_DIR}/openssl.tar.gz" && mv "$OPENSSL_VERSION" openssl
     [ ! -d x264 ] && tar -xf "${DOWNLOAD_DIR}/x264.tar.gz" && mv "$X264_VERSION" x264
     [ ! -d x265 ] && tar -xf "${DOWNLOAD_DIR}/x265.tar.gz" && mv "$X265_VERSION" x265
-    [ ! -d aac ] && tar -xf "${DOWNLOAD_DIR}/aac.tar.gz" && mv "$AAC_VERSION" aac
     [ ! -d lame ] && tar -xf "${DOWNLOAD_DIR}/lame.tar.gz" && mv "$LAME_VERSION" lame
     [ ! -d libpng ] && tar -xf "${DOWNLOAD_DIR}/libpng.tar.gz" && mv "$LIBPNG_VERSION" libpng
     [ ! -d opus ] && tar -xf "${DOWNLOAD_DIR}/opus.tar.gz" && mv "$OPUS_VERSION" opus
@@ -389,6 +384,18 @@ apply_extra_setup() {
     
     if [ "$ARCH" = "riscv64" ] && [ -d "$arch_build_dir/xvidcore" ] && [ -f "${DOWNLOAD_DIR}/riscv64_config_sub" ]; then
         cp "${DOWNLOAD_DIR}/riscv64_config_sub" "$arch_build_dir/xvidcore/build/generic/config.sub"
+    fi
+
+      if [ "$ARCH" = "riscv64" ] && [ -d "$arch_build_dir/xavs" ] && [ -f "${DOWNLOAD_DIR}/riscv64_config_sub" ]; then
+        cp "${DOWNLOAD_DIR}/riscv64_config_sub" "$arch_build_dir/xavs/trunk/config.sub"
+    fi
+
+      if [ "$ARCH" = "riscv64" ] && [ -d "$arch_build_dir/xavs2" ] && [ -f "${DOWNLOAD_DIR}/riscv64_config_sub" ]; then
+        cp "${DOWNLOAD_DIR}/riscv64_config_sub" "$arch_build_dir/xavs2/build/linux/config.sub"
+    fi
+
+      if [ "$ARCH" = "riscv64" ] && [ -d "$arch_build_dir/davs2" ] && [ -f "${DOWNLOAD_DIR}/riscv64_config_sub" ]; then
+        cp "${DOWNLOAD_DIR}/riscv64_config_sub" "$arch_build_dir/davs2/build/linux/config.sub"
     fi
 
 }
