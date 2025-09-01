@@ -214,12 +214,6 @@ download_sources
 prepare_sources
 apply_extra_setup
 
-# Conditional OpenCL setup
-if [ -z "$FFMPEG_STATIC" ]; then
-    install_opencl_headers
-    build_ocl_icd
-fi
-
 # Main build sequence
 build_zlib
 build_libcaca
@@ -316,6 +310,11 @@ build_libmodplug
 
 # Final steps
 cleanup_pcfiles
+# Conditional OpenCL setup
+if [ -z "$FFMPEG_STATIC" ]; then
+    install_opencl_headers
+    build_ocl_icd
+fi
 patch_ffmpeg
 build_ffmpeg
 
