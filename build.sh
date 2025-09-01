@@ -35,19 +35,6 @@ if [[ "$ARCH" == "riscv64" && "$API_LEVEL" -lt 35 ]]; then
     export API_LEVEL=35
 fi
 
-source "${ROOT_DIR}/scripts/checkpoint_functions.sh"
-
-if [[ "$*" == *"--reset"* ]]; then
-    reset_checkpoints
-    set -- "${@/--reset/}"
-    ARCH="${1:-$ARCH}"
-    API_LEVEL="${2:-$API_LEVEL}"
-    API_LEVEL="${API_LEVEL:-29}"
-fi
-
-
-init_checkpoints "$ARCH" "$API_LEVEL"
-
 source "${ROOT_DIR}/scripts/check_cmds.sh"
 
 case "$(uname -s)" in
@@ -222,117 +209,117 @@ cleanup_pcfiles() {
     find "$PREFIX" -iname "*.so" -delete
 }
 
-# Core preparation steps (always run these as they're fast)
-run_step "download_sources" download_sources
-run_step "prepare_sources" prepare_sources
-run_step "apply_extra_setup" apply_extra_setup
+# Core preparation steps
+download_sources
+prepare_sources
+apply_extra_setup
 
 # Conditional OpenCL setup
 if [ -z "$FFMPEG_STATIC" ]; then
-    run_step "install_opencl_headers" install_opencl_headers
-    run_step "build_ocl_icd" build_ocl_icd
+    install_opencl_headers
+    build_ocl_icd
 fi
 
-# Main build sequence with checkpoints
-run_step "build_zlib" build_zlib
-run_step "build_libcaca" build_libcaca
-run_step "build_udfread" build_udfread
-run_step "build_bluray" build_bluray
-run_step "build_openssl" build_openssl
-run_step "build_x264" build_x264
-run_step "build_libvpx" build_libvpx
-run_step "build_xavs" build_xavs
+# Main build sequence
+build_zlib
+build_libcaca
+build_udfread
+build_bluray
+build_openssl
+build_x264
+build_libvpx
+build_xavs
 
 # Architecture-specific builds
-[ "$ARCH" != "riscv64" ] && run_step "build_xavs2" build_xavs2
+[ "$ARCH" != "riscv64" ] && build_xavs2
 
-run_step "build_davs2" build_davs2
-run_step "build_libsrt" build_libsrt
-run_step "build_openjpeg" build_openjpeg
-run_step "build_liblzma" build_liblzma
-run_step "build_zstd" build_zstd
-run_step "build_pcre2" build_pcre2
-run_step "build_rtmp" build_rtmp
-run_step "build_libgsm" build_libgsm
-run_step "build_x265" build_x265
-run_step "build_lame" build_lame
-run_step "build_twolame" build_twolame
-run_step "build_opus" build_opus
-run_step "build_ogg" build_ogg
-run_step "build_vorbis" build_vorbis
-run_step "build_speex" build_speex
-run_step "build_aom" build_aom
-run_step "build_dav1d" build_dav1d
-run_step "build_fribidi" build_fribidi
-run_step "build_brotli" build_brotli
-run_step "build_bzip2" build_bzip2
-run_step "build_freetype" build_freetype
-run_step "build_libxml2" build_libxml2
-run_step "build_libexpat" build_libexpat
-run_step "build_libpng" build_libpng
-run_step "build_harfbuzz" build_harfbuzz
-run_step "build_fontconfig" build_fontconfig
-run_step "build_libass" build_libass
-run_step "build_libtheora" build_libtheora
+build_davs2
+build_libsrt
+build_openjpeg
+build_liblzma
+build_zstd
+build_pcre2
+build_rtmp
+build_libgsm
+build_x265
+build_lame
+build_twolame
+build_opus
+build_ogg
+build_vorbis
+build_speex
+build_aom
+build_dav1d
+build_fribidi
+build_brotli
+build_bzip2
+build_freetype
+build_libxml2
+build_libexpat
+build_libpng
+build_harfbuzz
+build_fontconfig
+build_libass
+build_libtheora
 
-# Rust-dependent builds (architecture-specific)
-[ "$ARCH" != "riscv64" ] && run_step "build_rav1e" build_rav1e
+# Rust-dependent builds
+[ "$ARCH" != "riscv64" ] && build_rav1e
 
-run_step "build_lcms" build_lcms
-run_step "build_libwebp" build_libwebp
-run_step "build_vmaf" build_vmaf
-run_step "build_libzimg" build_libzimg
-run_step "build_libmysofa" build_libmysofa
-run_step "build_vidstab" build_vidstab
-run_step "build_soxr" build_soxr
-run_step "build_openmpt" build_openmpt
-run_step "build_svtav1" build_svtav1
-run_step "build_libzmq" build_libzmq
-run_step "build_libplacebo" build_libplacebo
-run_step "build_librist" build_librist
-run_step "build_libvo_amrwbenc" build_libvo_amrwbenc
-run_step "build_opencore_amr" build_opencore_amr
-run_step "build_libilbc" build_libilbc
-run_step "build_libcodec2_native" build_libcodec2_native
-run_step "build_libcodec2" build_libcodec2
-run_step "build_aribb24" build_aribb24
-run_step "build_uavs3d" build_uavs3d
-run_step "build_xvidcore" build_xvidcore
-run_step "build_kvazaar" build_kvazaar
-run_step "build_vvenc" build_vvenc
-run_step "build_vapoursynth" build_vapoursynth
-run_step "build_libffi" build_libffi
-run_step "build_glib" build_glib
-run_step "build_lensfun" build_lensfun
-run_step "build_flite" build_flite
-run_step "build_libbs2b" build_libbs2b
-run_step "build_libssh" build_libssh
-run_step "build_libgme" build_libgme
-run_step "build_highway" build_highway
-run_step "build_libjxl" build_libjxl
-run_step "build_libqrencode" build_libqrencode
-run_step "build_quirc" build_quirc
-run_step "build_fftw" build_fftw
-run_step "build_chromaprint" build_chromaprint
-run_step "build_avisynth" build_avisynth
-run_step "build_fribidi" build_fribidi
-run_step "build_liblc3" build_liblc3
-run_step "build_lcevcdec" build_lcevcdec
+build_lcms
+build_libwebp
+build_vmaf
+build_libzimg
+build_libmysofa
+build_vidstab
+build_soxr
+build_openmpt
+build_svtav1
+build_libzmq
+build_libplacebo
+build_librist
+build_libvo_amrwbenc
+build_opencore_amr
+build_libilbc
+build_libcodec2_native
+build_libcodec2
+build_aribb24
+build_uavs3d
+build_xvidcore
+build_kvazaar
+build_vvenc
+build_vapoursynth
+build_libffi
+build_glib
+build_lensfun
+build_flite
+build_libbs2b
+build_libssh
+build_libgme
+build_highway
+build_libjxl
+build_libqrencode
+build_quirc
+build_fftw
+build_chromaprint
+build_avisynth
+build_fribidi
+build_liblc3
+build_lcevcdec
 
-# More architecture-specific builds
+
 if [ "$ARCH" != "armv7" ] && [ "$ARCH" != "riscv64" ]; then
-    run_step "build_xeve" build_xeve
-    run_step "build_xevd" build_xevd
+    build_xeve
+    build_xevd
 fi
 
-run_step "build_libmodplug" build_libmodplug
+build_libmodplug
 
 # Final steps
-run_step "cleanup_pcfiles" cleanup_pcfiles
-run_step "patch_ffmpeg" patch_ffmpeg
-run_step "build_ffmpeg" build_ffmpeg
+cleanup_pcfiles
+patch_ffmpeg
+build_ffmpeg
 
-# Generate module (final step)
-run_step "gen_module" "source $ROOT_DIR/scripts/gen_module.sh"
+# Generate module
+source "$ROOT_DIR/scripts/gen_module.sh"
 
 echo "Build completed successfully"
