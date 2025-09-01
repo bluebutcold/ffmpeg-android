@@ -1,6 +1,8 @@
 name: Build FFmpeg Android
+
 on:
   workflow_dispatch:
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -8,12 +10,14 @@ jobs:
       matrix:
         arch: [aarch64, x86, riscv64, armv7, x86_64]
       fail-fast: false
+
     env:
       BUILD_DIR: ${{ github.workspace }}/build
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
-      
+
       - name: Install system dependencies and build tools
         run: |
           sudo apt-get update
@@ -48,10 +52,8 @@ jobs:
             gperf \
             libtool-bin \
             nasm \
-            yasm \
-            zip \
-            ruby \
-            
+            yasm
+
       - name: Install pipx and meson
         run: |
           python3 -m pip install --user pipx
@@ -59,7 +61,7 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
           pipx install meson
           meson --version
-          
+
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -68,23 +70,20 @@ jobs:
           override: true
 
       - name: Install Android NDK
-        run: |
-          cd $HOME
-          wget https://dl.google.com/android/repository/android-ndk-r29-beta3-linux.zip
-          unzip -q android-ndk-r29-beta3-linux.zip
-          export ANDROID_NDK_ROOT=$HOME/android-ndk-r29-beta3
-          echo "ANDROID_NDK_ROOT=$HOME/android-ndk-r29-beta3" >> $GITHUB_ENV
-          echo "$HOME/android-ndk-r29-beta3" >> $GITHUB_PATH     
-          
+        uses: nttld/setup-ndk@v1
+        with:
+          ndk-version: r27d
+          add-to-path: true
+
       - name: Install binstall
         run: |
           curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
           export PATH="$HOME/.cargo/bin:$PATH"
-          
+
       - name: Install cargo-c
         run: |
           cargo binstall cargo-c --no-confirm
-          
+
       - name: Add Rust Android targets
         if: matrix.arch != 'riscv64'
         run: |
@@ -102,53 +101,40 @@ jobs:
               rustup target add x86_64-linux-android
               ;;
           esac
-          
-      - name: Set environment variables
+
+      - name: Set ARCH
         run: |
           echo "ARCH=${{ matrix.arch }}" >> $GITHUB_ENV
           echo "BUILD_TARGET=android" >> $GITHUB_ENV
-          echo "RELEASE_TAG=v1.0.0-${{ github.run_number }}" >> $GITHUB_ENV
-          
+
       - name: Build FFmpeg
         run: bash ${{ github.workspace }}/build.sh
-        env:
+        env: 
           ARCH: ${{ matrix.arch }}
-          
-      - name: Find and upload to release
-        run: |
-          # Set the release tag
-          RELEASE_TAG="v1.0.0-${{ github.run_number }}"
-          
-          # Create release (will succeed for first job, others will get "already exists" error - that's fine)
-          gh release create "$RELEASE_TAG" \
-            --title "FFmpeg Android Build ${{ github.run_number }}" \
-            --notes "FFmpeg builds for Android architectures" \
-            --latest || true
-          
-          # Find and upload all ZIP files
-          find ./module -name "*.zip" -type f | while read zip_file; do
-            if [ -f "$zip_file" ]; then
-              filename=$(basename "$zip_file")
-              echo "Uploading: $filename"
-              gh release upload "$RELEASE_TAG" "$zip_file" --clobber
-            fi
-          done
-            
-      - name: Find and upload ZIP files
-        run: |
-          # Find all ZIP files in module folder
-          find ./module -name "*.zip" -type f | while read zip_file; do
-            if [ -f "$zip_file" ]; then
-              filename=$(basename "$zip_file")
-              echo "Found ZIP file: $zip_file"
-              echo "Uploading as: $filename"
-              
-              # Upload using gh CLI (simpler than upload-release-asset action)
-              gh release upload "${{ env.RELEASE_TAG }}" "$zip_file" --clobber
-              
-              echo "Successfully uploaded: $filename"
-            fi
-          done
+
+      - name: Upload module zip files as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: module-zips-${{ matrix.arch }}
+          path: ${{ github.workspace }}/module/*.zip
+
+  release:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Show collected files
+        run: ls -R artifacts
+
+      - name: Upload to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_number }}
+          name: "Automated Build ${{ github.run_number }}"
+          files: artifacts/**/*.zip
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          RELEASE_TAG: v1.0.0-${{ github.run_number }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
