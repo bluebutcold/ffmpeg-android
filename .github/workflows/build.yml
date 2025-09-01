@@ -9,113 +9,117 @@ jobs:
     strategy:
       matrix:
         arch: [aarch64, x86, riscv64, armv7, x86_64]
+        ffmpeg_static: [false, true]
       fail-fast: false
 
-    env:
-      BUILD_DIR: ${{ github.workspace }}/build
+    env:  
+      BUILD_DIR: ${{ github.workspace }}/build  
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+    steps:  
+      - name: Checkout repository  
+        uses: actions/checkout@v3  
 
-      - name: Install system dependencies and build tools
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y \
-            build-essential \
-            cmake \
-            ninja-build \
-            make \
-            autoconf \
-            automake \
-            libtool \
-            pkg-config \
-            texinfo \
-            gettext \
-            gperf \
-            bison \
-            flex \
-            git \
-            xz-utils \
-            unzip \
-            diffutils \
-            file \
-            findutils \
-            coreutils \
-            binutils \
-            python3 \
-            python3-pip \
-            python3-venv \
-            pipx \
-            subversion \
-            libtool \
-            gperf \
-            libtool-bin \
-            nasm \
-            yasm
+      - name: Install system dependencies and build tools  
+        run: |  
+          sudo apt-get update  
+          sudo apt-get install -y \  
+            build-essential \  
+            cmake \  
+            ninja-build \  
+            make \  
+            autoconf \  
+            automake \  
+            libtool \  
+            pkg-config \  
+            texinfo \  
+            gettext \  
+            gperf \  
+            bison \  
+            flex \  
+            git \  
+            xz-utils \  
+            unzip \  
+            diffutils \  
+            file \  
+            findutils \  
+            coreutils \  
+            binutils \  
+            python3 \  
+            python3-pip \  
+            python3-venv \  
+            pipx \  
+            subversion \  
+            libtool \  
+            gperf \  
+            libtool-bin \  
+            nasm \  
+            yasm  
 
-      - name: Install pipx and meson
-        run: |
-          python3 -m pip install --user pipx
-          python3 -m pipx ensurepath
-          export PATH="$HOME/.local/bin:$PATH"
-          pipx install meson
-          meson --version
+      - name: Install pipx and meson  
+        run: |  
+          python3 -m pip install --user pipx  
+          python3 -m pipx ensurepath  
+          export PATH="$HOME/.local/bin:$PATH"  
+          pipx install meson  
+          meson --version  
 
-      - name: Set up Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
+      - name: Set up Rust  
+        uses: actions-rs/toolchain@v1  
+        with:  
+          toolchain: stable  
+          profile: minimal  
+          override: true  
 
-      - name: Install Android NDK
-        uses: nttld/setup-ndk@v1
-        with:
-          ndk-version: r27d
-          add-to-path: true
+      - name: Install Android NDK  
+        uses: nttld/setup-ndk@v1  
+        with:  
+          ndk-version: r27d  
+          add-to-path: true  
 
-      - name: Install binstall
-        run: |
-          curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
-          export PATH="$HOME/.cargo/bin:$PATH"
+      - name: Install binstall  
+        run: |  
+          curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash  
+          export PATH="$HOME/.cargo/bin:$PATH"  
 
-      - name: Install cargo-c
-        run: |
-          cargo binstall cargo-c --no-confirm
+      - name: Install cargo-c  
+        run: |  
+          cargo binstall cargo-c --no-confirm  
 
-      - name: Add Rust Android targets
-        if: matrix.arch != 'riscv64'
-        run: |
-          case "${{ matrix.arch }}" in
-            aarch64)
-              rustup target add aarch64-linux-android
-              ;;
-            armv7)
-              rustup target add armv7-linux-androideabi
-              ;;
-            x86)
-              rustup target add i686-linux-android
-              ;;
-            x86_64)
-              rustup target add x86_64-linux-android
-              ;;
-          esac
+      - name: Add Rust Android targets  
+        if: matrix.arch != 'riscv64'  
+        run: |  
+          case "${{ matrix.arch }}" in  
+            aarch64)  
+              rustup target add aarch64-linux-android  
+              ;;  
+            armv7)  
+              rustup target add armv7-linux-androideabi  
+              ;;  
+            x86)  
+              rustup target add i686-linux-android  
+              ;;  
+            x86_64)  
+              rustup target add x86_64-linux-android  
+              ;;  
+          esac  
 
-      - name: Set ARCH
-        run: |
-          echo "ARCH=${{ matrix.arch }}" >> $GITHUB_ENV
-          echo "BUILD_TARGET=android" >> $GITHUB_ENV
+      - name: Set ARCH and FFMPEG_STATIC  
+        run: |  
+          echo "ARCH=${{ matrix.arch }}" >> $GITHUB_ENV  
+          echo "BUILD_TARGET=android" >> $GITHUB_ENV  
+          if [ "${{ matrix.ffmpeg_static }}" == "true" ]; then  
+            echo "FFMPEG_STATIC=1" >> $GITHUB_ENV  
+          fi  
 
-      - name: Build FFmpeg
-        run: bash ${{ github.workspace }}/build.sh
-        env: 
+      - name: Build FFmpeg  
+        run: bash ${{ github.workspace }}/build.sh  
+        env:   
           ARCH: ${{ matrix.arch }}
 
-      - name: Upload module zip files as artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: module-zips-${{ matrix.arch }}
+      - name: Upload module zip files as artifact  
+        uses: actions/upload-artifact@v4  
+        with:  
+          name: module-zips-${{ matrix.arch }}-${{ matrix.ffmpeg_static }}
           path: ${{ github.workspace }}/module/*.zip
 
   release:
@@ -127,14 +131,14 @@ jobs:
         with:
           path: artifacts
 
-      - name: Show collected files
-        run: ls -R artifacts
+      - name: Show collected files  
+        run: ls -R artifacts  
 
-      - name: Upload to GitHub Release
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: build-${{ github.run_number }}
-          name: "Automated Build ${{ github.run_number }}"
-          files: artifacts/**/*.zip
-        env:
+      - name: Upload to GitHub Release  
+        uses: softprops/action-gh-release@v2  
+        with:  
+          tag_name: build-${{ github.run_number }}  
+          name: "Automated Build ${{ github.run_number }}"  
+          files: artifacts/**/*.zip  
+        env:  
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
