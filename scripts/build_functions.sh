@@ -1933,9 +1933,9 @@ build_highway() {
 build_libjxl() {
     cd "$BUILD_DIR/libjxl"
 
-    if grep -q 'CXX_MAVX512CD_SUPPORTED}.*\${CXX_MAVX512BW_SUPPORTED}' third_party/skcms.cmake; then
-        sed -i 's/CXX_MAVX512CD_SUPPORTED}.*\${CXX_MAVX512BW_SUPPORTED}.*/CXX_MAVX512CD_SUPPORTED AND CXX_MAVX512BW_SUPPORTED AND CXX_MAVX512VL_SUPPORTED)/' third_party/skcms.cmake
-    fi
+  #  if grep -q 'CXX_MAVX512CD_SUPPORTED}.*\${CXX_MAVX512BW_SUPPORTED}' third_party/skcms.cmake; then
+   #     sed -i 's/CXX_MAVX512CD_SUPPORTED}.*\${CXX_MAVX512BW_SUPPORTED}.*/CXX_MAVX512CD_SUPPORTED AND CXX_MAVX512BW_SUPPORTED AND CXX_MAVX512VL_SUPPORTED)/' third_party/skcms.cmake
+   # fi
 
     rm -rf build && mkdir -p build && cd build
     cmake .. \
