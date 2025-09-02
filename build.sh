@@ -57,7 +57,7 @@ case "$ARCH" in
     armv7)
         HOST=arm-linux-androideabi
         ANDROID_ABI=armeabi-v7a
-        CLANG_TRIPLE=armv7a-linux-androideabi
+        CLANG_TRIPLE=armv-linux-androideabi
         RUST_TARGET=armv7-linux-androideabi
         ;;
     x86)
