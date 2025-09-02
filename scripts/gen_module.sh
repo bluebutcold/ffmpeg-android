@@ -25,7 +25,7 @@ FFMPEG_ARCH="${ANDROID_ABI}"
 type="${type}"
 API="${API_LEVEL}"
 
-[ "\${type}" = "Dynamic" ] && [ "\$(getprop ro.build.version.sdk)" -lt "$\{API}" ] && ui_print "- WARNING : API Mismatch, Expected >= "\${API}", is "\$(getprop ro.build.version.sdk)"
+[ "\${type}" = "Dynamic" ] && [ "\$(getprop ro.build.version.sdk)" -lt "\${API}" ] && ui_print "- WARNING : API Mismatch, Expected >= "\${API}", is "\$(getprop ro.build.version.sdk)"
 
 
 ARCH=\$(getprop ro.product.cpu.abi)
