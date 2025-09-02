@@ -109,6 +109,9 @@ declare -A GITHUB_REPOS=(
 	["libmodplug"]="https://github.com/Konstanty/libmodplug.git"
 	["OpenCL-Headers"]="https://github.com/KhronosGroup/OpenCL-Headers.git"
 	["ocl-icd"]="https://github.com/OCL-dev/ocl-icd.git"
+    ["libxml2"]="https://github.com/GNOME/libxml2.git"
+	["harfbuzz"]="https://github.com/harfbuzz/harfbuzz.git"
+	["theora"]="https://github.com/xiph/theora.git"
 )
 
 # GitHub repos that need recursive cloning
@@ -125,9 +128,6 @@ declare -A GITHUB_RECURSIVE_REPOS=(
 # Other Git repos
 declare -A OTHER_GIT_REPOS=(
 	["libvpx"]="https://chromium.googlesource.com/webm/libvpx"
-	["libxml2"]="https://github.com/GNOME/libxml2.git"
-	["harfbuzz"]="https://github.com/harfbuzz/harfbuzz.git"
-	["theora"]="https://gitlab.xiph.org/xiph/theora.git"
 	["libwebp"]="https://chromium.googlesource.com/webm/libwebp"
 	["librist"]="https://code.videolan.org/rist/librist"
 	["rtmpdump"]="git://git.ffmpeg.org/rtmpdump"
