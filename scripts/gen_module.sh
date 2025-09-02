@@ -6,12 +6,12 @@ mkdir -p "$BASE_DIR"
 cd "$BASE_DIR" || exit 1
 
 if [ -n "$FFMPEG_STATIC" ]; then
-    type="Static"
+	type="Static"
 else
-    type="Dynamic"
+	type="Dynamic"
 fi
 
-cat > module.prop << EOF
+cat >module.prop <<EOF
 id=FFmpeg
 name=FFmpeg
 version=8.0
@@ -20,10 +20,14 @@ author=rhythmcache.t.me
 description=FFmpeg for android | ${type}
 EOF
 
-cat > customize.sh << EOF
-cat > customize.sh <<'EOF'
+cat >customize.sh <<EOF
 FFMPEG_ARCH="${ANDROID_ABI}"
 type="${type}"
+API="${API_LEVEL}"
+
+[ "\${type}" = "Dynamic" ] && [ "\$(getprop ro.build.version.sdk)" -lt "$\{API}" ] && ui_print "- WARNING : API Mismatch, Expected >= "\${API}", is "\$(getprop ro.build.version.sdk)"
+
+
 ARCH=\$(getprop ro.product.cpu.abi)
 
 if [ "\${FFMPEG_ARCH}" != "\${ARCH}" ]; then
@@ -40,7 +44,6 @@ tar -xf "../ffmpeg.tar.xz"
 if [ "\$type" = "Dynamic" ]; then
     ui_print "- Dynamic libraries detected for \$ARCH"
 
-    # Determine library directory
     if echo "\$ARCH" | grep -q "64"; then
         libdir="lib64"
     else
@@ -66,25 +69,27 @@ if [ "\$type" = "Dynamic" ]; then
         fi
     fi
 
-
+    set_perm_recursive "\$SYSTEM_DIR" 0 0 0755 0644
+    chmod 755 "\$SYSTEM_DIR/bin"/*
     export LD_LIBRARY_PATH="\$SYSTEM_DIR/\$libdir:\$LD_LIBRARY_PATH"
 
 
-    ui_print "- Testing FFmpeg binaries..."
+    ui_print "- Testing..."
     for bin in "\$SYSTEM_DIR/bin/ffmpeg" "\$SYSTEM_DIR/bin/ffprobe"; do
         if [ -x "\$bin" ]; then
             "\$bin" -version >/dev/null 2>&1
             if [ \$? -eq 0 ]; then
                 ui_print "  \$bin works!"
             else
-                ui_print "  WARNING: \$bin failed to run!"
+                ui_print "- WARNING: \$bin failed to run!"
             fi
         else
-            ui_print "  WARNING: \$bin not executable!"
+            ui_print "- WARNING: \$bin not executable!"
+            abort "Aborting Installation: Your Device Might Not be Supported"
         fi
     done
 fi
-set_perm_recursive "\$SYSTEM_DIR" 0 0 0755 0755
+
 
 rm -f "\${MODPATH}/ffmpeg.tar.xz"
 EOF
@@ -94,7 +99,7 @@ chmod +x customize.sh
 mkdir -p "${BASE_DIR}/META-INF/com/google/android"
 cd "${BASE_DIR}/META-INF/com/google/android" || exit 1
 
-cat > update-binary << 'EOF'
+cat >update-binary <<'EOF'
 #!/sbin/sh
 umask 022
 ui_print() { echo "$1"; }
@@ -114,7 +119,7 @@ install_module
 exit 0
 EOF
 
-cat > updater-script << EOF
+cat >updater-script <<EOF
 #MAGISK
 EOF
 
@@ -122,36 +127,37 @@ cd "$BASE_DIR" || exit 1
 mkdir -p bin
 
 for file in "$PREFIX/bin/ffmpeg" "$PREFIX/bin/ffprobe"; do
-    cp "$file" bin/
+	cp "$file" bin/
 done
 
 libdir=""
 if [ -z "$FFMPEG_STATIC" ]; then
-    if echo "$ARCH" | grep -q 64; then
-        libdir="lib64"
-    else
-        libdir="lib"
-    fi
-    mkdir -p "$libdir"
-    libcpp="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${HOST_OS}-x86_64/sysroot/usr/lib/${CLANG_TRIPLE}/libc++_shared.so"
-    cp "$libcpp" "$libdir/"
-    ffmpeg_libs=(libavdevice.so libavfilter.so libavformat.so libavcodec.so libswresample.so libswscale.so libavutil.so libOpenCL.so)
-    for lib in "${ffmpeg_libs[@]}"; do
-        src="$PREFIX/lib/$lib"
-        if [ -f "$src" ]; then
-            cp -a "$src" "$libdir/"
-            $STRIP "$libdir/$lib"
-            echo "- Copied $lib"
-        else
-            echo "- WARNING: $lib not found at $src"
-        fi
-    done
+	if echo "$ARCH" | grep -q 64; then
+		libdir="lib64"
+	else
+		libdir="lib"
+	fi
+	mkdir -p "$libdir"
+	[ "$ARCH" = "armv7" ] && CLANG_TRIPLE=arm-linux-androideabi
+	libcpp="${ANDROID_NDK_ROOT}/toolchains/llvm/prebuilt/${HOST_OS}-x86_64/sysroot/usr/lib/${CLANG_TRIPLE}/libc++_shared.so"
+	cp "$libcpp" "$libdir/"
+	ffmpeg_libs=(libavdevice.so libavfilter.so libavformat.so libavcodec.so libswresample.so libswscale.so libavutil.so libOpenCL.so)
+	for lib in "${ffmpeg_libs[@]}"; do
+		src="$PREFIX/lib/$lib"
+		if [ -f "$src" ]; then
+			cp -a "$src" "$libdir/"
+			$STRIP "$libdir/$lib"
+			echo "- Copied $lib"
+		else
+			echo "- WARNING: $lib not found at $src"
+		fi
+	done
 fi
 
 if [ -n "$libdir" ]; then
-    tar -caf ffmpeg.tar.xz bin "$libdir"
+	tar -caf ffmpeg.tar.xz bin "$libdir"
 else
-    tar -caf ffmpeg.tar.xz bin
+	tar -caf ffmpeg.tar.xz bin
 fi
 
 FINAL_ZIP="${FFMPEG_VERSION}-${type}-android-${ANDROID_ABI}.zip"

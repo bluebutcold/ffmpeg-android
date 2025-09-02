@@ -1,6 +1,8 @@
 #!/bin/bash
 
 DOWNLOAD_DIR="${ROOT_DIR}/downloads"
+LOCK_FILE="${ROOT_DIR}/git-sources.lock"
+
 # Version definitions
 FFMPEG_VERSION="ffmpeg-8.0"
 ZLIB_VERSION="zlib-1.3.1"
@@ -66,336 +68,325 @@ LIBBS2B_URL="https://sourceforge.net/projects/bs2b/files/libbs2b/3.1.0/${LIBBS2B
 FFTW_URL="https://www.fftw.org/${FFTW_VERSION}.tar.gz"
 LIBFFI_URL="https://github.com/libffi/libffi/releases/download/v3.5.2/${LIBFFI_VERSION}.tar.gz"
 SVTAV1_URL="https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v3.1.0/${SVTAV1_VERSION}.tar.gz"
-# GitHub repos that can be downloaded as zip
+
+# GitHub repos that will be cloned with --depth 1
 declare -A GITHUB_REPOS=(
-    ["freetype"]="freetype/freetype"
-    ["Little-CMS"]="mm2/Little-CMS"
-    ["openjpeg"]="uclouvain/openjpeg"
-    ["libunwind"]="libunwind/libunwind"
-    ["vmaf"]="Netflix/vmaf"
-    ["vid.stab"]="georgmartius/vid.stab"
-    ["rubberband"]="breakfastquay/rubberband"
-    ["soxr"]="chirlu/soxr"
-    ["libmysofa"]="hoene/libmysofa"
-    ["srt"]="Haivision/srt"
-    ["libzmq"]="zeromq/libzmq"
-    ["pcre2"]="PCRE2Project/pcre2"
-    ["rav1e"]="xiph/rav1e"
-    ["vo-amrwbenc"]="mstorsjo/vo-amrwbenc"
-    ["opencore-amr"]="BelledonneCommunications/opencore-amr"
-    ["twolame"]="njh/twolame"
-    ["libcodec2"]="rhythmcache/codec2"
-    ["aribb24"]="nkoriyama/aribb24"
-    ["uavs3d"]="uavs3/uavs3d"
-    ["vvenc"]="fraunhoferhhi/vvenc"
-    ["vapoursynth"]="rhythmcache/vapoursynth"
-    ["lensfun"]="lensfun/lensfun"
-    ["game-music-emu"]="libgme/game-music-emu"
-    ["highway"]="google/highway"
-    ["libqrencode"]="fukuchi/libqrencode"
-    ["quirc"]="dlbeer/quirc"
-    ["chromaprint"]="acoustid/chromaprint"
-    ["libcaca"]="cacalabs/libcaca"
-    ["flite"]="festvox/flite"
-    ["LCEVCdec"]="v-novaltd/LCEVCdec"
-    ["liblc3"]="google/liblc3"
-    ["xeve"]="mpeg5/xeve"
-    ["xevd"]="mpeg5/xevd"
-    ["xavs2"]="rhythmcache/xavs2"
-    ["davs2"]="pkuvcl/davs2"
-    ["libmodplug"]="Konstanty/libmodplug"
-    ["OpenCL-Headers"]="KhronosGroup/OpenCL-Headers"
-    ["ocl-icd"]="OCL-dev/ocl-icd"
+	["freetype"]="https://github.com/freetype/freetype.git"
+	["Little-CMS"]="https://github.com/mm2/Little-CMS.git"
+	["openjpeg"]="https://github.com/uclouvain/openjpeg.git"
+	["libunwind"]="https://github.com/libunwind/libunwind.git"
+	["vmaf"]="https://github.com/Netflix/vmaf.git"
+	["vid.stab"]="https://github.com/georgmartius/vid.stab.git"
+	["rubberband"]="https://github.com/breakfastquay/rubberband.git"
+	["soxr"]="https://github.com/chirlu/soxr.git"
+	["libmysofa"]="https://github.com/hoene/libmysofa.git"
+	["srt"]="https://github.com/Haivision/srt.git"
+	["libzmq"]="https://github.com/zeromq/libzmq.git"
+	["pcre2"]="https://github.com/PCRE2Project/pcre2.git"
+	["rav1e"]="https://github.com/xiph/rav1e.git"
+	["vo-amrwbenc"]="https://github.com/mstorsjo/vo-amrwbenc.git"
+	["opencore-amr"]="https://github.com/BelledonneCommunications/opencore-amr.git"
+	["twolame"]="https://github.com/njh/twolame.git"
+	["libcodec2"]="https://github.com/rhythmcache/codec2.git"
+	["aribb24"]="https://github.com/nkoriyama/aribb24.git"
+	["uavs3d"]="https://github.com/uavs3/uavs3d.git"
+	["vvenc"]="https://github.com/fraunhoferhhi/vvenc.git"
+	["vapoursynth"]="https://github.com/rhythmcache/vapoursynth.git"
+	["lensfun"]="https://github.com/lensfun/lensfun.git"
+	["game-music-emu"]="https://github.com/libgme/game-music-emu.git"
+	["highway"]="https://github.com/google/highway.git"
+	["libqrencode"]="https://github.com/fukuchi/libqrencode.git"
+	["quirc"]="https://github.com/dlbeer/quirc.git"
+	["chromaprint"]="https://github.com/acoustid/chromaprint.git"
+	["libcaca"]="https://github.com/cacalabs/libcaca.git"
+	["flite"]="https://github.com/festvox/flite.git"
+	["LCEVCdec"]="https://github.com/v-novaltd/LCEVCdec.git"
+	["liblc3"]="https://github.com/google/liblc3.git"
+	["xeve"]="https://github.com/mpeg5/xeve.git"
+	["xevd"]="https://github.com/mpeg5/xevd.git"
+	["xavs2"]="https://github.com/rhythmcache/xavs2.git"
+	["davs2"]="https://github.com/pkuvcl/davs2.git"
+	["libmodplug"]="https://github.com/Konstanty/libmodplug.git"
+	["OpenCL-Headers"]="https://github.com/KhronosGroup/OpenCL-Headers.git"
+	["ocl-icd"]="https://github.com/OCL-dev/ocl-icd.git"
 )
 
-# github repos that need recursive cloning
+# GitHub repos that need recursive cloning
 declare -A GITHUB_RECURSIVE_REPOS=(
-    ["zimg"]="sekrit-twc/zimg"
-    ["libplacebo"]="haasn/libplacebo"
-    ["libilbc"]="TimothyGu/libilbc"
-    ["kvazaar"]="ultravideo/kvazaar"
-    ["libjxl"]="libjxl/libjxl"
-    ["AviSynthPlus"]="AviSynth/AviSynthPlus"
-    ["glib"]="GNOME/glib"
+	["zimg"]="https://github.com/sekrit-twc/zimg.git"
+	["libplacebo"]="https://github.com/haasn/libplacebo.git"
+	["libilbc"]="https://github.com/TimothyGu/libilbc.git"
+	["kvazaar"]="https://github.com/ultravideo/kvazaar.git"
+	["libjxl"]="https://github.com/libjxl/libjxl.git"
+	["AviSynthPlus"]="https://github.com/AviSynth/AviSynthPlus.git"
+	["glib"]="https://github.com/GNOME/glib.git"
 )
 
 # Other Git repos
 declare -A OTHER_GIT_REPOS=(
-    ["libvpx"]="https://chromium.googlesource.com/webm/libvpx"
-    ["libxml2"]="https://github.com/GNOME/libxml2.git"
-    ["harfbuzz"]="https://github.com/harfbuzz/harfbuzz.git"
-    ["theora"]="https://gitlab.xiph.org/xiph/theora.git"
-    ["libwebp"]="https://chromium.googlesource.com/webm/libwebp"
-    ["librist"]="https://code.videolan.org/rist/librist"
-    ["rtmpdump"]="git://git.ffmpeg.org/rtmpdump"
-    ["aom"]="https://aomedia.googlesource.com/aom"
+	["libvpx"]="https://chromium.googlesource.com/webm/libvpx"
+	["libxml2"]="https://github.com/GNOME/libxml2.git"
+	["harfbuzz"]="https://github.com/harfbuzz/harfbuzz.git"
+	["theora"]="https://gitlab.xiph.org/xiph/theora.git"
+	["libwebp"]="https://chromium.googlesource.com/webm/libwebp"
+	["librist"]="https://code.videolan.org/rist/librist"
+	["rtmpdump"]="git://git.ffmpeg.org/rtmpdump"
+	["aom"]="https://aomedia.googlesource.com/aom"
 )
 
 # Extra files
 declare -A EXTRA_FILES=(
-    ["uavs3d_cmakelists"]="https://raw.githubusercontent.com/rhythmcache/uavs3d/aeaebebed091e8ae9a08bc9f7054273c2e005d27/source/CMakeLists.txt"
-    ["riscv64_config_sub"]="https://cgit.git.savannah.gnu.org/cgit/config.git/plain/config.sub"
+	["uavs3d_cmakelists"]="https://raw.githubusercontent.com/rhythmcache/uavs3d/aeaebebed091e8ae9a08bc9f7054273c2e005d27/source/CMakeLists.txt"
+	["riscv64_config_sub"]="https://cgit.git.savannah.gnu.org/cgit/config.git/plain/config.sub"
 )
 
-# SVN repos
+# SVN repo
 declare -A SVN_REPOS=(
-    ["xavs"]="https://svn.code.sf.net/p/xavs/code/"
+	["xavs"]="https://svn.code.sf.net/p/xavs/code/"
 )
 
 PARALLEL_DOWNLOADS=${PARALLEL_DOWNLOADS:-8}
 
-# Get default branch for GitHub repo
-get_github_default_branch() {
-    local repo="$1"
-    local api_url="https://api.github.com/repos/$repo"
+# simple lock file functions
+read_lock_file() {
+	declare -gA LOCKED_COMMITS
+	if [ -f "$LOCK_FILE" ]; then
+		echo "Reading lock file: $LOCK_FILE"
+		while IFS='=' read -r repo commit; do
+			if [ -n "$repo" ] && [ -n "$commit" ] && [[ "$commit" =~ ^[a-f0-9]{40}$ ]]; then
+				LOCKED_COMMITS["$repo"]="$commit"
+			fi
+		done <"$LOCK_FILE"
+	fi
+}
 
-    # Try to get default branch, fallback to 'main' or 'master'
-    local branch
-    branch=$(curl -s "$api_url" 2> /dev/null | grep '"default_branch"' | head -1 | sed 's/.*"default_branch": *"\([^"]*\)".*/\1/')
-
-    if [ -z "$branch" ] || [ "$branch" = "$api_url" ]; then
-        # Fallback logic - test which branch exists
-        if curl -s -f -I "https://github.com/$repo/archive/refs/heads/main.zip" > /dev/null 2>&1; then
-            branch="main"
-        elif curl -s -f -I "https://github.com/$repo/archive/refs/heads/master.zip" > /dev/null 2>&1; then
-            branch="master"
-        else
-            # Default fallback
-            branch="main"
-        fi
-    fi
-
-    echo "$branch"
+write_lock_entry() {
+	local repo_name="$1"
+	local commit="$2"
+	echo "${repo_name}=${commit}" >>"$LOCK_FILE"
 }
 
 # Function to download a single file
 download_file() {
-    local url="$1"
-    local output="$2"
+	local url="$1"
+	local output="$2"
 
-    if [ ! -f "$output" ]; then
-        echo "Downloading: $output"
-        if ! curl -L --fail --retry 3 --retry-delay 2 "$url" -o "$output"; then
-            echo "Failed to download: $output"
-            return 1
-        fi
-    else
-        echo "Already exists: $output"
-    fi
-    return 0
+	if [ ! -f "$output" ]; then
+		echo "Downloading: $output"
+		if ! curl -L --fail --retry 3 --retry-delay 2 "$url" -o "$output"; then
+			echo "Failed to download: $output"
+			return 1
+		fi
+	else
+		echo "Already exists: $output"
+	fi
+	return 0
+}
+
+clone_repo_with_lock() {
+	local repo_name="$1"
+	local repo_url="$2"
+	local recursive="$3"
+
+	if [ -d "$repo_name" ]; then
+		echo "Already exists: $repo_name"
+		return 0
+	fi
+
+	local locked_commit="${LOCKED_COMMITS[$repo_name]}"
+
+	if [ -n "$locked_commit" ]; then
+		echo "Cloning $repo_name (locked to $locked_commit)"
+		if [ "$recursive" = "true" ]; then
+			git clone --recursive "$repo_url" "$repo_name"
+		else
+			git clone "$repo_url" "$repo_name"
+		fi
+
+		(cd "$repo_name" && git checkout "$locked_commit")
+		if [ $? -ne 0 ]; then
+			echo "Warning: Failed to checkout commit $locked_commit for $repo_name, using HEAD"
+		fi
+	else
+		echo "Cloning $repo_name (latest)"
+		if [ "$repo_name" = "AviSynthPlus" ]; then
+			git clone --recursive "$repo_url" "$repo_name"
+		else
+			if [ "$recursive" = "true" ]; then
+				git clone --depth 1 --recursive "$repo_url" "$repo_name"
+			else
+				git clone --depth 1 "$repo_url" "$repo_name"
+			fi
+
+			local current_commit
+			current_commit=$(cd "$repo_name" && git rev-parse HEAD 2>/dev/null || echo "")
+			if [ -n "$current_commit" ]; then
+				write_lock_entry "$repo_name" "$current_commit"
+				echo "Locked $repo_name to commit: $current_commit"
+			fi
+		fi
+	fi
 }
 
 download_sources() {
-    mkdir -p "$DOWNLOAD_DIR"
+	mkdir -p "$DOWNLOAD_DIR"
+	read_lock_file
 
-    cd "$DOWNLOAD_DIR" || exit 1
+	cd "$DOWNLOAD_DIR" || exit 1
+	echo "Downloading source archives..."
+	{
+		download_file "$ZLIB_URL" "zlib.tar.gz" &
+		download_file "$BROTLI_URL" "brotli.tar.gz" &
+		download_file "$XZ_URL" "xz.tar.gz" &
+		download_file "$ZSTD_URL" "zstd.tar.gz" &
+		download_file "$BZIP2_URL" "bzip2.tar.gz" &
+		download_file "$OPENSSL_URL" "openssl.tar.gz" &
+		download_file "$X264_URL" "x264.tar.gz" &
+		download_file "$X265_URL" "x265.tar.gz" &
+		wait
 
-    # Download tarballs in parallel using background processes
-    {
-        download_file "$ZLIB_URL" "zlib.tar.gz" &
-        download_file "$BROTLI_URL" "brotli.tar.gz" &
-        download_file "$XZ_URL" "xz.tar.gz" &
-        download_file "$ZSTD_URL" "zstd.tar.gz" &
-        download_file "$BZIP2_URL" "bzip2.tar.gz" &
-        download_file "$OPENSSL_URL" "openssl.tar.gz" &
-        download_file "$X264_URL" "x264.tar.gz" &
-        download_file "$X265_URL" "x265.tar.gz" &
-        wait
+		download_file "$LIBGSM_URL" "libgsm.tar.gz" &
+		download_file "$LAME_URL" "lame.tar.gz" &
+		download_file "$OPUS_URL" "opus.tar.gz" &
+		download_file "$VORBIS_URL" "vorbis.tar.xz" &
+		download_file "$OGG_URL" "ogg.tar.gz" &
+		download_file "$DAV1D_URL" "dav1d.tar.gz" &
+		download_file "$LIBASS_URL" "libass.tar.gz" &
+		wait
 
-        download_file "$LIBGSM_URL" "libgsm.tar.gz" &
-        download_file "$LAME_URL" "lame.tar.gz" &
-        download_file "$OPUS_URL" "opus.tar.gz" &
-        download_file "$VORBIS_URL" "vorbis.tar.xz" &
-        download_file "$OGG_URL" "ogg.tar.gz" &
-        download_file "$DAV1D_URL" "dav1d.tar.gz" &
-        download_file "$LIBASS_URL" "libass.tar.gz" &
-        wait
+		download_file "$LIBPNG_URL" "libpng.tar.gz" &
+		download_file "$FONTCONFIG_URL" "fontconfig.tar.xz" &
+		download_file "$FRIBIDI_URL" "fribidi.tar.xz" &
+		download_file "$BLURAY_URL" "bluray.tar.gz" &
+		download_file "$SPEEX_URL" "speex.tar.gz" &
+		download_file "$LIBEXPAT_URL" "libexpat.tar.gz" &
+		download_file "$BUDFREAD_URL" "budfread.tar.gz" &
+		download_file "$OPENMPT_URL" "openmpt.tar.gz" &
+		wait
 
-        download_file "$LIBPNG_URL" "libpng.tar.gz" &
-        download_file "$FONTCONFIG_URL" "fontconfig.tar.xz" &
-        download_file "$FRIBIDI_URL" "fribidi.tar.xz" &
-        download_file "$BLURAY_URL" "bluray.tar.gz" &
-        download_file "$SPEEX_URL" "speex.tar.gz" &
-        download_file "$LIBEXPAT_URL" "libexpat.tar.gz" &
-        download_file "$BUDFREAD_URL" "budfread.tar.gz" &
-        download_file "$OPENMPT_URL" "openmpt.tar.gz" &
-        wait
+		download_file "$XVID_URL" "xvid.tar.gz" &
+		download_file "$LIBSSH_URL" "libssh.tar.xz" &
+		download_file "$LIBBS2B_URL" "libbs2b.tar.gz" &
+		download_file "$SVTAV1_URL" "svtav1.tar.gz" &
+		download_file "$FFTW_URL" "fftw.tar.gz" &
+		download_file "$LIBFFI_URL" "libffi.tar.gz" &
+		download_file "$FFMPEG_URL" "ffmpeg.tar.xz" &
+		wait
 
-        download_file "$XVID_URL" "xvid.tar.gz" &
-        download_file "$LIBSSH_URL" "libssh.tar.xz" &
-        download_file "$LIBBS2B_URL" "libbs2b.tar.gz" &
-        download_file "$SVTAV1_URL" "svtav1.tar.gz" &
-        download_file "$FFTW_URL" "fftw.tar.gz" &
-        download_file "$LIBFFI_URL" "libffi.tar.gz" &
-        download_file "$FFMPEG_URL" "ffmpeg.tar.xz" &
-        wait
+		download_file "${EXTRA_FILES[uavs3d_cmakelists]}" "uavs3d_cmakelists.txt" &
+		download_file "${EXTRA_FILES[riscv64_config_sub]}" "riscv64_config_sub" &
+		wait
+	}
 
-        # Download extra files
-        download_file "${EXTRA_FILES[uavs3d_cmakelists]}" "uavs3d_cmakelists.txt" &
-        download_file "${EXTRA_FILES[riscv64_config_sub]}" "riscv64_config_sub" &
-        wait
-    }
+	echo "Cloning GitHub repositories..."
+	for repo_name in "${!GITHUB_REPOS[@]}"; do
+		local repo_url="${GITHUB_REPOS[$repo_name]}"
+		clone_repo_with_lock "$repo_name" "$repo_url" "false"
+	done
 
-    # Download GitHub repos as ZIP archives
+	echo "Cloning GitHub repositories (recursive)..."
+	for repo_name in "${!GITHUB_RECURSIVE_REPOS[@]}"; do
+		local repo_url="${GITHUB_RECURSIVE_REPOS[$repo_name]}"
+		clone_repo_with_lock "$repo_name" "$repo_url" "true"
+	done
 
-    {
-        for repo_name in "${!GITHUB_REPOS[@]}"; do
-            {
-                local repo_path="${GITHUB_REPOS[$repo_name]}"
-                if [ ! -f "${repo_name}.zip" ]; then
-                    local branch
-                    branch=$(get_github_default_branch "$repo_path")
-                    download_file "https://github.com/$repo_path/archive/refs/heads/$branch.zip" "${repo_name}.zip"
-                fi
-            } &
+	echo "Cloning other Git repositories..."
+	for repo_name in "${!OTHER_GIT_REPOS[@]}"; do
+		local repo_url="${OTHER_GIT_REPOS[$repo_name]}"
+		clone_repo_with_lock "$repo_name" "$repo_url" "false"
+	done
 
-            # Limit concurrent processes
-            (($(jobs -r | wc -l) >= PARALLEL_DOWNLOADS)) && wait
-        done
-        wait
-    }
+	echo "Checking out SVN repositories..."
+	for repo_name in "${!SVN_REPOS[@]}"; do
+		local repo_url="${SVN_REPOS[$repo_name]}"
+		if [ ! -d "$repo_name" ]; then
+			echo "SVN checkout: $repo_name"
+			svn checkout "$repo_url" "$repo_name"
+		fi
+	done
 
-    # Clone repositories that need special handling
-    echo "Cloning repositories that require special handling..."
-    {
-        for repo_name in "${!GITHUB_RECURSIVE_REPOS[@]}"; do
-            {
-                local repo_path="${GITHUB_RECURSIVE_REPOS[$repo_name]}"
-                if [ ! -d "$repo_name" ]; then
-                    echo "Cloning (recursive): $repo_name"
-                    git clone --recursive "https://github.com/$repo_path" "$repo_name"
-                fi
-            } &
+	rm -f "${LOCK_FILE}.lock"
 
-            # Limit concurrent processes
-            (($(jobs -r | wc -l) >= PARALLEL_DOWNLOADS)) && wait
-        done
-        wait
-    }
-
-    # Clone other git repositories
-    {
-        for repo_name in "${!OTHER_GIT_REPOS[@]}"; do
-            {
-                local repo_url="${OTHER_GIT_REPOS[$repo_name]}"
-                if [ ! -d "$repo_name" ]; then
-                    echo "Cloning: $repo_name"
-                    git clone --depth 1 "$repo_url" "$repo_name"
-                fi
-            } &
-
-            # Limit concurrent processes
-            (($(jobs -r | wc -l) >= PARALLEL_DOWNLOADS)) && wait
-        done
-        wait
-    }
-
-    # SVN repositories
-    for repo_name in "${!SVN_REPOS[@]}"; do
-        local repo_url="${SVN_REPOS[$repo_name]}"
-        if [ ! -d "$repo_name" ]; then
-            echo "SVN checkout: $repo_name"
-            svn checkout "$repo_url" "$repo_name"
-        fi
-    done
-
-    echo "All downloads completed to: $DOWNLOAD_DIR"
+	echo "All downloads completed to: $DOWNLOAD_DIR"
+	if [ -f "$LOCK_FILE" ]; then
+		echo "Lock file created/used: $LOCK_FILE"
+	fi
 }
 
-# Function to prepare sources
 prepare_sources() {
-    local arch_build_dir="${BUILD_DIR}"
-    mkdir -p "$arch_build_dir"
-    cd "$arch_build_dir" || exit 1
+	local arch_build_dir="${BUILD_DIR}"
+	mkdir -p "$arch_build_dir"
+	cd "$arch_build_dir" || exit 1
+	[ ! -d zlib ] && tar -xf "${DOWNLOAD_DIR}/zlib.tar.gz" && mv "$ZLIB_VERSION" zlib
+	[ ! -d brotli ] && tar -xf "${DOWNLOAD_DIR}/brotli.tar.gz" && mv "brotli-${BROTLI_VERSION}" brotli
+	[ ! -d xz ] && tar -xf "${DOWNLOAD_DIR}/xz.tar.gz" && mv "$XZ_VERSION" xz
+	[ ! -d zstd ] && tar -xf "${DOWNLOAD_DIR}/zstd.tar.gz" && mv "$ZSTD_VERSION" zstd
+	[ ! -d bzip2 ] && tar -xf "${DOWNLOAD_DIR}/bzip2.tar.gz" && mv "bzip2-${BZIP2_VERSION}" bzip2
+	[ ! -d openssl ] && tar -xf "${DOWNLOAD_DIR}/openssl.tar.gz" && mv "$OPENSSL_VERSION" openssl
+	[ ! -d x264 ] && tar -xf "${DOWNLOAD_DIR}/x264.tar.gz" && mv "$X264_VERSION" x264
+	[ ! -d x265 ] && tar -xf "${DOWNLOAD_DIR}/x265.tar.gz" && mv "$X265_VERSION" x265
+	[ ! -d lame ] && tar -xf "${DOWNLOAD_DIR}/lame.tar.gz" && mv "$LAME_VERSION" lame
+	[ ! -d libpng ] && tar -xf "${DOWNLOAD_DIR}/libpng.tar.gz" && mv "$LIBPNG_VERSION" libpng
+	[ ! -d opus ] && tar -xf "${DOWNLOAD_DIR}/opus.tar.gz" && mv "$OPUS_VERSION" opus
+	[ ! -d vorbis ] && tar -xf "${DOWNLOAD_DIR}/vorbis.tar.xz" && mv "$VORBIS_VERSION" vorbis
+	[ ! -d ogg ] && tar -xf "${DOWNLOAD_DIR}/ogg.tar.gz" && mv "$OGG_VERSION" ogg
+	[ ! -d dav1d ] && tar -xf "${DOWNLOAD_DIR}/dav1d.tar.gz" && mv "$DAV1D_VERSION"* dav1d
+	[ ! -d libass ] && tar -xf "${DOWNLOAD_DIR}/libass.tar.gz" && mv "$LIBASS_VERSION" libass
+	[ ! -d fontconfig ] && tar -xf "${DOWNLOAD_DIR}/fontconfig.tar.xz" && mv "$FONTCONFIG_VERSION" fontconfig
+	[ ! -d fribidi ] && tar -xf "${DOWNLOAD_DIR}/fribidi.tar.xz" && mv "$FRIBIDI_VERSION" fribidi
+	[ ! -d bluray ] && tar -xf "${DOWNLOAD_DIR}/bluray.tar.gz" && mv "$BLURAY_VERSION"* bluray
+	[ ! -d speex ] && tar -xf "${DOWNLOAD_DIR}/speex.tar.gz" && mv "$SPEEX_VERSION" speex
+	[ ! -d libexpat ] && tar -xf "${DOWNLOAD_DIR}/libexpat.tar.gz" && mv "$LIBEXPAT_VERSION" libexpat
+	[ ! -d budfread ] && tar -xf "${DOWNLOAD_DIR}/budfread.tar.gz" && mv "$BUDFREAD_VERSION" budfread
+	[ ! -d openmpt ] && tar -xf "${DOWNLOAD_DIR}/openmpt.tar.gz" && mv "$OPENMPT_VERSION"* openmpt
+	[ ! -d libgsm ] && tar -xf "${DOWNLOAD_DIR}/libgsm.tar.gz" && mv gsm* libgsm
+	[ ! -d libssh ] && tar -xf "${DOWNLOAD_DIR}/libssh.tar.xz" && mv "$LIBSSH_VERSION" libssh
+	[ ! -d svtav1 ] && tar -xf "${DOWNLOAD_DIR}/svtav1.tar.gz" && mv "$SVTAV1_VERSION" svtav1
+	[ ! -d xvidcore ] && tar -xf "${DOWNLOAD_DIR}/xvid.tar.gz"
+	[ ! -d libbs2b ] && tar -xf "${DOWNLOAD_DIR}/libbs2b.tar.gz" && mv "$LIBBS2B_VERSION" libbs2b
+	[ ! -d fftw ] && tar -xf "${DOWNLOAD_DIR}/fftw.tar.gz" && mv "$FFTW_VERSION" fftw
+	[ ! -d libffi ] && tar -xf "${DOWNLOAD_DIR}/libffi.tar.gz" && mv "$LIBFFI_VERSION" libffi
+	[ ! -d FFmpeg ] && tar -xf "${DOWNLOAD_DIR}/ffmpeg.tar.xz" && mv "$FFMPEG_VERSION" FFmpeg
+	for repo_name in "${!GITHUB_REPOS[@]}"; do
+		[ ! -d "$repo_name" ] && [ -d "${DOWNLOAD_DIR}/$repo_name" ] && cp -r "${DOWNLOAD_DIR}/$repo_name" .
+	done
 
-    [ ! -d zlib ] && tar -xf "${DOWNLOAD_DIR}/zlib.tar.gz" && mv "$ZLIB_VERSION" zlib
-    [ ! -d brotli ] && tar -xf "${DOWNLOAD_DIR}/brotli.tar.gz" && mv "brotli-${BROTLI_VERSION}" brotli
-    [ ! -d xz ] && tar -xf "${DOWNLOAD_DIR}/xz.tar.gz" && mv "$XZ_VERSION" xz
-    [ ! -d zstd ] && tar -xf "${DOWNLOAD_DIR}/zstd.tar.gz" && mv "$ZSTD_VERSION" zstd
-    [ ! -d bzip2 ] && tar -xf "${DOWNLOAD_DIR}/bzip2.tar.gz" && mv "bzip2-${BZIP2_VERSION}" bzip2
-    [ ! -d openssl ] && tar -xf "${DOWNLOAD_DIR}/openssl.tar.gz" && mv "$OPENSSL_VERSION" openssl
-    [ ! -d x264 ] && tar -xf "${DOWNLOAD_DIR}/x264.tar.gz" && mv "$X264_VERSION" x264
-    [ ! -d x265 ] && tar -xf "${DOWNLOAD_DIR}/x265.tar.gz" && mv "$X265_VERSION" x265
-    [ ! -d lame ] && tar -xf "${DOWNLOAD_DIR}/lame.tar.gz" && mv "$LAME_VERSION" lame
-    [ ! -d libpng ] && tar -xf "${DOWNLOAD_DIR}/libpng.tar.gz" && mv "$LIBPNG_VERSION" libpng
-    [ ! -d opus ] && tar -xf "${DOWNLOAD_DIR}/opus.tar.gz" && mv "$OPUS_VERSION" opus
-    [ ! -d vorbis ] && tar -xf "${DOWNLOAD_DIR}/vorbis.tar.xz" && mv "$VORBIS_VERSION" vorbis
-    [ ! -d ogg ] && tar -xf "${DOWNLOAD_DIR}/ogg.tar.gz" && mv "$OGG_VERSION" ogg
-    [ ! -d dav1d ] && tar -xf "${DOWNLOAD_DIR}/dav1d.tar.gz" && mv "$DAV1D_VERSION"* dav1d
-    [ ! -d libass ] && tar -xf "${DOWNLOAD_DIR}/libass.tar.gz" && mv "$LIBASS_VERSION" libass
-    [ ! -d fontconfig ] && tar -xf "${DOWNLOAD_DIR}/fontconfig.tar.xz" && mv "$FONTCONFIG_VERSION" fontconfig
-    [ ! -d fribidi ] && tar -xf "${DOWNLOAD_DIR}/fribidi.tar.xz" && mv "$FRIBIDI_VERSION" fribidi
-    [ ! -d bluray ] && tar -xf "${DOWNLOAD_DIR}/bluray.tar.gz" && mv "$BLURAY_VERSION"* bluray
-    [ ! -d speex ] && tar -xf "${DOWNLOAD_DIR}/speex.tar.gz" && mv "$SPEEX_VERSION" speex
-    [ ! -d libexpat ] && tar -xf "${DOWNLOAD_DIR}/libexpat.tar.gz" && mv "$LIBEXPAT_VERSION" libexpat
-    [ ! -d budfread ] && tar -xf "${DOWNLOAD_DIR}/budfread.tar.gz" && mv "$BUDFREAD_VERSION" budfread
-    [ ! -d openmpt ] && tar -xf "${DOWNLOAD_DIR}/openmpt.tar.gz" && mv "$OPENMPT_VERSION"* openmpt
-    [ ! -d libgsm ] && tar -xf "${DOWNLOAD_DIR}/libgsm.tar.gz" && mv gsm* libgsm
-    [ ! -d libssh ] && tar -xf "${DOWNLOAD_DIR}/libssh.tar.xz" && mv "$LIBSSH_VERSION" libssh
-    [ ! -d svtav1 ] && tar -xf "${DOWNLOAD_DIR}/svtav1.tar.gz" && mv "$SVTAV1_VERSION" svtav1
-    [ ! -d xvidcore ] && tar -xf "${DOWNLOAD_DIR}/xvid.tar.gz"
-    [ ! -d libbs2b ] && tar -xf "${DOWNLOAD_DIR}/libbs2b.tar.gz" && mv "$LIBBS2B_VERSION" libbs2b
-    [ ! -d fftw ] && tar -xf "${DOWNLOAD_DIR}/fftw.tar.gz" && mv "$FFTW_VERSION" fftw
-    [ ! -d libffi ] && tar -xf "${DOWNLOAD_DIR}/libffi.tar.gz" && mv "$LIBFFI_VERSION" libffi
-    [ ! -d FFmpeg ] && tar -xf "${DOWNLOAD_DIR}/ffmpeg.tar.xz" && mv "$FFMPEG_VERSION" FFmpeg
+	for repo_name in "${!GITHUB_RECURSIVE_REPOS[@]}"; do
+		[ ! -d "$repo_name" ] && [ -d "${DOWNLOAD_DIR}/$repo_name" ] && cp -r "${DOWNLOAD_DIR}/$repo_name" .
+	done
 
-    # extract gitHub ZIP files
-    for repo_name in "${!GITHUB_REPOS[@]}"; do
-        if [ ! -d "$repo_name" ] && [ -f "${DOWNLOAD_DIR}/${repo_name}.zip" ]; then
-            unzip -qo "${DOWNLOAD_DIR}/${repo_name}.zip"
-            # find the extracted directory - GitHub zips are named as "reponame-branch"
-            # so we need to extract the actual repo name from the GitHub path
-            local repo_path="${GITHUB_REPOS[$repo_name]}"
-            local actual_repo_name="${repo_path##*/}" # get everything after the last /
-            local extracted_dir
-            extracted_dir=$(find . -maxdepth 1 -type d -name "${actual_repo_name}-*" | head -1)
-            if [ -n "$extracted_dir" ]; then
-                mv "$extracted_dir" "$repo_name"
-            else
-                echo "Warning: Could not find extracted directory for $repo_name (expected ${actual_repo_name}-*)"
+	for repo_name in "${!OTHER_GIT_REPOS[@]}"; do
+		[ ! -d "$repo_name" ] && [ -d "${DOWNLOAD_DIR}/$repo_name" ] && cp -r "${DOWNLOAD_DIR}/$repo_name" .
+	done
 
-                echo "Available directories:"
-                find . -maxdepth 1 -type d -name "*-*" | head -5
-            fi
-        fi
-    done
+	for repo_name in "${!SVN_REPOS[@]}"; do
+		[ ! -d "$repo_name" ] && [ -d "${DOWNLOAD_DIR}/$repo_name" ] && cp -r "${DOWNLOAD_DIR}/$repo_name" .
+	done
 
-    for repo_name in "${!GITHUB_RECURSIVE_REPOS[@]}"; do
-        [ ! -d "$repo_name" ] && [ -d "${DOWNLOAD_DIR}/$repo_name" ] && cp -r "${DOWNLOAD_DIR}/$repo_name" .
-    done
-
-    for repo_name in "${!OTHER_GIT_REPOS[@]}"; do
-        [ ! -d "$repo_name" ] && [ -d "${DOWNLOAD_DIR}/$repo_name" ] && cp -r "${DOWNLOAD_DIR}/$repo_name" .
-    done
-
-    for repo_name in "${!SVN_REPOS[@]}"; do
-        [ ! -d "$repo_name" ] && [ -d "${DOWNLOAD_DIR}/$repo_name" ] && cp -r "${DOWNLOAD_DIR}/$repo_name" .
-    done
-
-    echo "Sources prepared for architecture: $arch in $arch_build_dir"
+	echo "Sources prepared for architecture: $arch in $arch_build_dir"
 }
 
 apply_extra_setup() {
-    local arch_build_dir="${BUILD_DIR}"
+	local arch_build_dir="${BUILD_DIR}"
 
-    if [ -d "$arch_build_dir/uavs3d" ] && [ -f "${DOWNLOAD_DIR}/uavs3d_cmakelists.txt" ]; then
-        cp "${DOWNLOAD_DIR}/uavs3d_cmakelists.txt" "$arch_build_dir/uavs3d/source/CMakeLists.txt"
-    fi
+	if [ -d "$arch_build_dir/uavs3d" ] && [ -f "${DOWNLOAD_DIR}/uavs3d_cmakelists.txt" ]; then
+		cp "${DOWNLOAD_DIR}/uavs3d_cmakelists.txt" "$arch_build_dir/uavs3d/source/CMakeLists.txt"
+	fi
 
-    if [ "$ARCH" = "riscv64" ] && [ -d "$arch_build_dir/xvidcore" ] && [ -f "${DOWNLOAD_DIR}/riscv64_config_sub" ]; then
-        cp "${DOWNLOAD_DIR}/riscv64_config_sub" "$arch_build_dir/xvidcore/build/generic/config.sub"
-    fi
+	if [ "$ARCH" = "riscv64" ] && [ -d "$arch_build_dir/xvidcore" ] && [ -f "${DOWNLOAD_DIR}/riscv64_config_sub" ]; then
+		cp "${DOWNLOAD_DIR}/riscv64_config_sub" "$arch_build_dir/xvidcore/build/generic/config.sub"
+	fi
 
-    if [ "$ARCH" = "riscv64" ] && [ -d "$arch_build_dir/xavs" ] && [ -f "${DOWNLOAD_DIR}/riscv64_config_sub" ]; then
-        cp "${DOWNLOAD_DIR}/riscv64_config_sub" "$arch_build_dir/xavs/trunk/config.sub"
-    fi
+	if [ "$ARCH" = "riscv64" ] && [ -d "$arch_build_dir/xavs" ] && [ -f "${DOWNLOAD_DIR}/riscv64_config_sub" ]; then
+		cp "${DOWNLOAD_DIR}/riscv64_config_sub" "$arch_build_dir/xavs/trunk/config.sub"
+	fi
 
-    if [ "$ARCH" = "riscv64" ] && [ -d "$arch_build_dir/xavs2" ] && [ -f "${DOWNLOAD_DIR}/riscv64_config_sub" ]; then
-        cp "${DOWNLOAD_DIR}/riscv64_config_sub" "$arch_build_dir/xavs2/build/linux/config.sub"
-    fi
+	if [ "$ARCH" = "riscv64" ] && [ -d "$arch_build_dir/xavs2" ] && [ -f "${DOWNLOAD_DIR}/riscv64_config_sub" ]; then
+		cp "${DOWNLOAD_DIR}/riscv64_config_sub" "$arch_build_dir/xavs2/build/linux/config.sub"
+	fi
 
-    if [ "$ARCH" = "riscv64" ] && [ -d "$arch_build_dir/davs2" ] && [ -f "${DOWNLOAD_DIR}/riscv64_config_sub" ]; then
-        cp "${DOWNLOAD_DIR}/riscv64_config_sub" "$arch_build_dir/davs2/build/linux/config.sub"
-    fi
+	if [ "$ARCH" = "riscv64" ] && [ -d "$arch_build_dir/davs2" ] && [ -f "${DOWNLOAD_DIR}/riscv64_config_sub" ]; then
+		cp "${DOWNLOAD_DIR}/riscv64_config_sub" "$arch_build_dir/davs2/build/linux/config.sub"
+	fi
 
 }
