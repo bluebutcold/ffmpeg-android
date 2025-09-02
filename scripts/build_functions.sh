@@ -607,21 +607,27 @@ build_libpng() {
 }
 
 build_libass() {
-	echo "[+] Building libass for $ARCH..."
-	cd "$BUILD_DIR/libass" || exit 1
-	(make clean && make distclean) || true
+    echo "[+] Building libass for $ARCH..."
+    cd "$BUILD_DIR/libass" || exit 1
+    (make clean && make distclean) || true
 
-	./configure \
-		--prefix="$PREFIX" \
-		--host="$HOST" \
-		--enable-static \
-		--disable-shared \
-		--disable-require-system-font-provider
+    ASM_FLAGS=""
+    if [ "$ARCH" = "x86" ] && [ -z "$FFMPEG_STATIC" ]; then
+        ASM_FLAGS="--disable-asm"
+    fi
 
-	make -j"$(nproc)"
-	make install
+    ./configure \
+        --prefix="$PREFIX" \
+        --host="$HOST" \
+        --enable-static \
+        --disable-shared \
+        --disable-require-system-font-provider \
+        $ASM_FLAGS
 
-	echo "✔ libass built successfully"
+    make -j"$(nproc)"
+    make install
+
+    echo "✔ libass built successfully"
 }
 
 build_libxml2() {
