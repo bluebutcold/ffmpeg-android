@@ -36,6 +36,7 @@ LIBBS2B_VERSION="libbs2b-3.1.0"
 SVTAV1_VERSION="SVT-AV1-v3.1.0"
 FFTW_VERSION="fftw-3.3.10"
 LIBFFI_VERSION="libffi-3.5.2"
+NCURSES_VERSION="ncurses-6.5"
 
 # URL definitions for direct downloads
 FFMPEG_URL="https://ffmpeg.org/releases/${FFMPEG_VERSION}.tar.xz"
@@ -68,6 +69,7 @@ LIBBS2B_URL="https://sourceforge.net/projects/bs2b/files/libbs2b/3.1.0/${LIBBS2B
 FFTW_URL="https://www.fftw.org/${FFTW_VERSION}.tar.gz"
 LIBFFI_URL="https://github.com/libffi/libffi/releases/download/v3.5.2/${LIBFFI_VERSION}.tar.gz"
 SVTAV1_URL="https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v3.1.0/${SVTAV1_VERSION}.tar.gz"
+NCURSES_URL="https://ftp.gnu.org/gnu/ncurses/${NCURSES_VERSION}.tar.gz"
 
 # GitHub repos that will be cloned with --depth 1
 declare -A GITHUB_REPOS=(
@@ -271,6 +273,7 @@ download_sources() {
 		download_file "$FFTW_URL" "fftw.tar.gz" &
 		download_file "$LIBFFI_URL" "libffi.tar.gz" &
 		download_file "$FFMPEG_URL" "ffmpeg.tar.xz" &
+		download_file "$NCURSES_URL" "ncurses.tar.gz" &
 		wait
 
 		download_file "${EXTRA_FILES[uavs3d_cmakelists]}" "uavs3d_cmakelists.txt" &
@@ -346,6 +349,7 @@ prepare_sources() {
 	[ ! -d libbs2b ] && tar -xf "${DOWNLOAD_DIR}/libbs2b.tar.gz" && mv "$LIBBS2B_VERSION" libbs2b
 	[ ! -d fftw ] && tar -xf "${DOWNLOAD_DIR}/fftw.tar.gz" && mv "$FFTW_VERSION" fftw
 	[ ! -d libffi ] && tar -xf "${DOWNLOAD_DIR}/libffi.tar.gz" && mv "$LIBFFI_VERSION" libffi
+	[ ! -d ncurses ] && tar -xf "${DOWNLOAD_DIR}/ncurses.tar.gz" && mv "$NCURSES_VERSION" ncurses
 	[ ! -d FFmpeg ] && tar -xf "${DOWNLOAD_DIR}/ffmpeg.tar.xz" && mv "$FFMPEG_VERSION" FFmpeg
 	for repo_name in "${!GITHUB_REPOS[@]}"; do
 		[ ! -d "$repo_name" ] && [ -d "${DOWNLOAD_DIR}/$repo_name" ] && cp -r "${DOWNLOAD_DIR}/$repo_name" .

@@ -211,6 +211,7 @@ prepare_sources
 apply_extra_setup
 
 build_zlib
+build_ncurses
 build_libcaca
 build_udfread
 build_bluray

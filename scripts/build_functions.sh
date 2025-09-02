@@ -2015,6 +2015,36 @@ Cflags: -I\${includedir}
 EOF
 }
 
+build_ncurses() {
+    cd "$BUILD_DIR/ncurses"
+
+        CC="$CC_ABS" \
+		CXX="$CXX_ABS" \
+		CFLAGS="$CFLAGS" \
+        ./configure \
+        --prefix="$PREFIX" \
+        --host="$HOST" \
+        --enable-static \
+        --disable-shared \
+        --without-ada \
+        --without-cxx \
+        --without-cxx-binding \
+        --without-manpages \
+        --without-progs \
+        --without-tests \
+        --with-fallbacks=linux,screen,screen-256color,tmux,tmux-256color,vt100,xterm,xterm-256color \
+        --enable-widec \
+        --disable-database \
+        --with-default-terminfo-dir=/system/etc/terminfo
+    
+    make -j$(nproc)
+    make install
+    cd "$PREFIX/lib"
+    ln -sf libtinfow.a libtinfo.a
+    ln -sf libncursesw.a libncurses.a
+    cd "$PREFIX/include" && ln -s ncursesw ncurses
+}
+
 build_libcaca() {
 	echo "[+] Building libcaca for $ARCH..."
 
@@ -2033,7 +2063,7 @@ build_libcaca() {
 	autoreconf -fi
 
 	CC="$CC_ABS" \
-		CXX="$CXX_ABS" \
+		CXX="$CXX_ABS -I$PREFIX/include/ncursesw" \
 		CFLAGS="$CFLAGS -UHAVE_FLDLN2" \
 		./configure \
 		--host="$HOST" \
@@ -2047,14 +2077,11 @@ build_libcaca() {
 		--disable-x11 \
 		--disable-gl \
 		--disable-slang \
-		--disable-ncurses \
+		--enable-ncurses \
 		--disable-vga \
 		--disable-win32 \
 		--disable-conio \
-		--disable-utils \
 		--disable-doc \
-		--disable-tests \
-		--disable-examples \
 		--prefix="$PREFIX"
 
 	make -j"$(nproc)"
