@@ -21,20 +21,13 @@ This script builds FFmpeg for Android. Both static and dynamic builds are suppor
 | `API_LEVEL` | Android API level | No | 29 |
 | `FFMPEG_STATIC` | Build static FFmpeg | No | undefined (dynamic) |
 
-## Usage
-
-```bash
-export ARCH=<architecture>
-export API_LEVEL=<API_LEVEL> # Default is 29
-./build.sh
-```
-
+# Usage
 Using an API level below 29 may cause problems when building some libraries, so it is recommended not to set API < 29.
 
-
-Examples:
 ```bash
+export ANDROID_NDK_ROOT=/path/to/android_ndk
 export ARCH=aarch64
+export API_LEVEL=29 # Default 29
 export FFMPEG_STATIC=1 # for static build
 ./build.sh
 ```
