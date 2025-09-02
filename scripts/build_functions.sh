@@ -120,7 +120,7 @@ build_x264() {
 	ASM_FLAGS=""
 	CFGHOST="$HOST"
 
-	if [ "$ARCH" = "x866" ] || [ "$ARCH" = "riscv64" ]; then
+	if [ "$ARCH" = "x86" ] || [ "$ARCH" = "riscv64" ]; then
 		ASM_FLAGS="--disable-asm"
 	fi
 
