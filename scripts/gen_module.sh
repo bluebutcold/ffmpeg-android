@@ -161,7 +161,8 @@ else
 fi
 
 FINAL_ZIP="${FFMPEG_VERSION}-${type}-android-${ANDROID_ABI}.zip"
-zip -r "${FINAL_ZIP}" META-INF ffmpeg.tar.xz customize.sh module.prop
+cp "${BUILD_DIR}/FFmpeg/COPYING.GPLv2 ./LICENSE
+zip -r "${FINAL_ZIP}" META-INF ffmpeg.tar.xz customize.sh module.prop LICENSE
 shopt -s extglob
 rm -rf !("$FINAL_ZIP")
 shopt -u extglob
