@@ -36,7 +36,7 @@ build_ffmpeg() {
 	[[ "$ARCH" == "aarch64" || "$ARCH" == "armv7" ]] && NEON=(--enable-neon)
 
 	ASM_FLAG=()
-	[ "$ARCH" = "x86" ] && [ -z "$FFMPEG_STATIC" ] && ASM_FLAG=(--disable-x86asm)
+	[ "$ARCH" = "x86" ] && [ -z "$FFMPEG_STATIC" ] && ASM_FLAG=(--disable-asm)
 
 	if [ -n "$FFMPEG_STATIC" ]; then
 		type=${ARCH}_static_build
