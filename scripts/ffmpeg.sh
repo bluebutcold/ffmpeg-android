@@ -68,7 +68,7 @@ build_ffmpeg() {
 		--pkg-config-flags=--static
 		--extra-cflags="${CFLAGS}"
 		--extra-ldflags="${LDFLAGS} ${STATIC_FLAG[@]}"
-		--extra-libs="-lm -lstdc++ -lcrypto -lz -lfftw3 -ldl -llzma -lunwind"
+		--extra-libs="-lm -lstdc++ -lncursesw -lcrypto -lz -lfftw3 -ldl -llzma -lunwind"
 		--extra-version=$EXTRA_VERSION
 		--disable-debug
 		--enable-pic
