@@ -33,12 +33,6 @@ Examples:
 ./build.sh aarch64 29
 FFMPEG_STATIC=1 ./build.sh aarch64 29
 ```
-
-## Output
-
-- Build artifacts: `out/android/{architecture}/`
-- Magisk module: `module/`
-
 ## FFmpeg Features
 
 See [ffmpeg.sh](./scripts/ffmpeg.sh) for complete list of enabled codecs and features.
