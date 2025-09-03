@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -xe
 
 ARCH="${1:-$ARCH}"
 API_LEVEL="${2:-$API_LEVEL}"
@@ -164,6 +164,144 @@ export LDFLAGS="-L${PREFIX}/lib -L${PREFIX}/lib64 $SIZE_LDFLAGS -fPIC"
 
 export SYSROOT="$TOOLCHAIN_ROOT/sysroot"
 
+
+
+COMMON_AUTOTOOLS_FLAGS=(
+	"--prefix=$PREFIX"
+	"--host=$HOST"
+	"--enable-static"
+	"--disable-shared"
+)
+
+
+set_autotools_env() {
+	export CC="$CC_ABS"
+	export CXX="$CXX_ABS"
+	export AR="$AR_ABS"
+	export RANLIB="$RANLIB_ABS"
+	export STRIP="$STRIP_ABS"
+	export CFLAGS="$CFLAGS"
+	export CXXFLAGS="$CXXFLAGS"
+	export LDFLAGS="$LDFLAGS"
+	export CPPFLAGS="-I$PREFIX/include"
+	export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig"
+}
+
+
+autotools_build() {
+	local project_name="$1"
+	local build_dir="$2"
+	shift 2
+	
+	echo "[+] Building $project_name for $ARCH..."
+	cd "$build_dir" || exit 1
+	
+	(make clean && make distclean) || true
+	
+	set_autotools_env
+	
+	./configure "${COMMON_AUTOTOOLS_FLAGS[@]}" "$@"
+	make -j"$(nproc)"
+	make install
+	
+	echo "✔ $project_name built successfully"
+}
+
+
+autotools_build_autoreconf() {
+	local project_name="$1"
+	local build_dir="$2"
+	shift 2
+	
+	echo "[+] Building $project_name for $ARCH..."
+	cd "$build_dir" || exit 1
+	
+	(make clean && make distclean) || true
+	autoreconf -fi
+	
+	set_autotools_env
+	
+	./configure "${COMMON_AUTOTOOLS_FLAGS[@]}" "$@"
+	make -j"$(nproc)"
+	make install
+	
+	echo "✔ $project_name built successfully"
+}
+
+
+make_build() {
+	local project_name="$1"
+	local build_dir="$2"
+	local make_target="${3:-all}"
+	local install_target="${4:-install}"
+	shift 4
+	
+	echo "[+] Building $project_name for $ARCH..."
+	cd "$build_dir" || exit 1
+	
+	make clean || true
+	
+	make -j"$(nproc)" "$make_target" \
+		CC="$CC_ABS" \
+		AR="$AR_ABS" \
+		RANLIB="$RANLIB_ABS" \
+		STRIP="$STRIP_ABS" \
+		CFLAGS="$CFLAGS" \
+		LDFLAGS="$LDFLAGS" \
+		PREFIX="$PREFIX" \
+		"$@"
+	
+	make "$install_target" PREFIX="$PREFIX"
+	
+	echo "✔ $project_name built successfully"
+}
+
+generate_pkgconfig() {
+	local name="$1"
+	local description="$2"
+	local version="$3"
+	local libs="$4"
+	local cflags="${5:--I\${includedir}}"
+	local requires="${6:-}"
+	local libs_private="${7:-}"
+	
+	local pc_dir="$PREFIX/lib/pkgconfig"
+	local pc_file="$pc_dir/${name}.pc"
+	
+	[ -f "$pc_file" ] && return 0
+	
+	mkdir -p "$pc_dir"
+	cat >"$pc_file" <<EOF
+prefix=$PREFIX
+exec_prefix=\${prefix}
+libdir=\${exec_prefix}/lib
+includedir=\${prefix}/include
+
+Name: $name
+Description: $description
+Version: $version
+${requires:+Requires: $requires}
+Libs: -L\${libdir} $libs
+${libs_private:+Libs.private: $libs_private}
+Cflags: $cflags
+EOF
+}
+
+
+get_asm_flags() {
+	case "$ARCH" in
+		x86|riscv64) echo "--disable-asm" ;;
+		*) echo "" ;;
+	esac
+}
+
+get_host_override() {
+	case "$ARCH" in
+		riscv64) echo "riscv64-unknown-linux-gnu" ;;
+		*) echo "$HOST" ;;
+	esac
+}
+
 COMMON_CMAKE_FLAGS=(
 	"-DCMAKE_TOOLCHAIN_FILE=$ANDROID_NDK_ROOT/build/cmake/android.toolchain.cmake"
 	"-DANDROID_ABI=$ANDROID_ABI"
@@ -180,11 +318,86 @@ COMMON_CMAKE_FLAGS=(
 	"-DCMAKE_RANLIB=$RANLIB_ABS"
 	"-DCMAKE_STRIP=$STRIP_ABS"
 	"-DCMAKE_FIND_ROOT_PATH=$SYSROOT;$PREFIX"
-	"-DCMAKE_EXE_LINKER_FLAGS=$LDFLAGS"
 	"-DCMAKE_SYSROOT=$SYSROOT"
 	"-DCMAKE_POSITION_INDEPENDENT_CODE=ON"
 )
 
+MINIMAL_CMAKE_FLAGS=(
+	"-DCMAKE_BUILD_TYPE=Release"
+	"-DCMAKE_INSTALL_PREFIX=$PREFIX"
+	"-DCMAKE_C_COMPILER=$CC_ABS"
+	"-DCMAKE_CXX_COMPILER=$CXX_ABS"
+	"-DCMAKE_AR=$AR_ABS"
+	"-DCMAKE_RANLIB=$RANLIB_ABS"
+	"-DCMAKE_STRIP=$STRIP_ABS"
+	"-DCMAKE_C_FLAGS=$CFLAGS"
+	"-DCMAKE_CXX_FLAGS=$CXXFLAGS"
+	"-DCMAKE_EXE_LINKER_FLAGS=$LDFLAGS"
+)
+
+cmake_build() {
+	local project_name="$1"
+	local build_dir="$2"
+	local use_common_flags="${3:-true}"  # default to common flags
+	shift 3
+	
+	echo "[+] Building $project_name for $ARCH..."
+	cd "$build_dir" || exit 1
+	
+	rm -rf build && mkdir build && cd build
+	
+	local cmake_flags=()
+	if [ "$use_common_flags" = "true" ]; then
+		cmake_flags=("${COMMON_CMAKE_FLAGS[@]}")
+	else
+		cmake_flags=("${MINIMAL_CMAKE_FLAGS[@]}")
+	fi
+	
+	cmake .. "${cmake_flags[@]}" "$@"
+	make -j"$(nproc)"
+	make install
+	
+	echo "✔ $project_name built successfully"
+}
+
+cmake_ninja_build() {
+	local project_name="$1"
+	local build_dir="$2"
+	local use_common_flags="${3:-true}"
+	shift 3
+	
+	echo "[+] Building $project_name for $ARCH..."
+	cd "$build_dir" || exit 1
+	
+	rm -rf build && mkdir build && cd build
+	
+	local cmake_flags=()
+	if [ "$use_common_flags" = "true" ]; then
+		cmake_flags=("${COMMON_CMAKE_FLAGS[@]}")
+	else
+		cmake_flags=("${MINIMAL_CMAKE_FLAGS[@]}")
+	fi
+	
+	cmake .. -G Ninja "${cmake_flags[@]}" "$@"
+	ninja
+	ninja install
+	
+	echo "✔ $project_name built successfully"
+}
+
+
+get_simd_flags() {
+	case "$ARCH" in
+		x86|x86_64|i686)
+			echo "-DENABLE_SIMD=ON"
+			;;
+		*)
+			echo "-DENABLE_SIMD=OFF"
+			;;
+	esac
+}
+
+CROSS_FILE_TEMPLATE="$BUILD_DIR/.meson-cross-template"
 DOWNLOADER_SCRIPT="${ROOT_DIR}/scripts/download_sources.sh"
 BUILD_FUNCTIONS="${ROOT_DIR}/scripts/build_functions.sh"
 FFMPEG_BUILDER="${ROOT_DIR}/scripts/ffmpeg.sh"
@@ -196,6 +409,72 @@ for script in "$DOWNLOADER_SCRIPT" "$BUILD_FUNCTIONS" "$FFMPEG_BUILDER"; do
 		echo "Warning: Script not found: $script (skipping)"
 	fi
 done
+
+sanitize_flags() {
+    local flags="$1"
+    echo "$flags" | xargs -n1 | sed "/^$/d; s/.*/'&'/" | paste -sd, -
+}
+
+create_meson_cross_file() {
+    local output_file="$1"
+    local system="${2:-android}"  # default to android
+    
+    local S_CFLAGS=$(sanitize_flags "$CFLAGS")
+    local S_CXXFLAGS=$(sanitize_flags "$CXXFLAGS") 
+    local S_LDFLAGS=$(sanitize_flags "$LDFLAGS")
+    
+    cat >"$output_file" <<EOF
+[binaries]
+c = '$CC_ABS'
+cpp = '$CXX_ABS'
+ar = '$AR_ABS'
+nm = '$NM_ABS'
+strip = '$STRIP_ABS'
+pkg-config = 'pkg-config'
+ranlib = '$RANLIB_ABS'
+
+[built-in options]
+c_args = [${S_CFLAGS}]
+cpp_args = [${S_CXXFLAGS}]
+c_link_args = [${S_LDFLAGS}]
+cpp_link_args = [${S_LDFLAGS}]
+
+[host_machine]
+system = '${system}'
+cpu_family = '${ARCH}'
+cpu = '${ARCH}'
+endian = 'little'
+EOF
+}
+
+meson_build() {
+    local project_name="$1"
+    local build_dir="$2"
+    local cross_file="$3"
+    shift 3  # remove first 3 args rest are meson options
+    
+    echo "[+] Building $project_name for $ARCH..."
+    cd "$build_dir" || exit 1
+    
+    rm -rf build && mkdir build
+    
+    meson setup build . \
+        --cross-file="$cross_file" \
+        --prefix="$PREFIX" \
+        --buildtype=release \
+        --default-library=static \
+        "$@"
+        
+    ninja -C build -j"$(nproc)"
+    ninja -C build install
+    
+    echo "✔ $project_name built successfully"
+}
+
+init_cross_files() {
+    create_meson_cross_file "$CROSS_FILE_TEMPLATE" "android"
+    create_meson_cross_file "$CROSS_FILE_TEMPLATE.linux" "linux"
+}
 
 cleanup_pcfiles() {
 	find "$PREFIX" -iname "*.pc" -exec sed -i 's/\s*-lpthread\s*/ /g' {} +
@@ -209,7 +488,7 @@ cleanup_pcfiles() {
 download_sources
 prepare_sources
 apply_extra_setup
-
+init_cross_files
 build_zlib
 build_ncurses
 build_libcaca
@@ -251,7 +530,6 @@ build_fontconfig
 build_libass
 build_libtheora
 
-# Rust-dependent builds
 [ "$ARCH" != "riscv64" ] && build_rav1e
 
 build_lcms
@@ -285,7 +563,9 @@ build_libbs2b
 build_libssh
 build_libgme
 build_highway
+
 build_libjxl
+
 build_libqrencode
 build_quirc
 build_fftw
@@ -299,11 +579,10 @@ if [ "$ARCH" != "armv7" ] && [ "$ARCH" != "riscv64" ]; then
 	build_xeve
 	build_xevd
 fi
-
 build_libmodplug
-
 cleanup_pcfiles
-# Conditional OpenCL setup
+
+
 if [ -z "$FFMPEG_STATIC" ]; then
 	install_opencl_headers
 	build_ocl_icd
@@ -311,7 +590,7 @@ fi
 patch_ffmpeg
 build_ffmpeg
 
-# Generate module
+
 source "$ROOT_DIR/scripts/gen_module.sh"
 
 echo "Build completed successfully"
