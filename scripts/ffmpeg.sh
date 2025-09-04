@@ -39,11 +39,11 @@ build_ffmpeg() {
 	[ "$ARCH" = "x86" ] && [ -z "$FFMPEG_STATIC" ] && ASM_FLAG=(--disable-asm)
 
 	if [ -n "$FFMPEG_STATIC" ]; then
-		type=${ARCH}_static_build
+		type=${ARCH}-static
 		STATIC_FLAG=("-static")
 		OTHER_FLAGS=(--disable-shared)
 	else
-		type=${ARCH}_dynamic_build
+		type=${ARCH}-dynamic
 		STATIC_FLAG=()
 		OTHER_FLAGS=(--enable-opencl
 			--enable-mediacodec
@@ -52,7 +52,7 @@ build_ffmpeg() {
 	fi
 	(make clean && make distclean) || true
 
-	EXTRA_VERSION="android_$type-[gh/tg]/rhythmcache"
+	EXTRA_VERSION="android-$type-[gh/tg]/rhythmcache"
 	CONFIGURE_FLAGS=(
 		--enable-cross-compile
 		--prefix="$PREFIX"
