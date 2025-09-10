@@ -272,7 +272,9 @@ download_sources() {
 		download_file "$SVTAV1_URL" "svtav1.tar.gz" &
 		download_file "$FFTW_URL" "fftw.tar.gz" &
 		download_file "$LIBFFI_URL" "libffi.tar.gz" &
-		download_file "$FFMPEG_URL" "ffmpeg.tar.xz" &
+		if [ -z "$LATEST_GIT" ]; then
+        download_file "$FFMPEG_URL" "ffmpeg.tar.xz" &
+        fi
 		download_file "$NCURSES_URL" "ncurses.tar.gz" &
 		wait
 
@@ -350,7 +352,11 @@ prepare_sources() {
 	[ ! -d fftw ] && tar -xf "${DOWNLOAD_DIR}/fftw.tar.gz" && mv "$FFTW_VERSION" fftw
 	[ ! -d libffi ] && tar -xf "${DOWNLOAD_DIR}/libffi.tar.gz" && mv "$LIBFFI_VERSION" libffi
 	[ ! -d ncurses ] && tar -xf "${DOWNLOAD_DIR}/ncurses.tar.gz" && mv "$NCURSES_VERSION" ncurses
-	[ ! -d FFmpeg ] && tar -xf "${DOWNLOAD_DIR}/ffmpeg.tar.xz" && mv "$FFMPEG_VERSION" FFmpeg
+	if [ -z "$LATEST_GIT" ]; then
+    [ ! -d FFmpeg ] && tar -xf "${DOWNLOAD_DIR}/ffmpeg.tar.xz" && mv "$FFMPEG_VERSION" FFmpeg
+    else     
+    [ ! -d FFmpeg ] && [ -d "${DOWNLOAD_DIR}/FFmpeg" ] && cp -r "${DOWNLOAD_DIR}/FFmpeg" . 
+    fi
 	for repo_name in "${!GITHUB_REPOS[@]}"; do
 		[ ! -d "$repo_name" ] && [ -d "${DOWNLOAD_DIR}/$repo_name" ] && cp -r "${DOWNLOAD_DIR}/$repo_name" .
 	done
