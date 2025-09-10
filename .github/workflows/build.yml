@@ -1,6 +1,8 @@
 name: Build FFmpeg Android
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * *'
 permissions:
   contents: write
 jobs:
@@ -13,6 +15,7 @@ jobs:
       fail-fast: false
     env:  
       BUILD_DIR: ${{ github.workspace }}/build  
+      LATEST_GIT: 1
     steps:  
       - name: Checkout repository  
         uses: actions/checkout@v3  
@@ -126,9 +129,7 @@ jobs:
             - `riscv64`
 
               **To find your device architecture:** run `getprop ro.product.cpu.abi` in a terminal
-            
-            **Build Date:** ${{ github.event.head_commit.timestamp }}  
-            **Commit:** ${{ github.sha }}
+              
           files: artifacts/**/*.zip  
         env:  
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
