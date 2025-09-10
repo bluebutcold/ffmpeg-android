@@ -114,6 +114,7 @@ declare -A GITHUB_REPOS=(
     ["libxml2"]="https://github.com/GNOME/libxml2.git"
 	["harfbuzz"]="https://github.com/harfbuzz/harfbuzz.git"
 	["theora"]="https://github.com/xiph/theora.git"
+    ["FFmpeg"]="https://github.com/FFmpeg/FFmpeg.git"  
 )
 
 # GitHub repos that need recursive cloning
