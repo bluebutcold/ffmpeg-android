@@ -796,9 +796,24 @@ build_flite() {
 	echo "✔ flite built successfully"
 }
 
-
-
 #---------------------------------------------------------Meson-Builds--------------------------------------------------------#
+
+build_highway() {
+    local arch_opts=("-Darm7=false" "-Dsse2=false" "-Drvv=false" "-Dlsx=false" "-Dlasx=false")
+
+    case "$ARCH" in
+        x86)     arch_opts[1]="-Dsse2=true" ;;
+        riscv64) arch_opts[2]="-Drvv=true" ;;
+    esac
+
+    meson_build "highway" "$BUILD_DIR/highway" "$CROSS_FILE_TEMPLATE" \
+        -Dcontrib=disabled \
+        -Dexamples=disabled \
+        -Dtests=disabled \
+        "${arch_opts[@]}"
+}
+
+
 build_dav1d() {
     local ASM_OPTION=""
     [ "$ARCH" = "riscv64" ] && ASM_OPTION="-Denable_asm=false"
@@ -1250,22 +1265,6 @@ build_libgme() {
 		-DBUILD_SHARED_LIBS=OFF
 }
 
-build_highway() {
-	echo "[+] Building highway for $ARCH..."
-	cd "$BUILD_DIR/highway" || exit 1
-	
-	[ -f "BUILD" ] && mv "BUILD" "BUILD.bazzle"
-	
-	cmake -B build -S . \
-		"${COMMON_CMAKE_FLAGS[@]}" \
-		-DBUILD_SHARED_LIBS=OFF \
-		-DHWY_ENABLE_CONTRIB=OFF \
-		-DHWY_ENABLE_TESTS=OFF
-
-	cmake --build build -j"$(nproc)"
-	cmake --install build
-	echo "✔ highway built successfully"
-}
 
 build_libjxl() {
 	echo "[+] Building libjxl for $ARCH..."
