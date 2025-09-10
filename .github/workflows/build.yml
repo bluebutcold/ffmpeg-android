@@ -16,6 +16,7 @@ jobs:
     env:  
       BUILD_DIR: ${{ github.workspace }}/build  
       LATEST_GIT: 1
+      GIT_LFS_SKIP_SMUDGE: 1
     steps:  
       - name: Checkout repository  
         uses: actions/checkout@v3  
@@ -90,7 +91,7 @@ jobs:
           fi  
       - name: Build FFmpeg  
         run: |
-          rm -f git-sources.lock
+          rm -f ${{ github.workspace }}/git-sources.lock
           bash ${{ github.workspace }}/build.sh  
         env:   
           ARCH: ${{ matrix.arch }}
