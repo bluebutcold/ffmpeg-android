@@ -160,7 +160,18 @@ else
 	tar -caf ffmpeg.tar.xz bin
 fi
 
-FINAL_ZIP="${FFMPEG_VERSION}-${type}-android-${ANDROID_ABI}.zip"
+# Get FFmpeg commit hash
+COMMIT_SUFFIX=""
+if [ -n "$LATEST_GIT" ] && [ -d "${BUILD_DIR}/FFmpeg/.git" ]; then
+    FFMPEG_COMMIT=$(cd "${BUILD_DIR}/FFmpeg" && git rev-parse --short HEAD 2>/dev/null)
+    if [ -n "$FFMPEG_COMMIT" ]; then
+        COMMIT_SUFFIX="-${FFMPEG_COMMIT}"
+    fi
+fi
+
+FINAL_ZIP="${FFMPEG_VERSION}${COMMIT_SUFFIX}-${type}-android-${ANDROID_ABI}.zip"
+
+
 cp "${BUILD_DIR}/FFmpeg/COPYING.GPLv2" ./LICENSE
 zip -r "${FINAL_ZIP}" META-INF ffmpeg.tar.xz customize.sh module.prop LICENSE
 shopt -s extglob
