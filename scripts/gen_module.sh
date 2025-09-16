@@ -1,6 +1,15 @@
 #!/bin/bash
 
 echo "- Generating Module"
+# Get FFmpeg commit hash
+COMMIT_SUFFIX=""
+if [ -n "$LATEST_GIT" ] && [ -d "${BUILD_DIR}/FFmpeg/.git" ]; then
+    FFMPEG_COMMIT=$(cd "${BUILD_DIR}/FFmpeg" && git rev-parse --short HEAD 2>/dev/null)
+    if [ -n "$FFMPEG_COMMIT" ]; then
+        COMMIT_SUFFIX="-${FFMPEG_COMMIT}"
+    fi
+fi
+
 BASE_DIR="${ROOT_DIR}/module"
 mkdir -p "$BASE_DIR"
 cd "$BASE_DIR" || exit 1
@@ -11,10 +20,16 @@ else
 	type="Dynamic"
 fi
 
+if [ -n "$LATEST_GIT" ]; then
+FFMPEG_V=8.0-git-${COMMIT_SUFFIX}
+else
+FFMPEG_V=8.0
+fi
+
 cat >module.prop <<EOF
 id=FFmpeg
 name=FFmpeg
-version=8.0
+version=${FFMPEG_V}
 versionCode=8
 author=rhythmcache.t.me
 description=FFmpeg for android | ${type}
@@ -160,14 +175,6 @@ else
 	tar -caf ffmpeg.tar.xz bin
 fi
 
-# Get FFmpeg commit hash
-COMMIT_SUFFIX=""
-if [ -n "$LATEST_GIT" ] && [ -d "${BUILD_DIR}/FFmpeg/.git" ]; then
-    FFMPEG_COMMIT=$(cd "${BUILD_DIR}/FFmpeg" && git rev-parse --short HEAD 2>/dev/null)
-    if [ -n "$FFMPEG_COMMIT" ]; then
-        COMMIT_SUFFIX="-${FFMPEG_COMMIT}"
-    fi
-fi
 
 FINAL_ZIP="${FFMPEG_VERSION}${COMMIT_SUFFIX}-${type}-android-${ANDROID_ABI}.zip"
 
