@@ -101,15 +101,6 @@ jobs:
         env:
           ARCH: ${{ matrix.arch }}
           LATEST_GIT: 1
-          
-      - name: Check ffmpeg commit
-        run: | 
-          if [ -n "$LATEST_GIT" ]; then
-            if [[ "${{ matrix.arch }}" == "aarch64" && "${{ matrix.ffmpeg_static }}" == "true" ]]; then
-              FFMPEG_DIR=$(find ${{ github.workspace }}/build -iname FFmpeg -type d | head -n1)
-              git -C "$FFMPEG_DIR" rev-parse HEAD > ${{ github.workspace }}/ffmpeg_commit.txt
-            fi
-          fi
 
       - name: Upload FFmpeg commit
         if: matrix.arch == 'aarch64' && matrix.ffmpeg_static == 'true'
