@@ -183,6 +183,16 @@ jobs:
       - name: Show artifacts structure
         run: ls -R artifacts
 
+      - name: Extract changelog.md
+        run: |
+         ZIP_FILE=$(find artifacts -name "*-Static-android-arm64-v8a.zip" | head -n 1)
+         if [ -z "$ZIP_FILE" ]; then
+         echo "Error: Could not find aarch64 Static build zip"
+         exit 1
+         fi
+         unzip -p "$ZIP_FILE" changelog.md > changelog.md
+         
+
       - name: Update all JSON files
         run: |
           ARCHS="aarch64 x86 riscv64 armv7 x86_64"
@@ -252,6 +262,7 @@ jobs:
 
       - name: Commit and push all JSON changes
         run: |
+          git add changelog.md
           git add updateJsons/*/*/updateJson
           if git diff --cached --quiet; then
             echo "No JSON changes to commit"
