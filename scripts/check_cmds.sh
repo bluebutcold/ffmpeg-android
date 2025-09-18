@@ -67,8 +67,8 @@ check which curl wget tar zip sed meson \
 	make cmake ninja autoconf automake libtool pkg-config makeinfo \
 	gettext gperf bison flex git xz unzip file find cp mv rm ln svn nasm yasm
 
-[ -z "$FFMPEG_STATIC" ] && check ruby
-[ "$ARCH" != "riscv64" ] && check rustc cargo
+#[ -z "$FFMPEG_STATIC" ] && check ruby
+#[ "$ARCH" != "riscv64" ] && check rustc cargo
 
 detect_host_cc
 detect_host_cxx
