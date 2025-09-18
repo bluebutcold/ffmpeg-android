@@ -30,7 +30,7 @@ UPDATE_URL=https://raw.githubusercontent.com/bluebutcold/ffmpeg-android/main/${A
 
 current_vcode=$(grep -oP '"versionCode":\s*\K\d+' "$UPDATE_JSON")
 
-vcode=$((current_code + 1))
+vcode=$((current_vcode + 1))
 
 cat >module.prop <<EOF
 id=FFmpeg
