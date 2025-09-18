@@ -161,7 +161,7 @@ if [ -z "$FFMPEG_STATIC" ]; then
 		src="$PREFIX/lib/$lib"
 		if [ -f "$src" ]; then
 			cp -a "$src" "$libdir/"
-			$STRIP "$libdir/$lib"
+			$STRIP "$libdir"/*
 			echo "- Copied $lib"
 		else
 			echo "- WARNING: $lib not found at $src"
