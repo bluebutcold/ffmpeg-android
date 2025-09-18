@@ -154,7 +154,7 @@ jobs:
 
             **To find your device architecture:** run `getprop ro.product.cpu.abi` in a terminal  
 
-            **Build Date:** ${{ github.event.head_commit.timestamp }}
+            **Build Date:** $(date)
             **Repo Commit:** https://github.com/FFmpeg/FFmpeg/commit/${{ env.FFMPEG_COMMIT }}
           files: artifacts/**/*.zip
         env:
