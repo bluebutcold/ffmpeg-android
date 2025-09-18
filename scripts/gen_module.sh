@@ -1,6 +1,7 @@
 #!/bin/bash
 BASE_DIR="${ROOT_DIR}/module"
-
+mkdir -p "$BASE_DIR"
+cd "$BASE_DIR" || exit 1
 echo "- Generating Module"
 # Get FFmpeg commit hash
 COMMIT_SUFFIX=""
@@ -13,8 +14,6 @@ if [ -n "$LATEST_GIT" ] && [ -d "${BUILD_DIR}/FFmpeg/.git" ]; then
     fi
 fi
 
-mkdir -p "$BASE_DIR"
-cd "$BASE_DIR" || exit 1
 
 if [ -n "$FFMPEG_STATIC" ]; then
 	type="Static"
