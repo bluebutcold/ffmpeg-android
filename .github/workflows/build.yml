@@ -91,6 +91,7 @@ jobs:
           bash ${{ github.workspace }}/build.sh  
         env:   
           ARCH: ${{ matrix.arch }}
+          LATEST_GIT: 1
       - name: Upload module zip files as artifact  
         uses: actions/upload-artifact@v4  
         with:  
