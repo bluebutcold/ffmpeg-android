@@ -1,0 +1,6 @@
+{
+    "versionCode": 8,
+    "version": "8.0",
+    "zipUrl": "https://github.com/bluebutcold/ffmpeg-android/releases/download/build-17/8.0-Dynamic-android-x86_64.zip",
+    "changelog": "https://raw.githubusercontent.com/bluebutcold/ffmpeg-android/main/changelog.md"
+}
