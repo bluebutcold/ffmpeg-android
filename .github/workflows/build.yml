@@ -5,6 +5,7 @@ on:
     - cron: '0 0 * * *'
 permissions:
   contents: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -18,10 +19,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
       - name: Install system dependencies and build tools
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential cmake ninja-build make autoconf automake libtool pkg-config texinfo gettext gperf bison flex git xz-utils unzip diffutils file findutils coreutils binutils python3 python3-pip python3-venv pipx subversion libtool-bin nasm yasm
+
       - name: Install pipx and meson
         run: |
           python3 -m pip install --user pipx
@@ -29,6 +32,7 @@ jobs:
           export PATH="$HOME/.local/bin:$PATH"
           pipx install meson
           meson --version
+
       - name: Set up Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -36,65 +40,71 @@ jobs:
           profile: minimal
           override: true
 
-      - name: Install Android NDK (r29 beta4)  
-        run: |  
-          cd $HOME  
-          curl -LO https://dl.google.com/android/repository/android-ndk-r29-beta4-linux.zip  
-          unzip android-ndk-r29-beta4-linux.zip  
-          mv android-ndk-r29-beta4 $HOME/android-ndk-r29  
+      - name: Install Android NDK (r29 beta4)
+        run: |
+          cd $HOME
+          curl -LO https://dl.google.com/android/repository/android-ndk-r29-beta4-linux.zip
+          unzip android-ndk-r29-beta4-linux.zip
+          mv android-ndk-r29-beta4 $HOME/android-ndk-r29
 
-          echo "ANDROID_NDK_ROOT=$HOME/android-ndk-r29" >> $GITHUB_ENV  
-          echo "ANDROID_NDK_HOME=$HOME/android-ndk-r29" >> $GITHUB_ENV  
+          echo "ANDROID_NDK_ROOT=$HOME/android-ndk-r29" >> $GITHUB_ENV
+          echo "ANDROID_NDK_HOME=$HOME/android-ndk-r29" >> $GITHUB_ENV
 
-          TOOLCHAIN=$HOME/android-ndk-r29/toolchains/llvm/prebuilt/linux-x86_64/bin  
-          ln -sf $TOOLCHAIN/aarch64-linux-android29-clang    $TOOLCHAIN/aarch64-linux-android-gcc  
-          ln -sf $TOOLCHAIN/armv7a-linux-androideabi29-clang $TOOLCHAIN/arm-linux-androideabi-gcc  
-          ln -sf $TOOLCHAIN/x86_64-linux-android29-clang     $TOOLCHAIN/x86_64-linux-android-gcc  
-          ln -sf $TOOLCHAIN/i686-linux-android29-clang       $TOOLCHAIN/i686-linux-android-gcc  
- 
-          echo "$TOOLCHAIN" >> $GITHUB_PATH  
-        
-      - name: Install binstall    
-        run: |    
-          curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash    
-          export PATH="$HOME/.cargo/bin:$PATH"    
-      - name: Install cargo-c    
-        run: |    
-          cargo binstall cargo-c --no-confirm    
-      - name: Add Rust Android targets    
-        if: matrix.arch != 'riscv64'    
-        run: |    
-          case "${{ matrix.arch }}" in    
-            aarch64)    
-              rustup target add aarch64-linux-android    
-              ;;    
-            armv7)    
-              rustup target add armv7-linux-androideabi    
-              ;;    
-            x86)    
-              rustup target add i686-linux-android    
-              ;;    
-            x86_64)    
-              rustup target add x86_64-linux-android    
-              ;;    
-          esac    
-      - name: Set ARCH and FFMPEG_STATIC    
-        run: |    
-          echo "ARCH=${{ matrix.arch }}" >> $GITHUB_ENV    
-          echo "BUILD_TARGET=android" >> $GITHUB_ENV    
-          if [ "${{ matrix.ffmpeg_static }}" == "true" ]; then    
-            echo "FFMPEG_STATIC=1" >> $GITHUB_ENV    
-          fi    
-      - name: Build FFmpeg    
-        run: |  
-          rm -f git-sources.lock  
-          bash ${{ github.workspace }}/build.sh    
-        env:     
-          ARCH: ${{ matrix.arch }}  
-      - name: Upload module zip files as artifact    
-        uses: actions/upload-artifact@v4    
-        with:    
-          name: module-zips-${{ matrix.arch }}-${{ matrix.ffmpeg_static }}  
+          TOOLCHAIN=$HOME/android-ndk-r29/toolchains/llvm/prebuilt/linux-x86_64/bin
+          ln -sf $TOOLCHAIN/aarch64-linux-android29-clang    $TOOLCHAIN/aarch64-linux-android-gcc
+          ln -sf $TOOLCHAIN/armv7a-linux-androideabi29-clang $TOOLCHAIN/arm-linux-androideabi-gcc
+          ln -sf $TOOLCHAIN/x86_64-linux-android29-clang     $TOOLCHAIN/x86_64-linux-android-gcc
+          ln -sf $TOOLCHAIN/i686-linux-android29-clang       $TOOLCHAIN/i686-linux-android-gcc
+
+          echo "$TOOLCHAIN" >> $GITHUB_PATH
+
+      - name: Install binstall
+        run: |
+          curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+          export PATH="$HOME/.cargo/bin:$PATH"
+
+      - name: Install cargo-c
+        run: |
+          cargo binstall cargo-c --no-confirm
+
+      - name: Add Rust Android targets
+        if: matrix.arch != 'riscv64'
+        run: |
+          case "${{ matrix.arch }}" in
+            aarch64)
+              rustup target add aarch64-linux-android
+              ;;
+            armv7)
+              rustup target add armv7-linux-androideabi
+              ;;
+            x86)
+              rustup target add i686-linux-android
+              ;;
+            x86_64)
+              rustup target add x86_64-linux-android
+              ;;
+          esac
+
+      - name: Set ARCH and FFMPEG_STATIC
+        run: |
+          echo "ARCH=${{ matrix.arch }}" >> $GITHUB_ENV
+          echo "BUILD_TARGET=android" >> $GITHUB_ENV
+          if [ "${{ matrix.ffmpeg_static }}" == "true" ]; then
+            echo "FFMPEG_STATIC=1" >> $GITHUB_ENV
+          fi
+
+      - name: Build FFmpeg
+        run: |
+          rm -f git-sources.lock
+          bash ${{ github.workspace }}/build.sh
+        env:
+          ARCH: ${{ matrix.arch }}
+          LATEST_GIT: 1
+
+      - name: Upload module zip files as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: module-zips-${{ matrix.arch }}-${{ matrix.ffmpeg_static }}
           path: ${{ github.workspace }}/module/*.zip
 
   release:
@@ -108,8 +118,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+
       - name: Show collected files
         run: ls -R artifacts
+
       - name: Create GitHub Release
         id: create_release
         uses: softprops/action-gh-release@v2
@@ -122,20 +134,20 @@ jobs:
             - **Dynamic builds** include hardware acceleration support through MediaCodec and OpenCL (if the device supports it).  
             - **Static builds** are completely static and may not support hardware acceleration at all.  
             - **Build ZIPs** can be flashed through Magisk as a Magisk module.  
-              
-            ### Available Architectures  
-            - `arm64-v8a`   
-            - `armeabi-v7a`  
-            - `x86_64`  
-            - `x86`   
-            - `riscv64`  
+
+            ### Available Architectures
+            - `arm64-v8a`
+            - `armeabi-v7a`
+            - `x86_64`
+            - `x86`
+            - `riscv64`
 
             **To find your device architecture:** run `getprop ro.product.cpu.abi` in a terminal  
-              
-            **Build Date:** ${{ github.event.head_commit.timestamp }}    
-            **Commit:** ${{ github.sha }}  
-          files: artifacts/**/*.zip    
-        env:    
+
+            **Build Date:** ${{ github.event.head_commit.timestamp }}
+            **Commit:** ${{ github.sha }}
+          files: artifacts/**/*.zip
+        env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   update-jsons:
@@ -148,11 +160,11 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
           fetch-depth: 0
 
-      - name: Setup git config  
-        run: |  
-          git config --global user.name "github-actions[bot]"  
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"  
-    
+      - name: Setup git config
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -163,88 +175,78 @@ jobs:
 
       - name: Update all JSON files
         run: |
-          # Define architectures and types
           ARCHS="aarch64 x86 riscv64 armv7 x86_64"
           TYPES="Dynamic Static"
-          
+
           cd artifacts
-          
+
           for ARCH in $ARCHS; do
             for TYPE in $TYPES; do
               echo "Processing $ARCH - $TYPE"
-              
-              # Find the zip file for this arch/type combination
+
               ZIP_FILE=$(find . -name "*.zip" | grep -i "$ARCH" | grep -i "$TYPE" | head -1)
-              
+
               if [ -z "$ZIP_FILE" ]; then
                 echo "Warning: No zip file found for $ARCH-$TYPE"
                 continue
               fi
-              
+
               echo "Found zip file: $ZIP_FILE"
-              
-              # Extract module.prop from the zip
+
               TEMP_DIR=$(mktemp -d)
               unzip -q "$ZIP_FILE" module.prop -d "$TEMP_DIR" 2>/dev/null || {
                 echo "Warning: Could not extract module.prop from $ZIP_FILE"
                 rm -rf "$TEMP_DIR"
                 continue
               }
-              
-              # Extract version info from module.prop
+
               VERSION=$(grep "^version=" "$TEMP_DIR/module.prop" | cut -d'=' -f2)
               VERSION_CODE=$(grep "^versionCode=" "$TEMP_DIR/module.prop" | cut -d'=' -f2)
-              
+
               if [ -z "$VERSION" ] || [ -z "$VERSION_CODE" ]; then
-                echo "Warning: Could not extract version info from module.prop for $ARCH-$TYPE"
+                echo "Warning: Could not extract version info for $ARCH-$TYPE"
                 rm -rf "$TEMP_DIR"
                 continue
               fi
-              
+
               echo "Extracted - Version: $VERSION, Version Code: $VERSION_CODE"
-              
-              # Create the JSON directory path
-              JSON_DIR="${{ github.workspace }}/$ARCH/$TYPE"
+
+              JSON_DIR="${{ github.workspace }}/updateJsons/$ARCH/$TYPE"
               mkdir -p "$JSON_DIR"
-              
-              # Get the zip filename for the download URL
+
               ZIP_FILENAME=$(basename "$ZIP_FILE")
               RELEASE_TAG="build-${{ github.run_number }}"
               ZIP_URL="https://github.com/${{ github.repository }}/releases/download/${RELEASE_TAG}/${ZIP_FILENAME}"
-              
-              # Write the updateJson file
+
               jq -n \
-              --arg versionCode "$VERSION_CODE" \
-              --arg version "$VERSION" \
-              --arg zipUrl "$ZIP_URL" \
-              --arg changelog "https://raw.githubusercontent.com/${{ github.repository }}/main/changelog.md" \
-             '{
-              versionCode: $versionCode,
-              version: $version,
-              zipUrl: $zipUrl,
-              changelog: $changelog
-              }' > "$JSON_DIR/updateJson"
-              
+                --argjson versionCode "$VERSION_CODE" \
+                --arg version "$VERSION" \
+                --arg zipUrl "$ZIP_URL" \
+                --arg changelog "https://raw.githubusercontent.com/${{ github.repository }}/main/changelog.md" \
+                '{
+                  versionCode: $versionCode,
+                  version: $version,
+                  zipUrl: $zipUrl,
+                  changelog: $changelog
+                }' > "$JSON_DIR/updateJson"
+
               echo "Updated $JSON_DIR/updateJson"
               echo "  Version Code: $VERSION_CODE"
               echo "  Version: $VERSION"
               echo "  ZIP URL: $ZIP_URL"
               echo ""
-              
-              # Clean up temp directory
+
               rm -rf "$TEMP_DIR"
             done
           done
 
-          - name: Commit and push all JSON changes
-            run: |
-              git add updateJsons/*/*/updateJson
-              if git diff --cached --quiet; then
-              echo "No JSON changes to commit"
-              else
-              git commit -m "Update JSON files for build ${{ github.run_number }}"
-              git push origin main
-              echo "All JSON updates committed and pushed successfully"
-              fi
-
-      
+      - name: Commit and push all JSON changes
+        run: |
+          git add updateJsons/*/*/updateJson
+          if git diff --cached --quiet; then
+            echo "No JSON changes to commit"
+          else
+            git commit -m "Update JSON files for build ${{ github.run_number }}"
+            git push origin main
+            echo "All JSON updates committed and pushed successfully"
+          fi
