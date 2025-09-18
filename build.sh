@@ -588,7 +588,7 @@ if [ -z "$FFMPEG_STATIC" ]; then
 	build_ocl_icd
 fi
 
-[ -n "$LATEST_GIT" ] && [ "$ARCH" = "aarch64" ] && [ -n "$FFMPEG_STATIC" ] && git -C "$BUILD_DIR/FFmpeg" rev-parse HEAD > "${ROOT_DIR}/ffmpeg_commit.txt"
+git -C "$BUILD_DIR/FFmpeg" rev-parse HEAD > "${ROOT_DIR}/ffmpeg_commit.txt"
 
 
 patch_ffmpeg
