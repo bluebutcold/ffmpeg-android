@@ -529,9 +529,6 @@ build_harfbuzz
 build_fontconfig
 build_libass
 build_libtheora
-
-[ "$ARCH" != "riscv64" ] && build_rav1e
-
 build_lcms
 build_libwebp
 build_vmaf
