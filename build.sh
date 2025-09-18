@@ -35,7 +35,7 @@ if [[ "$ARCH" == "riscv64" && "$API_LEVEL" -lt 35 ]]; then
 	export API_LEVEL=35
 fi
 
-#source "${ROOT_DIR}/scripts/check_cmds.sh"
+source "${ROOT_DIR}/scripts/check_cmds.sh"
 
 case "$(uname -s)" in
 Linux) HOST_OS=linux ;;
