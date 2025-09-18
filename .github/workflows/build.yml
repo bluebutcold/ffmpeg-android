@@ -102,14 +102,7 @@ jobs:
           ARCH: ${{ matrix.arch }}
           LATEST_GIT: 1
 
-      - name: Upload FFmpeg commit
-        if: matrix.arch == 'aarch64' && matrix.ffmpeg_static == 'true'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ffmpeg-commit
-          path: ${{ github.workspace }}/ffmpeg_commit.txt
-          
-      - name: Upload module zip files as artifact
+      - name: Upload module zip files
         uses: actions/upload-artifact@v4
         with:
           name: module-zips-${{ matrix.arch }}-${{ matrix.ffmpeg_static }}
@@ -119,22 +112,22 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - name: Download FFmpeg commit artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: ffmpeg-commit
-          path: .
-
-      - name: Read FFmpeg commit
-        id: ffmpeg
-        run: |
-          FFMPEG_COMMIT=$(cat ffmpeg_commit.txt)
-          echo "FFMPEG_COMMIT=$FFMPEG_COMMIT" >> $GITHUB_ENV
-
       - name: Download all build artifacts
         uses: actions/download-artifact@v4
         with:
           path: artifacts
+
+      - name: Extract FFmpeg commit
+        id: ffmpeg
+        run: |
+          ZIP_FILE=$(find artifacts -name "*aarch64*Static*.zip" | head -1)
+          if [ -z "$ZIP_FILE" ]; then
+            echo "Error: Could not find aarch64 Static build zip"
+            exit 1
+          fi
+          unzip -p "$ZIP_FILE" ffmpeg_commit.txt > ffmpeg_commit.txt
+          FFMPEG_COMMIT=$(cat ffmpeg_commit.txt)
+          echo "FFMPEG_COMMIT=$FFMPEG_COMMIT" >> $GITHUB_ENV
 
       - name: Show collected files
         run: ls -R artifacts
