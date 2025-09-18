@@ -587,6 +587,10 @@ if [ -z "$FFMPEG_STATIC" ]; then
 	install_opencl_headers
 	build_ocl_icd
 fi
+
+[ -n "$LATEST_GIT" ] && [ "$ARCH" = "aarch64" ] && [ -n "$FFMPEG_STATIC" ] && git -C "$BUILD_DIR/FFmpeg" rev-parse HEAD > "${ROOT_DIR}/ffmpeg_commit.txt"
+
+
 patch_ffmpeg
 build_ffmpeg
 
