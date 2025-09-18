@@ -1,16 +1,18 @@
 #!/bin/bash
+BASE_DIR="${ROOT_DIR}/module"
 
 echo "- Generating Module"
 # Get FFmpeg commit hash
 COMMIT_SUFFIX=""
 if [ -n "$LATEST_GIT" ] && [ -d "${BUILD_DIR}/FFmpeg/.git" ]; then
     FFMPEG_COMMIT=$(cd "${BUILD_DIR}/FFmpeg" && git rev-parse --short HEAD 2>/dev/null)
+	cd "$BUILD_DIR/FFmpeg" && git rev-parse HEAD > "${BASE_DIR}/ffmpeg_commit.txt"
+ 
     if [ -n "$FFMPEG_COMMIT" ]; then
         COMMIT_SUFFIX="-${FFMPEG_COMMIT}"
     fi
 fi
 
-BASE_DIR="${ROOT_DIR}/module"
 mkdir -p "$BASE_DIR"
 cd "$BASE_DIR" || exit 1
 
@@ -184,10 +186,11 @@ fi
 
 
 FINAL_ZIP="${FFMPEG_VERSION}${COMMIT_SUFFIX}-${type}-android-${ANDROID_ABI}.zip"
-
+extra=""
+[ -n "$LATEST_GIT" ] && extra=ffmpeg_commit.txt
 
 cp "${BUILD_DIR}/FFmpeg/COPYING.GPLv2" ./LICENSE
-zip -r "${FINAL_ZIP}" META-INF ffmpeg.tar.xz customize.sh module.prop LICENSE
+zip -r "${FINAL_ZIP}" META-INF ffmpeg.tar.xz customize.sh module.prop LICENSE "$extra"
 shopt -s extglob
 rm -rf !("$FINAL_ZIP")
 shopt -u extglob
