@@ -25,14 +25,21 @@ FFMPEG_V=8.0-git-${COMMIT_SUFFIX}
 else
 FFMPEG_V=8.0
 fi
+UPDATE_JSON=${ROOT_DIR}/updateJsons/${ARCH}/${type}/updateJson
+UPDATE_URL=https://raw.githubusercontent.com/bluebutcold/ffmpeg-android/main/${ARCH}/${type}/updateJson
+
+current_vcode=$(grep -oP '"versionCode":\s*\K\d+' "$UPDATE_JSON")
+
+vcode=$((current_code + 1))
 
 cat >module.prop <<EOF
 id=FFmpeg
 name=FFmpeg
 version=${FFMPEG_V}
-versionCode=8
+versionCode=${vcode}
 author=rhythmcache.t.me
 description=FFmpeg for android | ${type}
+updateJson=${UPDATE_URL}
 EOF
 
 cat >customize.sh <<EOF
