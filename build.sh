@@ -588,9 +588,6 @@ if [ -z "$FFMPEG_STATIC" ]; then
 	build_ocl_icd
 fi
 
-git -C "$BUILD_DIR/FFmpeg" rev-parse HEAD > "${ROOT_DIR}/ffmpeg_commit.txt"
-
-
 patch_ffmpeg
 build_ffmpeg
 
