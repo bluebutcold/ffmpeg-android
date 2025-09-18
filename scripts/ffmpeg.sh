@@ -29,7 +29,7 @@ build_ffmpeg() {
 	cd "$BUILD_DIR/FFmpeg" || exit 1
 
 	FLAGS=()
-	[ "$ARCH" != "riscv64" ] && FLAGS=(--enable-librav1e --enable-libxavs2)
+	[ "$ARCH" != "riscv64" ] && FLAGS=(--enable-libxavs2)
 	[ "$ARCH" != "armv7" ] && [ "$ARCH" != "riscv64" ] && FLAGS+=(--enable-libxeve --enable-libxevd)
 
 	NEON=()
