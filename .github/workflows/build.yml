@@ -213,14 +213,17 @@ jobs:
               ZIP_URL="https://github.com/${{ github.repository }}/releases/download/${RELEASE_TAG}/${ZIP_FILENAME}"
               
               # Write the updateJson file
-              cat > "$JSON_DIR/updateJson" <<EOF
-              {
-                 "versionCode": ${VERSION_CODE},
-                 "version": "${VERSION}",
-                 "zipUrl": "${ZIP_URL}",
-                 "changelog": "https://raw.githubusercontent.com/${{ github.repository }}/main/changelog.md"
-               }
-              EOF
+              jq -n \
+              --arg versionCode "$VERSION_CODE" \
+              --arg version "$VERSION" \
+              --arg zipUrl "$ZIP_URL" \
+              --arg changelog "https://raw.githubusercontent.com/${{ github.repository }}/main/changelog.md" \
+             '{
+              versionCode: $versionCode,
+              version: $version,
+              zipUrl: $zipUrl,
+              changelog: $changelog
+              }' > "$JSON_DIR/updateJson"
               
               echo "Updated $JSON_DIR/updateJson"
               echo "  Version Code: $VERSION_CODE"
@@ -233,14 +236,15 @@ jobs:
             done
           done
 
-      - name: Commit and push all JSON changes
-        run: |
-          git add .
-          
-          if git diff --cached --quiet; then
-            echo "No changes to commit"
-          else
-            git commit -m "Update all JSON files for build ${{ github.run_number }}"
-            git push origin main
-            echo "All JSON updates committed and pushed successfully"
-          fi
+          - name: Commit and push all JSON changes
+            run: |
+              git add updateJsons/*/*/updateJson
+              if git diff --cached --quiet; then
+              echo "No JSON changes to commit"
+              else
+              git commit -m "Update JSON files for build ${{ github.run_number }}"
+              git push origin main
+              echo "All JSON updates committed and pushed successfully"
+              fi
+
+      
