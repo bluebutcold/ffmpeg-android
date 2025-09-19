@@ -35,7 +35,7 @@ fi
 UPDATE_JSON=${ROOT_DIR}/updateJsons/${ARCH}/${type}/updateJson
 UPDATE_URL=https://raw.githubusercontent.com/bluebutcold/ffmpeg-android/main/updateJsons/${ARCH}/${type}/updateJson
 
-current_vcode=$(grep -oP '"versionCode":\s*\K\d+' "$UPDATE_JSON")
+current_vcode=$(jq -r '.versionCode' "$UPDATE_JSON")
 
 vcode=$((current_vcode + 1))
 
@@ -193,11 +193,17 @@ fi
 
 
 FINAL_ZIP="${FFMPEG_VERSION}${COMMIT_SUFFIX}-${type}-android-${ANDROID_ABI}.zip"
-extra=""
+
 [ -n "$LATEST_GIT" ] && extra=ffmpeg_commit.txt
 
 cp "${BUILD_DIR}/FFmpeg/COPYING.GPLv2" ./LICENSE
-zip -r "${FINAL_ZIP}" META-INF ffmpeg.tar.xz customize.sh module.prop changelog.md LICENSE "$extra"
+
+if [ -n "$extra" ]; then
+    zip -r "${FINAL_ZIP}" META-INF ffmpeg.tar.xz customize.sh module.prop changelog.md LICENSE "$extra"
+else
+    zip -r "${FINAL_ZIP}" META-INF ffmpeg.tar.xz customize.sh module.prop changelog.md LICENSE
+fi
+
 shopt -s extglob
 rm -rf !("$FINAL_ZIP")
 shopt -u extglob
