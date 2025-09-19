@@ -69,11 +69,13 @@ jobs:
           ARCH: ${{ matrix.arch }}
           LATEST_GIT: 1
 
-      - name: Upload module zip files
+      - name: Upload module files (zip and deb)
         uses: actions/upload-artifact@v4
         with:
-          name: module-zips-${{ matrix.arch }}-${{ matrix.ffmpeg_static }}
-          path: ${{ github.workspace }}/module/*.zip
+          name: module-files-${{ matrix.arch }}-${{ matrix.ffmpeg_static }}
+          path: |
+            ${{ github.workspace }}/module/*.zip
+            ${{ github.workspace }}/module/*.deb
 
   release:
     runs-on: ubuntu-latest
@@ -113,6 +115,7 @@ jobs:
             - **Dynamic builds** include hardware acceleration support through MediaCodec and OpenCL (if the device supports it).  
             - **Static builds** are completely static and may not support hardware acceleration at all.  
             - **Build ZIPs** can be flashed through Magisk as a Magisk module.  
+            - **Build DEBs** (only available for Dynamic builds) can be installed on Termux using `dpkg -i --force-overwrite <path-to-package>`
 
             ### Available Architectures
             - `arm64-v8a`
@@ -121,11 +124,20 @@ jobs:
             - `x86`
             - `riscv64`
 
+            ### Installation Notes
+            - **For Magisk modules:** Flash the `.zip` files through Magisk Manager
+            - **For Termux:** Static builds are not available for Termux. Use the `.deb` packages from Dynamic builds with:
+              ```bash
+              dpkg -i --force-overwrite <path-to-package>
+              ```
+
             **To find your device architecture:** run `getprop ro.product.cpu.abi` in a terminal  
 
             **Build Date:** ${{ env.BUILD_DATE }}
             **Repo Commit:** https://github.com/FFmpeg/FFmpeg/commit/${{ env.FFMPEG_COMMIT }}
-          files: artifacts/**/*.zip
+          files: |
+            artifacts/**/*.zip
+            artifacts/**/*.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
