@@ -144,10 +144,10 @@ jobs:
       - name: Upload to Telegram Channel
         if: success()
         run: |
-          
+          # Get channel ID (username without @)
           CHANNEL_ID="@ffmpegandroid"
           
-          
+          # Send release announcement message
           curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
             -d chat_id="$CHANNEL_ID" \
             -d parse_mode="Markdown" \
@@ -171,15 +171,15 @@ jobs:
           # Wait a moment for the message to be sent
           sleep 2
 
-          
+          # Upload all build files with error handling
           find artifacts -name "*.zip" -o -name "*.deb" | while read file; do
             if [ -f "$file" ]; then
               filename=$(basename "$file")
               echo "Uploading $filename to Telegram..."
               
-              
+              # Create simple caption with commit link
               caption="📦 $filename
-             🔗 [Commit](https://github.com/FFmpeg/FFmpeg/commit/${{ env.FFMPEG_COMMIT }})"
+              🔗 [Commit](https://github.com/FFmpeg/FFmpeg/commit/${{ env.FFMPEG_COMMIT }})"
               
               # Try to upload file with error checking
               response=$(curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendDocument" \
@@ -188,7 +188,7 @@ jobs:
                 -F caption="$caption" \
                 -F parse_mode="Markdown")
               
-              
+              # Check if upload was successful
               if echo "$response" | grep -q '"ok":true'; then
                 echo "✅ Successfully uploaded: $filename"
               else
@@ -196,12 +196,12 @@ jobs:
                 echo "Response: $response"
               fi
               
-            
+              # Small delay between uploads to avoid rate limits
               sleep 1
             fi
           done
 
-          
+          echo "✅ All files uploaded to Telegram channel!"
 
   update-jsons:
     runs-on: ubuntu-latest
