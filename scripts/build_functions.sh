@@ -799,7 +799,7 @@ build_flite() {
 #---------------------------------------------------------Meson-Builds--------------------------------------------------------#
 
 build_highway() {
-    local arch_opts=("-Darm7=false" "-Dsse2=false" "-Drvv=false" "-Dlsx=false" "-Dlasx=false")
+    local arch_opts=("-Darm7=false" "-Dsse2=false" "-Drvv=false")
 
     case "$ARCH" in
         x86)     arch_opts[1]="-Dsse2=true" ;;
