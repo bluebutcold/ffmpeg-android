@@ -39,6 +39,8 @@ current_vcode=$(grep -oP '"versionCode":\s*\K\d+' "$UPDATE_JSON")
 
 vcode=$((current_vcode + 1))
 
+cd "${BASE_DIR}"
+
 cat >module.prop <<EOF
 id=FFmpeg
 name=FFmpeg
