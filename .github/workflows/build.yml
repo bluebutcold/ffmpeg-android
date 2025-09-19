@@ -1,10 +1,8 @@
 name: Build FFmpeg Android
-
 on:
   workflow_dispatch:
   schedule:
     - cron: '0 0 * * *'
-
 permissions:
   contents: write
 
@@ -54,12 +52,14 @@ jobs:
 
           echo "$TOOLCHAIN" >> $GITHUB_PATH
 
+      
       - name: Set ARCH and FFMPEG_STATIC
         run: |
           echo "ARCH=${{ matrix.arch }}" >> $GITHUB_ENV
           echo "BUILD_TARGET=android" >> $GITHUB_ENV
           if [ "${{ matrix.ffmpeg_static }}" == "true" ]; then
             echo "FFMPEG_STATIC=1" >> $GITHUB_ENV
+          fi
 
       - name: Build FFmpeg
         run: |
@@ -69,7 +69,7 @@ jobs:
           ARCH: ${{ matrix.arch }}
           LATEST_GIT: 1
 
-      - name: Upload module files (zip and deb) to GitHub
+      - name: Upload module files (zip and deb)
         uses: actions/upload-artifact@v4
         with:
           name: module-files-${{ matrix.arch }}-${{ matrix.ffmpeg_static }}
@@ -131,52 +131,27 @@ jobs:
               dpkg -i --force-overwrite <path-to-package>
               ```
 
+            **To find your device architecture:** run `getprop ro.product.cpu.abi` in a terminal  
+
             **Build Date:** ${{ env.BUILD_DATE }}
-            **Repo Commit:** [View Commit](https://github.com/FFmpeg/FFmpeg/commit/${{ env.FFMPEG_COMMIT }})
+            **Repo Commit:** https://github.com/FFmpeg/FFmpeg/commit/${{ env.FFMPEG_COMMIT }}
           files: |
             artifacts/**/*.zip
             artifacts/**/*.deb
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Send build info to Telegram
+      - name: Send Telegram notification
         if: success()
         run: |
-          python3 << 'EOF'
-          import os
-          import requests
+          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
+            -d chat_id="@ffmpegandroid" \
+            -d parse_mode="Markdown" \
+            -d text="🚀 **FFmpeg Android Build ${{ github.run_number }}**
 
-          TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
-          CHANNEL_ID = "@ffmpegandroid"
-
-          def send_message(text):
-              url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
-              data = {
-                  'chat_id': CHANNEL_ID,
-                  'text': text,
-                  'parse_mode': 'Markdown'
-              }
-              response = requests.post(url, data=data)
-              return response.json()
-
-          announcement = f"""🚀 **FFmpeg Android Build {os.environ['GITHUB_RUN_NUMBER']}**
-
-          📅 **Build Date:** {os.environ['BUILD_DATE']}
-          🔗 **Repo Commit:** [View Commit](https://github.com/FFmpeg/FFmpeg/commit/{os.environ['FFMPEG_COMMIT']})
-          📦 **Release:** [Download](https://github.com/{os.environ['GITHUB_REPOSITORY']}/releases/tag/build-{os.environ['GITHUB_RUN_NUMBER']})"""
-
-          result = send_message(announcement)
-          if result.get('ok'):
-              print("✅ Announcement sent successfully")
-          else:
-              print(f"❌ Failed to send announcement: {result.get('description', 'Unknown error')}")
-          EOF
-        env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          GITHUB_RUN_NUMBER: ${{ github.run_number }}
-          BUILD_DATE: ${{ env.BUILD_DATE }}
-          FFMPEG_COMMIT: ${{ env.FFMPEG_COMMIT }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
+          📅 **Build Date:** ${{ env.BUILD_DATE }}
+          🔗 **Repo Commit:** [View Commit](https://github.com/FFmpeg/FFmpeg/commit/${{ env.FFMPEG_COMMIT }})
+          📦 **Release:** [Download](https://github.com/${{ github.repository }}/releases/tag/build-${{ github.run_number }})"
 
   update-jsons:
     runs-on: ubuntu-latest
@@ -212,8 +187,16 @@ jobs:
 
           for ARCH in $ARCHS; do
             for TYPE in $TYPES; do
+              echo "Processing $ARCH - $TYPE"
+
               ZIP_FILE=$(find . -name "*.zip" | grep -i "$ARCH" | grep -i "$TYPE" | head -1)
-              [ -z "$ZIP_FILE" ] && continue
+
+              if [ -z "$ZIP_FILE" ]; then
+                echo "Warning: No zip file found for $ARCH-$TYPE"
+                continue
+              fi
+
+              echo "Found zip file: $ZIP_FILE"
 
               VERSION=$(unzip -p "$ZIP_FILE" module.prop | grep "^version=" | cut -d'=' -f2-)
               VERSION_CODE=$(unzip -p "$ZIP_FILE" module.prop | grep "^versionCode=" | cut -d'=' -f2-)
@@ -237,6 +220,7 @@ jobs:
                   changelog: $changelog
                 }' > "$JSON_DIR/updateJson"
 
+              echo "Updated $JSON_DIR/updateJson"
             done
           done
 
@@ -249,3 +233,4 @@ jobs:
           else
             git commit -m "Update JSON files for build ${{ github.run_number }}"
             git push origin main
+          fi
