@@ -1,6 +1,6 @@
 {
-  "versionCode": 1,
-  "version": "8.0-git--6471383",
-  "zipUrl": "https://github.com/bluebutcold/ffmpeg-android/releases/download/build-20/ffmpeg-8.0-6471383-Dynamic-android-x86_64.zip",
+  "versionCode": 2,
+  "version": "8.0-git--1ce3f9f",
+  "zipUrl": "https://github.com/bluebutcold/ffmpeg-android/releases/download/build-31/ffmpeg-8.0-1ce3f9f-Dynamic-android-x86_64.zip",
   "changelog": "https://raw.githubusercontent.com/bluebutcold/ffmpeg-android/main/changelog.md"
 }
