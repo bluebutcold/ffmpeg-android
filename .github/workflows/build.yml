@@ -143,8 +143,7 @@ jobs:
 
       - name: Install Python dependencies
         run: |
-          export PATH="$HOME/.local/bin:$PATH"
-          pipx install requests
+          python3 -m pip install requests
 
       - name: Upload to Telegram Channel
         if: success()
@@ -205,7 +204,7 @@ jobs:
 
           Files are being uploaded below... 📂
           
-          
+          ⚠️ **Note:** Static builds larger than 50MB are available only via GitHub releases due to Telegram file size limits."""
 
           print("Sending announcement message...")
           result = send_message(announcement)
