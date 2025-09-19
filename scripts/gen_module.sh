@@ -204,6 +204,7 @@ else
     zip -r "${FINAL_ZIP}" META-INF ffmpeg.tar.xz customize.sh module.prop changelog.md LICENSE
 fi
 
+[ -z "$FFMPEG_STATIC" ] && source "$ROOT_DIR/scripts/termux_package.sh"
 shopt -s extglob
-rm -rf !("$FINAL_ZIP")
+rm -rf !("$FINAL_ZIP"|"termux-ffmpeg-${FFMPEG_V}-${ANDROID_ABI}.deb")
 shopt -u extglob
