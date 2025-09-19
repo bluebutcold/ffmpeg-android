@@ -141,6 +141,132 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Install Python dependencies
+        run: |
+          export PATH="$HOME/.local/bin:$PATH"
+          pipx install requests
+
+      - name: Upload to Telegram Channel
+        if: success()
+        run: |
+          python3 << 'EOF'
+          import os
+          import requests
+          import json
+          import time
+          from pathlib import Path
+
+          TELEGRAM_TOKEN = os.environ['TELEGRAM_TOKEN']
+          CHANNEL_ID = "@ffmpegandroid"
+          MAX_FILE_SIZE = 50 * 1024 * 1024
+          
+          def send_message(text):
+              url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendMessage"
+              data = {
+                  'chat_id': CHANNEL_ID,
+                  'text': text,
+                  'parse_mode': 'Markdown'
+              }
+              response = requests.post(url, data=data)
+              return response.json()
+
+          def send_document(file_path, caption):
+              url = f"https://api.telegram.org/bot{TELEGRAM_TOKEN}/sendDocument"
+              
+              with open(file_path, 'rb') as file:
+                  files = {'document': file}
+                  data = {
+                      'chat_id': CHANNEL_ID,
+                      'caption': caption,
+                      'parse_mode': 'Markdown'
+                  }
+                  response = requests.post(url, files=files, data=data)
+              return response.json()
+
+          def get_file_size(file_path):
+              return os.path.getsize(file_path)
+
+          def is_static_build(filename):
+              return 'static' in filename.lower()
+          announcement = f"""🚀 **FFmpeg Android Build {os.environ['GITHUB_RUN_NUMBER']}**
+
+          📅 **Build Date:** {os.environ['BUILD_DATE']}
+          🔗 **Repo Commit:** [View Commit](https://github.com/FFmpeg/FFmpeg/commit/{os.environ['FFMPEG_COMMIT']})
+          📦 **Release:** [Download](https://github.com/{os.environ['GITHUB_REPOSITORY']}/releases/tag/build-{os.environ['GITHUB_RUN_NUMBER']})
+
+          **Available Builds:**
+          • Dynamic builds (with hardware acceleration)
+          • Static builds (completely static)
+          • All major Android architectures supported
+
+          **Installation:**
+          • **Magisk:** Flash .zip files
+          • **Termux:** Use .deb files with `dpkg -i --force-overwrite <package>`
+
+          Files are being uploaded below... 📂
+          
+          
+
+          print("Sending announcement message...")
+          result = send_message(announcement)
+          if result.get('ok'):
+              print("✅ Announcement sent successfully")
+          else:
+              print(f"❌ Failed to send announcement: {result}")
+
+          time.sleep(2)
+
+          artifacts_path = Path('artifacts')
+          uploaded_count = 0
+          skipped_count = 0
+          
+          for file_path in artifacts_path.rglob('*'):
+              if file_path.is_file() and file_path.suffix in ['.zip', '.deb']:
+                  filename = file_path.name
+                  file_size = get_file_size(file_path)
+                  
+                  if is_static_build(filename) and file_size > MAX_FILE_SIZE:
+                      print(f"⏭️  Skipping {filename} (Static build, {file_size / (1024*1024):.1f}MB > 50MB limit)")
+                      skipped_count += 1
+                      continue
+                  
+                  if file_size > MAX_FILE_SIZE:
+                      print(f"⚠️  Warning: {filename} is {file_size / (1024*1024):.1f}MB (over Telegram limit)")
+                      skipped_count += 1
+                      continue
+                  
+                  print(f"📤 Uploading {filename} ({file_size / (1024*1024):.1f}MB)...")
+                  
+                  caption = f"📦 {filename}\n🔗 [Commit](https://github.com/FFmpeg/FFmpeg/commit/{os.environ['FFMPEG_COMMIT']})"
+                  
+                  try:
+                      result = send_document(file_path, caption)
+                      if result.get('ok'):
+                          print(f"✅ Successfully uploaded: {filename}")
+                          uploaded_count += 1
+                      else:
+                          print(f"❌ Failed to upload {filename}: {result.get('description', 'Unknown error')}")
+                  except Exception as e:
+                      print(f"❌ Exception uploading {filename}: {str(e)}")
+                  
+                  time.sleep(1)
+
+          summary = f"""📊 **Upload Summary**
+          ✅ Successfully uploaded: {uploaded_count} files
+          ⏭️  Skipped (size limit): {skipped_count} files
+          
+          All files are available at: [GitHub Release](https://github.com/{os.environ['GITHUB_REPOSITORY']}/releases/tag/build-{os.environ['GITHUB_RUN_NUMBER']})"""
+          
+          send_message(summary)
+          print(f"✅ Upload completed! {uploaded_count} files uploaded, {skipped_count} skipped")
+          EOF
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          GITHUB_RUN_NUMBER: ${{ github.run_number }}
+          BUILD_DATE: ${{ env.BUILD_DATE }}
+          FFMPEG_COMMIT: ${{ env.FFMPEG_COMMIT }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+
   update-jsons:
     runs-on: ubuntu-latest
     needs: release
