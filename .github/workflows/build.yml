@@ -1,8 +1,10 @@
 name: Build FFmpeg Android
+
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 * * * *' 
+
 permissions:
   contents: write
 
@@ -14,12 +16,39 @@ jobs:
         arch: [aarch64, x86, riscv64, armv7, x86_64]
         ffmpeg_static: [false, true]
       fail-fast: false
-    env:
-      BUILD_DIR: ${{ github.workspace }}/build
-      LATEST_GIT: 1
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Check if FFmpeg commit changed
+        id: check_ffmpeg
+        run: |
+          set -e
+
+          echo "Fetching latest release info..."
+          RELEASE_JSON=$(curl -s https://api.github.com/repos/${{ github.repository }}/releases/latest)
+          echo "$RELEASE_JSON" > release.json
+
+          # Extract 7-character FFmpeg commit from release body URL
+          FFMPEG_COMMIT_IN_RELEASE=$(jq -r '.body' release.json \
+            | grep -o 'https://github\.com/FFmpeg/FFmpeg/commit/[0-9a-f]\{7\}' \
+            | head -n 1 \
+            | awk -F/ '{print $NF}')
+
+          
+
+          
+          LATEST_FFMPEG_FULL=$(git ls-remote https://github.com/FFmpeg/FFmpeg.git HEAD | awk '{print $1}')
+          LATEST_FFMPEG_SHORT=${LATEST_FFMPEG_FULL:0:7}
+          echo "Latest FFmpeg commit: $LATEST_FFMPEG_SHORT"
+
+          
+          if [ "$FFMPEG_COMMIT_IN_RELEASE" == "$LATEST_FFMPEG_SHORT" ]; then
+              echo "No new FFmpeg commit. Skipping workflow."
+              exit 0
+          else
+              echo "New FFmpeg commit detected! Proceeding with build."
+          fi
 
       - name: Install system dependencies and build tools
         run: |
@@ -39,7 +68,7 @@ jobs:
           cd $HOME
           curl -LO https://dl.google.com/android/repository/android-ndk-r29-beta4-linux.zip
           unzip android-ndk-r29-beta4-linux.zip
-          mv android-ndk-r29-beta4 $HOME/android-ndk-r29
+          mv android-ndk-r29 $HOME/android-ndk-r29
 
           echo "ANDROID_NDK_ROOT=$HOME/android-ndk-r29" >> $GITHUB_ENV
           echo "ANDROID_NDK_HOME=$HOME/android-ndk-r29" >> $GITHUB_ENV
@@ -52,7 +81,6 @@ jobs:
 
           echo "$TOOLCHAIN" >> $GITHUB_PATH
 
-      
       - name: Set ARCH and FFMPEG_STATIC
         run: |
           echo "ARCH=${{ matrix.arch }}" >> $GITHUB_ENV
