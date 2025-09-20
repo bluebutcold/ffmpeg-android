@@ -63,6 +63,8 @@ ARCH=\$(getprop ro.product.cpu.abi)
 
 if [ "\${FFMPEG_ARCH}" != "\${ARCH}" ]; then
     ui_print "- Device ABI is '\${ARCH}', Expected '\${FFMPEG_ARCH}'"
+	ui_print "- aborting..."
+    abort
 fi
 
 SYSTEM_DIR="\$MODPATH/system"
