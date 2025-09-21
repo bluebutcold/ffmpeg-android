@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -xe
+set -e
 
 ARCH="${1:-$ARCH}"
 API_LEVEL="${2:-$API_LEVEL}"
