@@ -1,8 +1,9 @@
 # Build Changelog
 
-**Commit:** e02e6d54b04aaed3a500e55fd53da6dd411074d8
-**Author:** Zhao Zhili <zhilizhao@tencent.com>
-**Date:** Sun Sep 14 18:14:10 2025 +0800
+**Commit:** 843920d5d6bdcecbfd4eeac66cd175348bf99496
+**Author:** Niklas Haas <git@haasn.dev>
+**Date:** Mon Sep 15 17:47:39 2025 +0200
 
-tests/fate/demux: add hxvs test case
+avfilter/x86/vf_idetdsp: add AVX2 and AVX512 implementations
 
+The only thing that changes slightly is the horizontal sum at the end.
