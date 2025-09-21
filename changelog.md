@@ -1,9 +1,10 @@
 # Build Changelog
 
-**Commit:** 843920d5d6bdcecbfd4eeac66cd175348bf99496
+**Commit:** 0bd5a7d3719456f049f4d29abb313968ccacb28c
 **Author:** Niklas Haas <git@haasn.dev>
-**Date:** Mon Sep 15 17:47:39 2025 +0200
+**Date:** Sun Sep 21 13:28:58 2025 +0200
 
-avfilter/x86/vf_idetdsp: add AVX2 and AVX512 implementations
+avfilter/vf_colordetect: only report detected properties on EOF
 
-The only thing that changes slightly is the horizontal sum at the end.
+Instead of reporting them also when the filtergraph is suddenly destroyed
+mid-stream, e.g. during the `ffmpeg` tool's early init.
