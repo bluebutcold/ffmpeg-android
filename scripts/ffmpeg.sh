@@ -111,7 +111,7 @@ build_ffmpeg() {
 		--enable-openssl
 		--enable-zlib
 		--enable-bzlib
-                --enable-libsnappy
+        --enable-libsnappy
 		--enable-libsrt
 		--enable-libzmq
 		--enable-librist
