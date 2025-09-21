@@ -478,6 +478,7 @@ init_cross_files() {
 
 cleanup_pcfiles() {
 	find "$PREFIX" -iname "*.pc" -exec sed -i 's/\s*-lpthread\s*/ /g' {} +
+    find "$PREFIX" -iname "*.pc" -exec sed -i 's/\s*-l-pthread\b\s*/ /g' {} +
 	find "$PREFIX" -iname "*.pc" -exec sed -i 's/\s*-lrt\b\s*/ /g' {} +
 	find "$PREFIX" -iname "*.pc" -exec sed -i 's/\s*-llog\b\s*/ /g' {} +
 	f="$PREFIX/lib/pkgconfig/x265.pc"
