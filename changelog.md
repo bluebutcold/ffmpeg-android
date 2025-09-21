@@ -1,11 +1,8 @@
 # Build Changelog
 
-**Commit:** db0b86a4adf3ffe592ea70e756d615e89138eee0
-**Author:** Brad Smith <brad@comstyle.com>
-**Date:** Sat Sep 20 01:51:45 2025 -0400
+**Commit:** e02e6d54b04aaed3a500e55fd53da6dd411074d8
+**Author:** Zhao Zhili <zhilizhao@tencent.com>
+**Date:** Sun Sep 14 18:14:10 2025 +0800
 
-avformat/udp: fix warning about unused varible
+tests/fate/demux: add hxvs test case
 
-libavformat/udp.c:283:9: warning: unused variable 'i' [-Wunused-variable]
-
-Signed-off-by: Brad Smith <brad@comstyle.com>
