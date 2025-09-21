@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -e
+set -xe
 
 ARCH="${1:-$ARCH}"
 API_LEVEL="${2:-$API_LEVEL}"
@@ -335,6 +335,7 @@ MINIMAL_CMAKE_FLAGS=(
 	"-DCMAKE_EXE_LINKER_FLAGS=$LDFLAGS"
 )
 
+
 cmake_build() {
 	local project_name="$1"
 	local build_dir="$2"
@@ -353,38 +354,16 @@ cmake_build() {
 		cmake_flags=("${MINIMAL_CMAKE_FLAGS[@]}")
 	fi
 	
-	cmake .. "${cmake_flags[@]}" "$@"
-	make -j"$(nproc)"
-	make install
+	cmake .. -G Ninja "${cmake_flags[@]}" "$@"
+	ninja -j"$(nproc)"
+	ninja install
 	
-	echo "✔ $project_name built successfully"
+	echo "✓ $project_name built successfully"
 }
 
 cmake_ninja_build() {
-	local project_name="$1"
-	local build_dir="$2"
-	local use_common_flags="${3:-true}"
-	shift 3
-	
-	echo "[+] Building $project_name for $ARCH..."
-	cd "$build_dir" || exit 1
-	
-	rm -rf build && mkdir build && cd build
-	
-	local cmake_flags=()
-	if [ "$use_common_flags" = "true" ]; then
-		cmake_flags=("${COMMON_CMAKE_FLAGS[@]}")
-	else
-		cmake_flags=("${MINIMAL_CMAKE_FLAGS[@]}")
-	fi
-	
-	cmake .. -G Ninja "${cmake_flags[@]}" "$@"
-	ninja
-	ninja install
-	
-	echo "✔ $project_name built successfully"
+	cmake_build "$@"
 }
-
 
 get_simd_flags() {
 	case "$ARCH" in
@@ -478,7 +457,7 @@ init_cross_files() {
 
 cleanup_pcfiles() {
 	find "$PREFIX" -iname "*.pc" -exec sed -i 's/\s*-lpthread\s*/ /g' {} +
-    find "$PREFIX" -iname "*.pc" -exec sed -i 's/\s*-l-pthread\b\s*/ /g' {} +
+	find "$PREFIX" -iname "*.pc" -exec sed -i 's/\s*-l-pthread\b\s*/ /g' {} +
 	find "$PREFIX" -iname "*.pc" -exec sed -i 's/\s*-lrt\b\s*/ /g' {} +
 	find "$PREFIX" -iname "*.pc" -exec sed -i 's/\s*-llog\b\s*/ /g' {} +
 	f="$PREFIX/lib/pkgconfig/x265.pc"
@@ -491,6 +470,9 @@ prepare_sources
 apply_extra_setup
 init_cross_files
 build_zlib
+build_lzo
+build_lz4
+build_snappy
 build_ncurses
 build_libcaca
 build_udfread
@@ -585,7 +567,6 @@ if [ -z "$FFMPEG_STATIC" ]; then
 	install_opencl_headers
 	build_ocl_icd
 fi
-
 patch_ffmpeg
 build_ffmpeg
 

@@ -37,10 +37,12 @@ SVTAV1_VERSION="SVT-AV1-v3.1.0"
 FFTW_VERSION="fftw-3.3.10"
 LIBFFI_VERSION="libffi-3.5.2"
 NCURSES_VERSION="ncurses-6.5"
+LZO_VERSION="lzo-2.10"
 
 # URL definitions for direct downloads
 FFMPEG_URL="https://ffmpeg.org/releases/${FFMPEG_VERSION}.tar.xz"
 ZLIB_URL="https://zlib.net/${ZLIB_VERSION}.tar.gz"
+LZO_URL="https://www.oberhumer.com/opensource/lzo/download/${LZO_VERSION}.tar.gz"
 BROTLI_URL="https://github.com/google/brotli/archive/refs/tags/v${BROTLI_VERSION}.tar.gz"
 XZ_URL="https://github.com/tukaani-project/xz/releases/download/v5.8.1/${XZ_VERSION}.tar.gz"
 ZSTD_URL="https://github.com/facebook/zstd/releases/download/v1.5.7/${ZSTD_VERSION}.tar.gz"
@@ -114,7 +116,8 @@ declare -A GITHUB_REPOS=(
     ["libxml2"]="https://github.com/GNOME/libxml2.git"
 	["harfbuzz"]="https://github.com/harfbuzz/harfbuzz.git"
 	["theora"]="https://github.com/xiph/theora.git"
-    ["FFmpeg"]="https://github.com/FFmpeg/FFmpeg.git"  
+	["lz4"]="https://github.com/lz4/lz4.git"
+	["snappy"]="https://github.com/google/snappy.git"
 )
 
 # GitHub repos that need recursive cloning
@@ -273,10 +276,9 @@ download_sources() {
 		download_file "$SVTAV1_URL" "svtav1.tar.gz" &
 		download_file "$FFTW_URL" "fftw.tar.gz" &
 		download_file "$LIBFFI_URL" "libffi.tar.gz" &
-		if [ -z "$LATEST_GIT" ]; then
-        download_file "$FFMPEG_URL" "ffmpeg.tar.xz" &
-        fi
+		download_file "$FFMPEG_URL" "ffmpeg.tar.xz" &
 		download_file "$NCURSES_URL" "ncurses.tar.gz" &
+		download_file "$LZO_URL" "lzo.tar.gz" &
 		wait
 
 		download_file "${EXTRA_FILES[uavs3d_cmakelists]}" "uavs3d_cmakelists.txt" &
@@ -353,11 +355,8 @@ prepare_sources() {
 	[ ! -d fftw ] && tar -xf "${DOWNLOAD_DIR}/fftw.tar.gz" && mv "$FFTW_VERSION" fftw
 	[ ! -d libffi ] && tar -xf "${DOWNLOAD_DIR}/libffi.tar.gz" && mv "$LIBFFI_VERSION" libffi
 	[ ! -d ncurses ] && tar -xf "${DOWNLOAD_DIR}/ncurses.tar.gz" && mv "$NCURSES_VERSION" ncurses
-	if [ -z "$LATEST_GIT" ]; then
-    [ ! -d FFmpeg ] && tar -xf "${DOWNLOAD_DIR}/ffmpeg.tar.xz" && mv "$FFMPEG_VERSION" FFmpeg
-    else     
-    [ ! -d FFmpeg ] && [ -d "${DOWNLOAD_DIR}/FFmpeg" ] && cp -r "${DOWNLOAD_DIR}/FFmpeg" . 
-    fi
+	[ ! -d lzo ] && tar -xf "${DOWNLOAD_DIR}/lzo.tar.gz" && mv "$LZO_VERSION" lzo
+	[ ! -d FFmpeg ] && tar -xf "${DOWNLOAD_DIR}/ffmpeg.tar.xz" && mv "$FFMPEG_VERSION" FFmpeg
 	for repo_name in "${!GITHUB_REPOS[@]}"; do
 		[ ! -d "$repo_name" ] && [ -d "${DOWNLOAD_DIR}/$repo_name" ] && cp -r "${DOWNLOAD_DIR}/$repo_name" .
 	done

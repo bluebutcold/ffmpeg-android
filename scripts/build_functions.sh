@@ -12,6 +12,12 @@ build_zlib() {
 	echo "✔ zlib built successfully"
 }
 
+build_lz4() {
+    echo "Building LZ4..."
+    make -C "$BUILD_DIR/lz4" lib CC="$CC" CFLAGS="$CFLAGS" || exit 1
+    make -C "$BUILD_DIR/lz4" install PREFIX="$PREFIX" || exit 1
+}
+
 build_liblzma() {
 	autotools_build "liblzma" "$BUILD_DIR/xz" \
 		CC="$CC_ABS" \
@@ -967,33 +973,32 @@ build_brotli() {
 }
 
 build_x265() {
+	echo "[+] Building x265 for $ARCH..."
 	cd "$BUILD_DIR/x265/source" || exit 1
-	rm -rf build && mkdir build
-	cd build || exit 1
+	rm -rf build && mkdir build && cd build || exit 1
 
 	local CMAKE_ARGS=()
 	if [ "$ARCH" = "armv7" ]; then
 		PROCESSOR=armv7l
 		CMAKE_ARGS=("${COMMON_CMAKE_FLAGS[@]}")
+		CMAKE_ARGS+=(-DCROSS_COMPILE_ARM=1)
 	elif [ "$ARCH" = "aarch64" ]; then
 		PROCESSOR=aarch64
 		CMAKE_ARGS+=(-DCROSS_COMPILE_ARM64=1)
 	elif [ "$ARCH" = "x86" ]; then
 		PROCESSOR=i686
+		CMAKE_ARGS+=(-DENABLE_ASSEMBLY=OFF)
 	elif [ "$ARCH" = "x86_64" ]; then
 		PROCESSOR=x86_64
 	else
 		PROCESSOR=$ARCH
 	fi
-	if [ "$ARCH" = "armv7" ]; then
-		CMAKE_ARGS+=(-DCROSS_COMPILE_ARM=1)
-	fi
 
-	if [ "$ARCH" = "x86" ] || [ "$ARCH" = "riscv64" ]; then
+	if [ "$ARCH" = "riscv64" ]; then
 		CMAKE_ARGS+=(-DENABLE_ASSEMBLY=OFF)
 	fi
 
-	cmake ../ \
+	cmake .. -G Ninja \
 		-DCMAKE_BUILD_TYPE=Release \
 		-DCMAKE_INSTALL_PREFIX="$PREFIX" \
 		-DCMAKE_SYSTEM_PROCESSOR="$PROCESSOR" \
@@ -1004,9 +1009,9 @@ build_x265() {
 		-DENABLE_PIC=ON \
 		"${CMAKE_ARGS[@]}"
 
-	make -j"$(nproc)"
-	make install
-	echo "✔ x265 built successfully"
+	ninja -j"$(nproc)"
+	ninja install
+	echo "✓ x265 built successfully"
 }
 
 build_aom() {
@@ -1014,7 +1019,7 @@ build_aom() {
 	cd "$BUILD_DIR/aom" || exit 1
 	rm -rf out && mkdir out && cd out
 
-	cmake .. \
+	cmake .. -G Ninja \
 		-DCMAKE_INSTALL_PREFIX="$PREFIX" \
 		-DCMAKE_SYSTEM_NAME=Linux \
 		-DCMAKE_C_COMPILER="$CC_ABS" \
@@ -1032,8 +1037,9 @@ build_aom() {
 		-DENABLE_DOCS=OFF \
 		"${ASM_F[@]}"
 
-	make -j"$(nproc)" && make install
-	echo "✔ libaom (AV1) built successfully"
+	ninja -j"$(nproc)"
+	ninja install
+	echo "✓ libaom (AV1) built successfully"
 }
 
 build_openjpeg() {
@@ -1067,11 +1073,11 @@ build_soxr() {
 		-DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
 		-Wno-dev
 
-	cmake --build build
-	cmake --install build
+	ninja -C build -j"$(nproc)"
+	ninja -C build install
 	
 	generate_pkgconfig "soxr" "High quality, one-dimensional sample-rate conversion library" "0.1.3" "-lsoxr"
-	echo "✔ soxr built successfully"
+	echo "✓ soxr built successfully"
 }
 
 build_svtav1() {
@@ -1329,6 +1335,23 @@ build_chromaprint() {
 		-DBUILD_TOOLS=OFF \
 		-DBUILD_TESTS=OFF \
 		-DFFT_LIB=fftw3
+}
+
+build_lzo() {
+	cmake_build "lzo" "$BUILD_DIR/lzo" true \
+        -DENABLE_STATIC=ON \
+        -DENABLE_SHARED=OFF
+}
+
+build_snappy() {
+    cmake_build "Snappy" "$BUILD_DIR/snappy" true \
+        -DBUILD_SHARED_LIBS=OFF \
+        -DSNAPPY_BUILD_TESTS=OFF \
+        -DSNAPPY_BUILD_BENCHMARKS=OFF \
+        -DSNAPPY_FUZZING_BUILD=OFF \
+        -DSNAPPY_INSTALL=ON \
+        -DSNAPPY_REQUIRE_AVX=OFF \
+        -DSNAPPY_REQUIRE_AVX2=OFF
 }
 
 build_avisynth() {
