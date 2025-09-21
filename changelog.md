@@ -1,14 +1,11 @@
 # Build Changelog
 
-**Commit:** 8d65da767b2b727a80672969f3120286ee478290
-**Author:** Lynne <dev@lynne.ee>
-**Date:** Wed Sep 17 00:11:11 2025 +0900
+**Commit:** db0b86a4adf3ffe592ea70e756d615e89138eee0
+**Author:** Brad Smith <brad@comstyle.com>
+**Date:** Sat Sep 20 01:51:45 2025 -0400
 
-lavf: fix demuxing of FLAC files with id3v2 tags
+avformat/udp: fix warning about unused varible
 
-Due to the recent id3v2 refactor, FLAC was left out due to
-earlier code not checking for id3v2 presence on FLAC.
-Without the id3v2 data parsed, detection of FLAC and therefore
-demuxing fails.
+libavformat/udp.c:283:9: warning: unused variable 'i' [-Wunused-variable]
 
-Fixes 9d037c54f209958d47ac376d2a9561608f98dfae
+Signed-off-by: Brad Smith <brad@comstyle.com>
