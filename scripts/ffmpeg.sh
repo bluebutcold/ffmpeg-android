@@ -138,7 +138,6 @@ build_ffmpeg() {
 		--enable-liblc3
 		--enable-liblcevc-dec
 		--enable-libmodplug
-        --enable-libiconv
 		"${FLAGS[@]}"
 		"${NEON[@]}"
 		"${ASM_FLAG[@]}"
