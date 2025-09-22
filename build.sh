@@ -494,8 +494,6 @@ build_pcre2
 ### Subtitles / text rendering
 build_iconv
 build_fribidi
-build_libass
-build_aribb24
 
 ### Graphics stack
 build_libffi
@@ -504,7 +502,9 @@ build_freetype
 build_harfbuzz
 build_fontconfig
 build_glib
-build_dav1d  
+build_dav1d
+build_libass
+build_aribb24
 
 if [ "$ARCH" != "riscv64" ]; then
     build_pixman
