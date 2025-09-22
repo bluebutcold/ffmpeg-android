@@ -651,6 +651,11 @@ EOF
   "$BUILD_DIR/librsvg/include/librsvg/rsvg-version.h.in" \
   > "$PREFIX/include/librsvg/rsvg-version.h"
 
+    PIXBUF=0 
+sed \
+  -e "s/@LIBRSVG_HAVE_PIXBUF@/$PIXBUF/" \
+  "$BUILD_DIR/librsvg/include/librsvg/rsvg-features.h.in" \
+  > "$PREFIX/include/librsvg/rsvg-features.h"
 
     echo "✔ built successfully"
 }
