@@ -994,10 +994,10 @@ build_dav1d() {
 
 build_freetype() {
     meson_build "FreeType" "$BUILD_DIR/freetype" "$CROSS_FILE_TEMPLATE" \
-        -Dbrotli=disabled \
-        -Dbzip2=disabled \
+        -Dbrotli=enabled \
+        -Dbzip2=enabled \
         -Dharfbuzz=disabled \
-        -Dpng=disabled \
+        -Dpng=enabled \
         -Dzlib=system \
         -Dtests=disabled \
         -Derror_strings=false
