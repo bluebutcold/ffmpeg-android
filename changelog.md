@@ -1,8 +1,8 @@
 # Build Changelog
 
-**Commit:** bf5efb1b6a4e865f66b6961864183573d00d07ca
-**Author:** bluebutcold <219769887+bluebutcold@users.noreply.github.com>
-**Date:** Sun Sep 21 22:11:56 2025 +0530
+**Commit:** ef826114f5cf31169868519ff781878e5f295c75
+**Author:** github-actions[bot] <github-actions[bot]@users.noreply.github.com>
+**Date:** Sun Sep 21 20:50:43 2025 +0000
 
-Update build.sh
+Update JSON files for build 84
 
