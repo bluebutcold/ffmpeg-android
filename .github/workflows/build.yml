@@ -98,15 +98,19 @@ jobs:
           profile: minimal  
           override: true  
 
+
+      - name: Install cargo-c
+        run: |
+          mkdir -p $HOME/.cargo/bin
+          cd /tmp
+          curl -L https://github.com/lu-zero/cargo-c/releases/download/v0.10.16/cargo-c-x86_64-unknown-linux-musl.tar.gz -o cargo-c.tar.gz
+          tar -xzf cargo-c.tar.gz
+          cp cargo-c-*/cargo-c* $HOME/.cargo/bin/
+          chmod +x $HOME/.cargo/bin/cargo-c*
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          cargo-c --version     
+
                 
-      - name: Install binstall  
-        run: |  
-          curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash  
-          export PATH="$HOME/.cargo/bin:$PATH" 
-          
-      - name: Install cargo-c  
-        run: |  
-          cargo binstall cargo-c --no-confirm  
       - name: Add Rust Android targets  
         if: matrix.arch != 'riscv64'  
         run: |  
