@@ -954,6 +954,9 @@ build_cairo() {
 }
 
 build_pango() {
+
+     rm -f "$BUILD_DIR/pango/glib.wrap"
+      
     meson_build "Pango" "$BUILD_DIR/pango" "$CROSS_FILE_TEMPLATE" \
         -Ddocumentation=false \
         -Dman-pages=false \
