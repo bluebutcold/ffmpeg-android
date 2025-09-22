@@ -954,10 +954,11 @@ build_cairo() {
 		-Dc_link_args="$LDFLAGS -lbrotlidec -lbrotlienc -lbrotlicommon"
 }
 
-build_pango() {
 
-     rm -f "$BUILD_DIR/pango/glib.wrap"
-      
+build_pango() {
+     
+	   rm -f "$BUILD_DIR/pango/glib.wrap"
+
     meson_build "Pango" "$BUILD_DIR/pango" "$CROSS_FILE_TEMPLATE" \
         -Ddocumentation=false \
         -Dman-pages=false \
@@ -970,8 +971,11 @@ build_pango() {
         -Dcairo=enabled \
         -Dxft=disabled \
         -Dfreetype=enabled \
-		--wrap-mode=nodownload
+		--wrap-mode=nodownload \
+		-Dc_link_args="$LDFLAGS -lbrotlidec -lbrotlienc -lbrotlicommon -liconv"
 }
+
+
 
 build_gdk_pixbuf() {
     meson_build "GDK-Pixbuf" "$BUILD_DIR/gdk-pixbuf" "$CROSS_FILE_TEMPLATE" \
