@@ -19,7 +19,7 @@ OGG_VERSION="libogg-1.3.6"
 DAV1D_VERSION="dav1d-master"
 LIBASS_VERSION="libass-0.17.4"
 LIBPNG_VERSION="libpng-1.6.50"
-FONTCONFIG_VERSION="fontconfig-2.16.0"
+#FONTCONFIG_VERSION="fontconfig-2.16.0"
 FRIBIDI_VERSION="fribidi-1.0.16"
 BLURAY_VERSION="libbluray-master"
 SPEEX_VERSION="speex-1.2.1"
@@ -59,7 +59,7 @@ OGG_URL="https://downloads.xiph.org/releases/ogg/${OGG_VERSION}.tar.gz"
 DAV1D_URL="https://code.videolan.org/videolan/dav1d/-/archive/master/${DAV1D_VERSION}.tar.gz"
 LIBASS_URL="https://github.com/libass/libass/releases/download/0.17.4/${LIBASS_VERSION}.tar.gz"
 LIBPNG_URL="https://download.sourceforge.net/libpng/${LIBPNG_VERSION}.tar.gz"
-FONTCONFIG_URL="https://www.freedesktop.org/software/fontconfig/release/${FONTCONFIG_VERSION}.tar.xz"
+#FONTCONFIG_URL="https://www.freedesktop.org/software/fontconfig/release/${FONTCONFIG_VERSION}.tar.xz"
 FRIBIDI_URL="https://github.com/fribidi/fribidi/releases/download/v1.0.16/${FRIBIDI_VERSION}.tar.xz"
 BLURAY_URL="https://code.videolan.org/videolan/libbluray/-/archive/master/${BLURAY_VERSION}.tar.gz"
 SPEEX_URL="http://downloads.xiph.org/releases/speex/${SPEEX_VERSION}.tar.gz"
@@ -120,6 +120,7 @@ declare -A GITHUB_REPOS=(
 	["theora"]="https://github.com/xiph/theora.git"
 	["lz4"]="https://github.com/lz4/lz4.git"
 	["snappy"]="https://github.com/google/snappy.git"
+	["fontconfig"]="https://gitlab.freedesktop.org/fontconfig/fontconfig.git"
 )
 
 # GitHub repos that need recursive cloning
@@ -268,7 +269,7 @@ download_sources() {
 		wait
 
 		download_file "$LIBPNG_URL" "libpng.tar.gz" &
-		download_file "$FONTCONFIG_URL" "fontconfig.tar.xz" &
+		#download_file "$FONTCONFIG_URL" "fontconfig.tar.xz" &
 		download_file "$FRIBIDI_URL" "fribidi.tar.xz" &
 		download_file "$BLURAY_URL" "bluray.tar.gz" &
 		download_file "$SPEEX_URL" "speex.tar.gz" &
@@ -348,7 +349,7 @@ prepare_sources() {
 	[ ! -d ogg ] && tar -xf "${DOWNLOAD_DIR}/ogg.tar.gz" && mv "$OGG_VERSION" ogg
 	[ ! -d dav1d ] && tar -xf "${DOWNLOAD_DIR}/dav1d.tar.gz" && mv "$DAV1D_VERSION"* dav1d
 	[ ! -d libass ] && tar -xf "${DOWNLOAD_DIR}/libass.tar.gz" && mv "$LIBASS_VERSION" libass
-	[ ! -d fontconfig ] && tar -xf "${DOWNLOAD_DIR}/fontconfig.tar.xz" && mv "$FONTCONFIG_VERSION" fontconfig
+#	[ ! -d fontconfig ] && tar -xf "${DOWNLOAD_DIR}/fontconfig.tar.xz" && mv "$FONTCONFIG_VERSION" fontconfig
 	[ ! -d fribidi ] && tar -xf "${DOWNLOAD_DIR}/fribidi.tar.xz" && mv "$FRIBIDI_VERSION" fribidi
 	[ ! -d bluray ] && tar -xf "${DOWNLOAD_DIR}/bluray.tar.gz" && mv "$BLURAY_VERSION"* bluray
 	[ ! -d speex ] && tar -xf "${DOWNLOAD_DIR}/speex.tar.gz" && mv "$SPEEX_VERSION" speex
