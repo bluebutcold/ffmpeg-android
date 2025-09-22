@@ -511,7 +511,7 @@ if [ "$ARCH" != "riscv64" ]; then
     build_cairo
     build_pango
     build_librsvg_c
-	build_rav1e
+	#build_rav1e
 	build_xavs2
 
 fi
