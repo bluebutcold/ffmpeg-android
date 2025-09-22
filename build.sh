@@ -469,108 +469,135 @@ download_sources
 prepare_sources
 apply_extra_setup
 init_cross_files
+
+### Compression / crypto
 build_zlib
 build_lzo
 build_lz4
 build_snappy
-build_ncurses
-build_libcaca
-build_udfread
-build_bluray
-build_openssl
-build_x264
-build_libvpx
-build_xavs
-
-[ "$ARCH" != "riscv64" ] && build_xavs2
-
-build_davs2
-build_libsrt
-build_openjpeg
+build_bzip2
 build_liblzma
 build_zstd
+build_brotli
+build_openssl
+
+### Terminal / text
+build_ncurses
+build_libcaca
+
+### Parsing / XML
+build_libxml2
+build_libexpat
 build_pcre2
-build_rtmp
+
+### Subtitles / text rendering
+build_iconv
+build_fribidi
+build_libass
+build_aribb24
+
+### Graphics stack
+build_libffi
+build_libpng
+build_freetype
+build_harfbuzz
+build_fontconfig
+build_glib
+build_dav1d  
+
+if [ "$ARCH" != "riscv64" ]; then
+    build_pixman
+    build_cairo
+    build_pango
+    build_librsvg_c
+	build_rav1e
+	build_xavs2
+
+fi
+
+build_librsvg_c
+
+### Audio codecs
 build_libgsm
-build_x265
 build_lame
 build_twolame
 build_opus
 build_ogg
 build_vorbis
 build_speex
+build_libvo_amrwbenc
+build_opencore_amr
+build_libilbc
+build_libcodec2_native
+build_libcodec2
+build_libbs2b
+build_libgme
+build_flite
+build_libmodplug
+build_liblc3
+
+### Video codecs
+build_x264
+build_libvpx
+build_xavs
+build_davs2
+build_libsrt
+build_openjpeg
+build_x265
 build_aom
-build_dav1d
-build_fribidi
-build_brotli
-build_bzip2
-build_freetype
-build_libxml2
-build_libexpat
-build_libpng
-build_harfbuzz
-build_fontconfig
-build_libass
+build_svtav1
+build_uavs3d
+build_xvidcore
+build_kvazaar
+build_vvenc
+if [ "$ARCH" != "armv7" ] && [ "$ARCH" != "riscv64" ]; then
+    build_xeve
+    build_xevd
+fi
+
+### Media formats / misc video
+build_udfread
+build_bluray
+build_rtmp
 build_libtheora
-build_lcms
-build_libwebp
 build_vmaf
 build_libzimg
 build_libmysofa
 build_vidstab
 build_soxr
 build_openmpt
-build_svtav1
 build_libzmq
 build_libplacebo
 build_librist
-build_libvo_amrwbenc
-build_opencore_amr
-build_libilbc
-build_libcodec2_native
-build_libcodec2
-build_aribb24
-build_uavs3d
-build_xvidcore
-build_kvazaar
-build_vvenc
 build_vapoursynth
-build_libffi
-build_glib
+
+### Image / color management
+build_lcms
+build_libwebp
+
+### Utilities & extras
 build_lensfun
-build_flite
-build_libbs2b
-build_libssh
-build_libgme
 build_highway
-
 build_libjxl
-
+build_libssh
 build_libqrencode
 build_quirc
 build_fftw
 build_chromaprint
 build_avisynth
-build_fribidi
-build_liblc3
 build_lcevcdec
 
-if [ "$ARCH" != "armv7" ] && [ "$ARCH" != "riscv64" ]; then
-	build_xeve
-	build_xevd
-fi
-build_libmodplug
+### Final cleanup + FFmpeg
 cleanup_pcfiles
 
-
 if [ -z "$FFMPEG_STATIC" ]; then
-	install_opencl_headers
-	build_ocl_icd
+    install_opencl_headers
+    build_ocl_icd
 fi
+
 patch_ffmpeg
 build_ffmpeg
 
-
 source "$ROOT_DIR/scripts/gen_module.sh"
-
 echo "Build completed successfully"
+
