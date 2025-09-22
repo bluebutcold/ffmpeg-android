@@ -950,7 +950,8 @@ build_cairo() {
         -Dglib=enabled \
         -Dspectre=disabled \
         -Dsymbol-lookup=disabled \
-        -Dgtk_doc=false
+        -Dgtk_doc=false \
+		-Dc_link_args="$LDFLAGS -lbrotlidec -lbrotlienc -lbrotlicommon"
 }
 
 build_pango() {
