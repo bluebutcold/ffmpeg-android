@@ -38,8 +38,10 @@ FFTW_VERSION="fftw-3.3.10"
 LIBFFI_VERSION="libffi-3.5.2"
 NCURSES_VERSION="ncurses-6.5"
 LZO_VERSION="lzo-2.10"
+ICONV_VERSION="libiconv-1.18"
 
 # URL definitions for direct downloads
+ICONV_URL="https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.18.tar.gz"
 FFMPEG_URL="https://ffmpeg.org/releases/${FFMPEG_VERSION}.tar.xz"
 ZLIB_URL="https://zlib.net/${ZLIB_VERSION}.tar.gz"
 LZO_URL="https://www.oberhumer.com/opensource/lzo/download/${LZO_VERSION}.tar.gz"
@@ -138,6 +140,11 @@ declare -A OTHER_GIT_REPOS=(
 	["librist"]="https://code.videolan.org/rist/librist"
 	["rtmpdump"]="git://git.ffmpeg.org/rtmpdump"
 	["aom"]="https://aomedia.googlesource.com/aom"
+	["pixman"]="https://gitlab.freedesktop.org/pixman/pixman.git"
+	["cairo"]="https://gitlab.freedesktop.org/cairo/cairo.git"
+	["pango"]="https://gitlab.gnome.org/GNOME/pango.git"
+	["gdk-pixbuf"]="https://gitlab.gnome.org/GNOME/gdk-pixbuf.git"
+	["librsvg"]="https://gitlab.gnome.org/GNOME/librsvg.git"
 )
 
 # Extra files
@@ -279,6 +286,7 @@ download_sources() {
 		download_file "$FFMPEG_URL" "ffmpeg.tar.xz" &
 		download_file "$NCURSES_URL" "ncurses.tar.gz" &
 		download_file "$LZO_URL" "lzo.tar.gz" &
+		download_file "$ICONV_URL" iconv.tar.gz &
 		wait
 
 		download_file "${EXTRA_FILES[uavs3d_cmakelists]}" "uavs3d_cmakelists.txt" &
@@ -356,6 +364,7 @@ prepare_sources() {
 	[ ! -d libffi ] && tar -xf "${DOWNLOAD_DIR}/libffi.tar.gz" && mv "$LIBFFI_VERSION" libffi
 	[ ! -d ncurses ] && tar -xf "${DOWNLOAD_DIR}/ncurses.tar.gz" && mv "$NCURSES_VERSION" ncurses
 	[ ! -d lzo ] && tar -xf "${DOWNLOAD_DIR}/lzo.tar.gz" && mv "$LZO_VERSION" lzo
+	[ ! -d iconv ] && tar -xf "${DOWNLOAD_DIR}/iconv.tar.gz" && mv "$ICONV_VERSION" iconv
 	[ ! -d FFmpeg ] && tar -xf "${DOWNLOAD_DIR}/ffmpeg.tar.xz" && mv "$FFMPEG_VERSION" FFmpeg
 	for repo_name in "${!GITHUB_REPOS[@]}"; do
 		[ ! -d "$repo_name" ] && [ -d "${DOWNLOAD_DIR}/$repo_name" ] && cp -r "${DOWNLOAD_DIR}/$repo_name" .
