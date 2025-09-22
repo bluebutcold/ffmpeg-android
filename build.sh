@@ -145,6 +145,7 @@ mkdir -p "$PREFIX/lib/pkgconfig"
 mkdir -p "$PREFIX/lib64/pkgconfig"
 
 export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig:$PREFIX/lib64/pkgconfig:$PKG_CONFIG_PATH"
+export PKG_CONFIG_ALLOW_CROSS=1
 
 export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
 
