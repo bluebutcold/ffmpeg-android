@@ -12,6 +12,26 @@ build_zlib() {
 	echo "✔ zlib built successfully"
 }
 
+build_iconv() {
+    cd "$BUILD_DIR/iconv"
+    ./configure \
+        --prefix="$PREFIX" \
+        --enable-static \
+        --disable-shared \
+        --host="$HOST" \
+        CC="$CC" \
+        CXX="$CXX" \
+        CFLAGS="$CFLAGS" \
+        CXXFLAGS="$CXXFLAGS" \
+        LDFLAGS="$LDFLAGS"
+    make -j$(nproc)
+    make install
+
+	generate_pkgconfig "libiconv" "GNU libiconv" "1.17" "-L$PREFIX/lib -liconv" "-I$PREFIX/include"
+}
+
+
+
 build_lz4() {
     echo "Building LZ4..."
     make -C "$BUILD_DIR/lz4" lib CC="$CC" CFLAGS="$CFLAGS" || exit 1
