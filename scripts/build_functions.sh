@@ -569,6 +569,60 @@ EOF
 	echo "✔ rav1e built successfully"
 }
 
+build_librsvg_c() {
+    echo "[+] Building librsvg for $ARCH..."
+    cd "$BUILD_DIR/librsvg/librsvg-c" || exit 1
+    
+    mkdir -p .cargo
+    cat >.cargo/config.toml <<EOF
+[target.$RUST_TARGET]
+linker = "$CC_ABS"
+ar = "$AR_ABS"
+rustflags = ["-C", "target-feature=+crt-static", "-C", "relocation-model=pic", "-C", "link-arg=-pie"]
+
+[build]
+target = "$RUST_TARGET"
+EOF
+
+    export CC="$CC_ABS"
+    export CXX="$CXX_ABS"
+    export AR="$AR_ABS"
+    
+    cargo cinstall --release \
+        --target "$RUST_TARGET" \
+        --prefix "$PREFIX" \
+        --library-type staticlib
+
+    # pkg-config fixup
+    if [ -f "$PREFIX/lib/pkgconfig/librsvg_c.pc" ]; then
+        cp "$PREFIX/lib/pkgconfig/librsvg_c.pc" "$PREFIX/lib/pkgconfig/librsvg-2.0.pc"
+    else
+        generate_pkgconfig \
+          "librsvg-2.0" \
+          "The GObject-based SVG rendering library" \
+          "2.52.0" \
+          "-lrsvg_2 -lcairo-gobject -lxml2 -lpangocairo-1.0 -lgmodule-2.0 -lpng16 -lpixman-1 -lpcre2-8 -lffi -lexpat -lharfbuzz -lcairo -ldl -lgio-2.0 -lpangoft2-1.0 -lfribidi -lpango-1.0 -lz -lfontconfig -lgobject-2.0 -lfreetype -lglib-2.0 -lintl -latomic -lm" \
+          "-I\${includedir}/librsvg-2.0 -I\${includedir}/librsvg"
+    fi
+
+
+    mkdir -p "$PREFIX/include/librsvg-2.0/librsvg" "$PREFIX/include/librsvg"
+
+
+    src=$(find "$BUILD_DIR/librsvg" -iname "rsvg.h" | head -n 1)
+    [ -n "$src" ] && cp "$src" "$PREFIX/include/librsvg-2.0/librsvg/"
+
+
+    for h in rsvg-features.h rsvg-version.h rsvg-cairo.h rsvg-pixbuf.h; do
+        src=$(find "$BUILD_DIR/librsvg" -iname "$h" | head -n 1)
+        [ -n "$src" ] && cp "$src" "$PREFIX/include/librsvg/"
+    done
+
+    echo "✔ built successfully"
+}
+
+
+
 build_xavs2() {
 	local ASMMM=""
 	
@@ -819,6 +873,94 @@ build_highway() {
         "${arch_opts[@]}"
 }
 
+build_pixman() {
+    local simd_opts=""
+    
+    case "$ARCH" in
+        x86)
+            simd_opts="-Dmmx=enabled -Dsse2=enabled -Dssse3=enabled"
+            ;;
+        x86_64)
+            simd_opts="-Dmmx=enabled -Dsse2=enabled -Dssse3=enabled"
+            ;;
+        armv7)
+            simd_opts="-Darm-simd=enabled -Dneon=enabled"
+            ;;
+        aarch64)
+            simd_opts="-Da64-neon=enabled"
+            ;;
+        riscv64)
+            simd_opts="-Drvv=enabled"
+            ;;
+        *)
+            simd_opts=""
+            ;;
+    esac
+
+    meson_build "pixman" "$BUILD_DIR/pixman" "$CROSS_FILE_TEMPLATE" \
+        $simd_opts \
+        -Dloongson-mmi=disabled \
+        -Dvmx=disabled \
+        -Dgnu-inline-asm=enabled \
+        -Dtls=enabled \
+        -Dcpu-features-path=$ANDROID_NDK_ROOT/sources/android/cpufeatures \
+        -Dopenmp=disabled \
+        -Dtimers=false \
+        -Dgnuplot=false \
+        -Dgtk=disabled \
+        -Dtests=disabled \
+        -Ddemos=disabled
+}
+
+build_cairo() {
+    meson_build "Cairo" "$BUILD_DIR/cairo" "$CROSS_FILE_TEMPLATE" \
+        -Ddwrite=disabled \
+        -Dfontconfig=enabled \
+        -Dfreetype=enabled \
+        -Dpng=enabled \
+        -Dquartz=disabled \
+        -Dtee=disabled \
+        -Dxcb=disabled \
+        -Dxlib=disabled \
+        -Dxlib-xcb=disabled \
+        -Dzlib=enabled \
+        -Dtests=disabled \
+        -Dlzo=enabled \
+        -Dgtk2-utils=disabled \
+        -Dglib=enabled \
+        -Dspectre=disabled \
+        -Dsymbol-lookup=disabled \
+        -Dgtk_doc=false
+}
+
+build_pango() {
+    meson_build "Pango" "$BUILD_DIR/pango" "$CROSS_FILE_TEMPLATE" \
+        -Ddocumentation=false \
+        -Dman-pages=false \
+        -Dintrospection=disabled \
+        -Dbuild-testsuite=false \
+        -Dbuild-examples=false \
+        -Dfontconfig=enabled \
+        -Dsysprof=disabled \
+        -Dlibthai=disabled \
+        -Dcairo=enabled \
+        -Dxft=disabled \
+        -Dfreetype=enabled \
+		--wrap-mode=nodownload
+}
+
+build_gdk_pixbuf() {
+    meson_build "GDK-Pixbuf" "$BUILD_DIR/gdk-pixbuf" "$CROSS_FILE_TEMPLATE" \
+        -Dman=false \
+        -Dgtk_doc=false \
+        -Dinstalled_tests=false \
+        -Dintrospection=disabled \
+        -Dnative_windows_loaders=false \
+        -Djpeg=disabled \
+        -Dtiff=disabled \
+        -Dpng=enabled \
+        -Dbuiltin_loaders=all
+}
 
 build_dav1d() {
     local ASM_OPTION=""
