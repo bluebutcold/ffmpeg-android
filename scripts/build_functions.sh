@@ -629,18 +629,31 @@ EOF
     mkdir -p "$PREFIX/include/librsvg-2.0/librsvg" "$PREFIX/include/librsvg"
 
 
-    src=$(find "$BUILD_DIR/librsvg" -iname "rsvg.h" | head -n 1)
+    src=$(find "$BUILD_DIR/librsvg" -iname "rsvg.h" -type f | head -n 1)
     [ -n "$src" ] && cp "$src" "$PREFIX/include/librsvg-2.0/librsvg/"
 
 
-    for h in rsvg-features.h rsvg-version.h rsvg-cairo.h rsvg-pixbuf.h; do
-        src=$(find "$BUILD_DIR/librsvg" -iname "$h" | head -n 1)
+    for h in rsvg-cairo.h rsvg-pixbuf.h; do
+        src=$(find "$BUILD_DIR/librsvg" -iname "$h" -type f | head -n 1)
         [ -n "$src" ] && cp "$src" "$PREFIX/include/librsvg/"
     done
 
+	cp "$BUILD_DIR/librsvg/include/librsvg/rsvg-features.h.in" "$PREFIX/include/librsvg/rsvg-features.h"
+
+	VERSION=$(grep '^version\s*=' "$BUILD_DIR/librsvg/Cargo.toml" | head -n1 | sed 's/.*"\(.*\)".*/\1/')
+
+    IFS='.' read -r LIBRSVG_MAJOR_VERSION LIBRSVG_MINOR_VERSION LIBRSVG_MICRO_VERSION <<< "$VERSION"
+     sed \
+  -e "s/@LIBRSVG_MAJOR_VERSION@/$LIBRSVG_MAJOR_VERSION/" \
+  -e "s/@LIBRSVG_MINOR_VERSION@/$LIBRSVG_MINOR_VERSION/" \
+  -e "s/@LIBRSVG_MICRO_VERSION@/$LIBRSVG_MICRO_VERSION/" \
+  -e "s/@PACKAGE_VERSION@/$VERSION/" \
+  "$BUILD_DIR/librsvg/include/librsvg/rsvg-version.h.in" \
+  > "$PREFIX/include/librsvg/rsvg-version.h"
+
+
     echo "✔ built successfully"
 }
-
 
 
 build_xavs2() {
