@@ -3,7 +3,7 @@ name: Build FFmpeg Android
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 * * * *' 
+    - cron: '0 */2 * * *'
 
 permissions:
   contents: write
