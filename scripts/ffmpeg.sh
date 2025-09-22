@@ -66,7 +66,7 @@ build_ffmpeg() {
 		--arch="$ARCH"
 		--target-os=android
 		--pkg-config-flags=--static
-		--extra-cflags="${CFLAGS}"
+		--extra-cflags="${CFLAGS} -I$PREFIX/include/cairo"
 		--extra-ldflags="${LDFLAGS} ${STATIC_FLAG[@]}"
 		--extra-libs="-lm -lstdc++ -lncursesw -lbrotlidec -lbrotlienc -lbrotlicommon -liconv -lcrypto -lz -lfftw3 -ldl -llzma -lunwind"
 		--extra-version=$EXTRA_VERSION
