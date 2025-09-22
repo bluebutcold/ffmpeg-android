@@ -117,7 +117,7 @@ getprop ro.product.cpu.abi
 - **librtmp** - Flash video streaming
 - **libssh** - SSH connections
 
-## 🛠️ Build Features
+## Build Features
 
 ### Hardware Acceleration (Dynamic builds)
 - **MediaCodec** - Android native hardware encoding/decoding
@@ -139,7 +139,7 @@ getprop ro.product.cpu.abi
 - Maximum portability
 - No hardware acceleration
 
-## 📋 Environment Variables (For Manual Builds)
+## Environment Variables (For Manual Builds)
 
 | Variable | Description | Required | Default | Notes |
 |----------|-------------|----------|---------|--------|
@@ -165,8 +165,7 @@ export FFMPEG_STATIC=1  # Optional: for static build
 - **Linux** build environment  
 - **Build tools**: make, cmake, ninja, autotools
 - **Languages**: C/C++ toolchain, Rust (for some codecs)
-- **Python tools**: meson, pipx
-- **Storage**: ~10GB free space during build
+- **Python tools**: meson
 
 ##  Release Information
 
@@ -179,7 +178,7 @@ Each automated release includes:
 
 ### Update Mechanism
 - JSON files automatically updated for Magisk module update checks
-- Telegram notifications sent to @ffmpegandroid
+- Telegram notifications sent to [@ffmpegandroid](ffmpegandroid.t.me)
 - Release notes include FFmpeg commit information
 
 ## Usage Notes
@@ -196,7 +195,7 @@ Each automated release includes:
 
 ### Architecture Selection
 Choose based on your device:
-- **Most Android phones (2015+)**: arm64-v8a (aarch64)
+- **Most Android phones**: arm64-v8a (aarch64)
 - **Older Android phones**: armeabi-v7a (armv7)  
 - **Android-x86/Emulators**: x86_64 or x86
 - **Experimental devices**: riscv64
