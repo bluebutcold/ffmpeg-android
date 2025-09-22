@@ -105,7 +105,7 @@ jobs:
           cd /tmp
           curl -L https://github.com/lu-zero/cargo-c/releases/download/v0.10.16/cargo-c-x86_64-unknown-linux-musl.tar.gz -o cargo-c.tar.gz
           tar -xzf cargo-c.tar.gz
-          cp cargo-c-*/cargo-c* $HOME/.cargo/bin/
+          cp cargo-c* $HOME/.cargo/bin/
           chmod +x $HOME/.cargo/bin/cargo-c*
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
           cargo-c --version     
