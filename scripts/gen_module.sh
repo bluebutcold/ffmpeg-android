@@ -33,7 +33,7 @@ else
 FFMPEG_V=8.0
 fi
 UPDATE_JSON=${ROOT_DIR}/updateJsons/${ARCH}/${type}/updateJson
-UPDATE_URL=https://raw.githubusercontent.com/bluebutcold/ffmpeg-android/main/updateJsons/${ARCH}/${type}/updateJson
+UPDATE_URL=https://raw.githubusercontent.com/KaluaBilla/ffmpeg-android/main/updateJsons/${ARCH}/${type}/updateJson
 
 current_vcode=$(jq -r '.versionCode' "$UPDATE_JSON")
 
