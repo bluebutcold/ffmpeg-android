@@ -210,7 +210,6 @@ Choose based on your device:
 - **Hardware acceleration not working**: Check device MediaCodec support
 
 ### Getting Help
-- Check [Issues](../../issues) for known problems
 - Review [Releases](../../releases) for working builds
 
 ## License
