@@ -515,9 +515,6 @@ if [ "$ARCH" != "riscv64" ]; then
 	build_xavs2
 
 fi
-
-build_librsvg_c
-
 ### Audio codecs
 build_libgsm
 build_lame
