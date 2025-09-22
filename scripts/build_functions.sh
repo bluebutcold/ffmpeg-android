@@ -1095,8 +1095,10 @@ build_glib() {
         -Dglib_debug=disabled \
         -Dlibmount=disabled \
         -Dselinux=disabled \
-        -Dman-pages=disabled
+        -Dman-pages=disabled \
+        -Dc_link_args="$LDFLAGS -liconv"
 }
+
 
 build_fribidi() {
     meson_build "FriBidi" "$BUILD_DIR/fribidi" "$CROSS_FILE_TEMPLATE" \
