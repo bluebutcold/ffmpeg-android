@@ -1,8 +1,8 @@
 # Build Changelog
 
-**Commit:** 8a9bb5e308760fba04ce4bea3e515c28bea8788a
-**Author:** github-actions[bot] <github-actions[bot]@users.noreply.github.com>
-**Date:** Mon Sep 22 04:51:25 2025 +0000
+**Commit:** 594046d7f44f1d310efd61e78315c6d8b1d9a00f
+**Author:** ⚘ कलुआ बिल्ला 😾 <219769887+KaluaBilla@users.noreply.github.com>
+**Date:** Tue Sep 23 09:14:54 2025 +0530
 
-Update JSON files for build 90
+Update build_functions.sh
 
