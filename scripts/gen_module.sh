@@ -13,8 +13,6 @@ cp "${CHANGELOG}" "${BASE_DIR}"/
 COMMIT_SUFFIX=""
 if [ -n "$LATEST_GIT" ] && [ -d "${BUILD_DIR}/FFmpeg/.git" ]; then
     FFMPEG_COMMIT=$(cd "${BUILD_DIR}/FFmpeg" && git rev-parse --short HEAD 2>/dev/null)
-	cd "$BUILD_DIR/FFmpeg" && git rev-parse HEAD > "${BASE_DIR}/ffmpeg_commit.txt"
- 
     if [ -n "$FFMPEG_COMMIT" ]; then
         COMMIT_SUFFIX="-${FFMPEG_COMMIT}"
     fi
