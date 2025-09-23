@@ -1,16 +1,12 @@
 # Build Changelog
 
-**Commit:** 899e497122f793c3d97f5aac7bee62567f23fe29
-**Author:** Niklas Haas <git@haasn.dev>
-**Date:** Thu Sep 11 01:48:32 2025 +0200
+**Commit:** 7c78a63476da6360063d45f74cb1d9fc94047278
+**Author:** Andreas Rheinhardt <andreas.rheinhardt@outlook.com>
+**Date:** Tue Sep 23 05:42:59 2025 +0200
 
-avfilter/vf_libplacebo: force premultiplied blending for linear texture
+avcodec/mpegaudiodec_float: Don't set AVCodec.sample_fmts directly
 
-Blending onto independent alpha framebuffers is not possible under the
-constraints of the supported blend operators. While we could handle
-blending premul-onto-premul, this would break if the base layer is YUV,
-since premultiplied alpha does not survive the (nonlinear) YUV conversion.
+It is deprecated and doing so gives warnings from Clang.
+Use CODEC_SAMPLEFMTS instead.
 
-Fortunately, blending independent-onto-premul is just as easy, and works in
-all cases. So just force this mode when using a linear intermediate blend
-texture, which is always RGBA.
+Signed-off-by: Andreas Rheinhardt <andreas.rheinhardt@outlook.com>
