@@ -6,7 +6,7 @@ mkdir -p "$ROOT_DIR/temp"
 check() {
 	for cmd in "$@"; do
 		printf "checking for %s... " "$cmd"
-		sleep 0.1
+		sleep 0.01
 		if command -v "$cmd" >/dev/null 2>&1; then
 			echo "found"
 		else
@@ -64,7 +64,7 @@ detect_host_cxx() {
 }
 
 check which curl wget tar zip sed meson \
-	make cmake ninja autoconf automake libtool pkg-config makeinfo \
+	make autopoint cmake ninja autoconf automake libtool pkg-config makeinfo \
 	gettext gperf bison flex git xz unzip file find cp mv rm ln svn nasm yasm
 
 #[ -z "$FFMPEG_STATIC" ] && check ruby
