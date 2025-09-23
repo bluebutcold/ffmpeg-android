@@ -142,7 +142,6 @@ build_ffmpeg() {
 		--enable-liblcevc-dec
 		--enable-libmodplug
 		--enable-librubberband
-		--enable-libzvbi
 		--enable-libshine
 		--enable-libklvanc
 		"${FLAGS[@]}"
@@ -150,6 +149,8 @@ build_ffmpeg() {
 		"${ASM_FLAG[@]}"
 		"${OTHER_FLAGS[@]}"
 	)
+
+	[ "$ARCH" != "x86" ] && CONFIGURE_FLAGS+=(--enable-libzvbi)
 
 	./configure "${CONFIGURE_FLAGS[@]}"
 
