@@ -1703,3 +1703,18 @@ build_vidstab() {
 	ninja -v && ninja install
 	echo "✔ vid.stab built successfully"
 }
+
+build_libklvanc () {
+meson_build "libklvanc" "$BUILD_DIR/libklvanc" "$CROSS_FILE_TEMPLATE"
+
+generate_pkgconfig \
+    "libklvanc" \
+    "Library for KLV ANC data processing" \
+    "1.0.0" \
+    "-lklvanc" \
+    "-I\${includedir}" \
+    "" \
+    ""
+	
+}
+
