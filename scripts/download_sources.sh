@@ -122,6 +122,7 @@ declare -A GITHUB_REPOS=(
 	["snappy"]="https://github.com/google/snappy.git"
 	["shine"]="https://github.com/toots/shine.git"
 	["zvbi"]="https://github.com/zapping-vbi/zvbi.git"
+	["libklvanc"]="https://github.com/stoth68000/libklvanc.git"
 )
 
 # GitHub repos that need recursive cloning
