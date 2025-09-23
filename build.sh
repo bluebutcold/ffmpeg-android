@@ -567,7 +567,7 @@ build_vidstab
 build_soxr
 build_fftw
 build_rubberband
-build_zvbi
+[ "$ARCH" != "x86" ] && build_zvbi
 build_openmpt
 build_libzmq
 build_libplacebo
