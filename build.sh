@@ -480,6 +480,7 @@ build_bzip2
 build_liblzma
 build_zstd
 build_brotli
+build_libklvanc
 build_openssl
 
 ### Terminal / text
