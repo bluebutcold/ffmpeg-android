@@ -141,6 +141,9 @@ build_ffmpeg() {
 		--enable-liblc3
 		--enable-liblcevc-dec
 		--enable-libmodplug
+		--enable-librubberband
+		--enable-libzvbi
+		--enable-libshine
 		"${FLAGS[@]}"
 		"${NEON[@]}"
 		"${ASM_FLAG[@]}"

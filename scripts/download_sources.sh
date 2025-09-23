@@ -80,7 +80,7 @@ declare -A GITHUB_REPOS=(
 	["freetype"]="https://github.com/freetype/freetype.git"
 	["Little-CMS"]="https://github.com/mm2/Little-CMS.git"
 	["openjpeg"]="https://github.com/uclouvain/openjpeg.git"
-	["libunwind"]="https://github.com/libunwind/libunwind.git"
+	#["libunwind"]="https://github.com/libunwind/libunwind.git"
 	["vmaf"]="https://github.com/Netflix/vmaf.git"
 	["vid.stab"]="https://github.com/georgmartius/vid.stab.git"
 	["rubberband"]="https://github.com/breakfastquay/rubberband.git"
@@ -89,7 +89,7 @@ declare -A GITHUB_REPOS=(
 	["srt"]="https://github.com/Haivision/srt.git"
 	["libzmq"]="https://github.com/zeromq/libzmq.git"
 	["pcre2"]="https://github.com/PCRE2Project/pcre2.git"
-	["rav1e"]="https://github.com/xiph/rav1e.git"
+	#["rav1e"]="https://github.com/xiph/rav1e.git"
 	["vo-amrwbenc"]="https://github.com/mstorsjo/vo-amrwbenc.git"
 	["opencore-amr"]="https://github.com/BelledonneCommunications/opencore-amr.git"
 	["twolame"]="https://github.com/njh/twolame.git"
@@ -120,7 +120,8 @@ declare -A GITHUB_REPOS=(
 	["theora"]="https://github.com/xiph/theora.git"
 	["lz4"]="https://github.com/lz4/lz4.git"
 	["snappy"]="https://github.com/google/snappy.git"
-	["fontconfig"]="https://gitlab.freedesktop.org/fontconfig/fontconfig.git"
+	["shine"]="https://github.com/toots/shine.git"
+	["zvbi"]="https://github.com/zapping-vbi/zvbi.git"
 )
 
 # GitHub repos that need recursive cloning
@@ -146,6 +147,7 @@ declare -A OTHER_GIT_REPOS=(
 	["pango"]="https://gitlab.gnome.org/GNOME/pango.git"
 	["gdk-pixbuf"]="https://gitlab.gnome.org/GNOME/gdk-pixbuf.git"
 	["librsvg"]="https://gitlab.gnome.org/GNOME/librsvg.git"
+	["fontconfig"]="https://gitlab.freedesktop.org/fontconfig/fontconfig.git"
 )
 
 # Extra files

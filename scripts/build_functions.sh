@@ -30,6 +30,37 @@ build_iconv() {
 	generate_pkgconfig "libiconv" "GNU libiconv" "1.17" "-L$PREFIX/lib -liconv" "-I$PREFIX/include"
 }
 
+build_shine() {
+    autotools_build_autoreconf "shine" "$BUILD_DIR/shine"
+}
+
+build_zvbi() {
+
+	cd "$BUILD_DIR/zvbi"
+	autoreconf -fvi
+       export ac_cv_func_malloc_0_nonnull=yes
+       export ac_cv_func_realloc_0_nonnull=yes
+
+       export ac_cv_lib_pthread_pthread_create=yes
+       export am_cv_func_iconv=yes
+	  ./configure \
+	    "--prefix=$PREFIX" \
+     	"--host=$HOST" \
+	    --enable-static \
+	    --disable-shared \
+	    --disable-tests \
+        --disable-examples \
+        --disable-proxy \
+        --disable-dvb \
+        --disable-v4l \
+        --disable-bktr \
+		LDFLAGS="$LDFLAGS -liconv"
+
+		find . -name 'Makefile' -exec sed -i 's/-lpthread//g' {} +
+
+		make -j$(nproc) && make install
+
+}
 
 
 build_lz4() {
@@ -1070,11 +1101,6 @@ build_vmaf() {
 }
 
 build_libplacebo() {
-    echo "[+] Building libplacebo for $ARCH..."
-    cd "$BUILD_DIR/libplacebo" || exit 1
-    
-    git submodule update --init --recursive
-    
     meson_build "libplacebo" "$BUILD_DIR/libplacebo" "$CROSS_FILE_TEMPLATE" \
         -Dtests=false \
         -Dshaderc=disabled \
@@ -1082,6 +1108,19 @@ build_libplacebo() {
         -Dglslang=disabled \
         -Dopengl=enabled
 }
+
+build_rubberband() {
+    meson_build "rubberband" "$BUILD_DIR/rubberband" "$CROSS_FILE_TEMPLATE" \
+        -Dfft=fftw \
+        -Dresampler=speex \
+        -Djni=disabled \
+        -Dladspa=disabled \
+        -Dlv2=disabled \
+        -Dvamp=disabled \
+        -Dcmdline=disabled \
+        -Dtests=disabled
+}
+
 
 build_librist() {
     meson_build "librist" "$BUILD_DIR/librist" "$CROSS_FILE_TEMPLATE" \

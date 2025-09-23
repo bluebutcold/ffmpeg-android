@@ -147,7 +147,7 @@ mkdir -p "$PREFIX/lib64/pkgconfig"
 export PKG_CONFIG_PATH="$PREFIX/lib/pkgconfig:$PREFIX/lib64/pkgconfig:$PKG_CONFIG_PATH"
 export PKG_CONFIG_ALLOW_CROSS=1
 
-export PATH=$ANDROID_NDK_HOME/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
+export PATH=$ANDROID_NDK_ROOT/toolchains/llvm/prebuilt/linux-x86_64/bin:$PATH
 
 SIZE_CFLAGS="-O3 -ffunction-sections -fdata-sections"
 SIZE_CXXFLAGS="-O3 -ffunction-sections -fdata-sections"
@@ -520,6 +520,7 @@ build_libgsm
 build_lame
 build_twolame
 build_opus
+build_shine
 build_ogg
 build_vorbis
 build_speex
@@ -563,6 +564,9 @@ build_libzimg
 build_libmysofa
 build_vidstab
 build_soxr
+build_fftw
+build_rubberband
+build_zvbi
 build_openmpt
 build_libzmq
 build_libplacebo
@@ -580,7 +584,6 @@ build_libjxl
 build_libssh
 build_libqrencode
 build_quirc
-build_fftw
 build_chromaprint
 build_avisynth
 build_lcevcdec
