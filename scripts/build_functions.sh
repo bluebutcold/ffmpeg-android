@@ -922,7 +922,7 @@ build_pixman() {
             simd_opts="-Dmmx=enabled -Dsse2=enabled -Dssse3=enabled"
             ;;
         armv7)
-            simd_opts="-Darm-simd=disabled -Dneon=enabled"
+           # simd_opts="-Darm-simd=disabled -Dneon=enabled"
             ;;
         aarch64)
             simd_opts="-Da64-neon=enabled"
