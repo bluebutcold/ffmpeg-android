@@ -1,12 +1,14 @@
 # Build Changelog
 
-**Commit:** e5f82ab8686b3c6193a3f718f53dbef9436b4318
-**Author:** rcombs <rcombs@rcombs.me>
-**Date:** Tue Sep 23 20:21:44 2025 -0700
+**Commit:** 56c14f231159d9a0dfa0a46661886c9baad870a6
+**Author:** Stadelmann, Daniel <daniel.stadelmann@iis.fraunhofer.de>
+**Date:** Fri Aug 1 07:15:37 2025 +0200
 
-Revert "lavc/libsvtav1: set packet durations"
+avcodec/libmpeghdec: add MPEG-H 3DA Fraunhofer IIS mpeghdec decoder
 
-This reverts commit 5c9b2027bc48ae5d39b0d82696895f0834788242.
+Adds a wrapper around the Fraunhofer IIS MPEG-H 3D Audio mpeghdec [1]
+decoder shared library.
 
-This doesn't actually work the way it'd appeared to in testing;
-the output was based on frame *encode latency*.
+[1] https://github.com/Fraunhofer-IIS/mpeghdec
+
+Signed-off-by: Stadelmann, Daniel <daniel.stadelmann@iis.fraunhofer.de>
