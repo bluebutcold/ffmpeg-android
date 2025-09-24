@@ -1,12 +1,12 @@
 # Build Changelog
 
-**Commit:** 7c78a63476da6360063d45f74cb1d9fc94047278
-**Author:** Andreas Rheinhardt <andreas.rheinhardt@outlook.com>
-**Date:** Tue Sep 23 05:42:59 2025 +0200
+**Commit:** e5f82ab8686b3c6193a3f718f53dbef9436b4318
+**Author:** rcombs <rcombs@rcombs.me>
+**Date:** Tue Sep 23 20:21:44 2025 -0700
 
-avcodec/mpegaudiodec_float: Don't set AVCodec.sample_fmts directly
+Revert "lavc/libsvtav1: set packet durations"
 
-It is deprecated and doing so gives warnings from Clang.
-Use CODEC_SAMPLEFMTS instead.
+This reverts commit 5c9b2027bc48ae5d39b0d82696895f0834788242.
 
-Signed-off-by: Andreas Rheinhardt <andreas.rheinhardt@outlook.com>
+This doesn't actually work the way it'd appeared to in testing;
+the output was based on frame *encode latency*.
