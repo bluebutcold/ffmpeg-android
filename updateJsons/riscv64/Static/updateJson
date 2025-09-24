@@ -1,6 +1,6 @@
 {
-  "versionCode": 22,
-  "version": "8.0-git--56c14f2",
-  "zipUrl": "https://github.com/KaluaBilla/ffmpeg-android/releases/download/build-130/ffmpeg-8.0-56c14f2-Static-android-riscv64.zip",
+  "versionCode": 23,
+  "version": "8.0-git--5cb6d22",
+  "zipUrl": "https://github.com/KaluaBilla/ffmpeg-android/releases/download/build-132/ffmpeg-8.0-5cb6d22-Static-android-riscv64.zip",
   "changelog": "https://raw.githubusercontent.com/KaluaBilla/ffmpeg-android/main/changelog.md"
 }

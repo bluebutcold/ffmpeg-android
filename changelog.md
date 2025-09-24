@@ -1,14 +1,17 @@
 # Build Changelog
 
-**Commit:** 56c14f231159d9a0dfa0a46661886c9baad870a6
-**Author:** Stadelmann, Daniel <daniel.stadelmann@iis.fraunhofer.de>
-**Date:** Fri Aug 1 07:15:37 2025 +0200
+**Commit:** 5cb6d2221a6d4c07453b6c301ecfcaed48402680
+**Author:** Marvin Scholz <epirat07@gmail.com>
+**Date:** Thu May 22 20:14:49 2025 +0200
 
-avcodec/libmpeghdec: add MPEG-H 3DA Fraunhofer IIS mpeghdec decoder
+avformat/http: Handle IPv6 Zone ID in hostname
 
-Adds a wrapper around the Fraunhofer IIS MPEG-H 3D Audio mpeghdec [1]
-decoder shared library.
+When using a literal IPv6 address as hostname, it can contain a Zone ID
+especially in the case of link-local addresses. Sending this to the
+server in the Host header is not useful to the server and in some cases
+servers refuse such requests.
 
-[1] https://github.com/Fraunhofer-IIS/mpeghdec
+To prevent any such issues, strip the Zone ID from the address if it's
+an IPv6 address. This also removes it for the Cookies lookup.
 
-Signed-off-by: Stadelmann, Daniel <daniel.stadelmann@iis.fraunhofer.de>
+Based on a patch by: Daniel N Pettersson <danielnp@axis.com>
