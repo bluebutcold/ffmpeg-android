@@ -78,24 +78,7 @@ build_liblzma() {
 }
 
 build_zstd() {
-	echo "[+] Building zstd for $ARCH..."
-	cd "$BUILD_DIR/zstd" || exit 1
-	
-	make clean || true
-	
-	make -j"$(nproc)" -C lib \
-		CC="$CC_ABS" \
-		AR="$AR_ABS" \
-		RANLIB="$RANLIB_ABS" \
-		CFLAGS="$CFLAGS" \
-		LDFLAGS="$LDFLAGS" \
-		PREFIX="$PREFIX" \
-		HAVE_THREAD=1 \
-		ZSTD_LEGACY_SUPPORT=0 \
-		libzstd.a
-	
-	make -C lib install-static install-includes install-pc PREFIX="$PREFIX"
-	echo "✔ zstd built successfully"
+	meson_build "zstd" "$BUILD_DIR/zstd/build/meson" "$CROSS_FILE_TEMPLATE"
 }
 
 build_openssl() {
