@@ -1,9 +1,9 @@
 # Build Changelog
 
-**Commit:** 0599d508c90b49bdead385edcec429e2dd50526e
-**Author:** Lynne <dev@lynne.ee>
-**Date:** Thu Aug 28 15:14:03 2025 +0900
+**Commit:** 9970dc32bf85628e53ed0952d87d384080d8976e
+**Author:** Vittorio Palmisano <vpalmisano@gmail.com>
+**Date:** Sun Sep 21 15:33:17 2025 +0200
 
-prores_raw: use MKBETAG for the frame header tag
+avfilter/af_whisper: fix srt index
 
-Equivalent, but more explicit. All values in the header are big endian.
+The srt index should be incremented for each segment.
