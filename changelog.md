@@ -1,10 +1,12 @@
 # Build Changelog
 
-**Commit:** 371931250a2b8d9cf2a726d4992f9107af3df782
+**Commit:** cb5dbb30caeb9b44897251892350f0e8297b9437
 **Author:** Andreas Rheinhardt <andreas.rheinhardt@outlook.com>
-**Date:** Tue Sep 23 16:05:30 2025 +0200
+**Date:** Wed Sep 24 05:01:04 2025 +0200
 
-avcodec/ohdec: Check mutex/conditions initialization
+avcodec/tiff_common: Remove unused ff_tadd_*_metadata() funcs
 
-Reviewed-by: Zhao Zhili <quinkblack@foxmail.com>
+Unused since ad77345a5d14862f4701e5ad422b03b14934a5b9.
+
+Reviewed-by: Leo Izen <leo.izen@gmail.com>
 Signed-off-by: Andreas Rheinhardt <andreas.rheinhardt@outlook.com>
