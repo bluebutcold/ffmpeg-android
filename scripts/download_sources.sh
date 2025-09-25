@@ -119,6 +119,7 @@ declare -A GITHUB_REPOS=(
 	["harfbuzz"]="https://github.com/harfbuzz/harfbuzz.git"
 	["theora"]="https://github.com/xiph/theora.git"
 	["lz4"]="https://github.com/lz4/lz4.git"
+	["zstd"]="https://github.com/facebook/zstd.git"
 	["snappy"]="https://github.com/google/snappy.git"
 	["shine"]="https://github.com/toots/shine.git"
 	["zvbi"]="https://github.com/zapping-vbi/zvbi.git"
@@ -256,7 +257,7 @@ download_sources() {
 		download_file "$ZLIB_URL" "zlib.tar.gz" &
 		download_file "$BROTLI_URL" "brotli.tar.gz" &
 		download_file "$XZ_URL" "xz.tar.gz" &
-		download_file "$ZSTD_URL" "zstd.tar.gz" &
+		#download_file "$ZSTD_URL" "zstd.tar.gz" &
 		download_file "$BZIP2_URL" "bzip2.tar.gz" &
 		download_file "$OPENSSL_URL" "openssl.tar.gz" &
 		download_file "$X264_URL" "x264.tar.gz" &
@@ -343,7 +344,7 @@ prepare_sources() {
 	[ ! -d zlib ] && tar -xf "${DOWNLOAD_DIR}/zlib.tar.gz" && mv "$ZLIB_VERSION" zlib
 	[ ! -d brotli ] && tar -xf "${DOWNLOAD_DIR}/brotli.tar.gz" && mv "brotli-${BROTLI_VERSION}" brotli
 	[ ! -d xz ] && tar -xf "${DOWNLOAD_DIR}/xz.tar.gz" && mv "$XZ_VERSION" xz
-	[ ! -d zstd ] && tar -xf "${DOWNLOAD_DIR}/zstd.tar.gz" && mv "$ZSTD_VERSION" zstd
+	#[ ! -d zstd ] && tar -xf "${DOWNLOAD_DIR}/zstd.tar.gz" && mv "$ZSTD_VERSION" zstd
 	[ ! -d bzip2 ] && tar -xf "${DOWNLOAD_DIR}/bzip2.tar.gz" && mv "bzip2-${BZIP2_VERSION}" bzip2
 	[ ! -d openssl ] && tar -xf "${DOWNLOAD_DIR}/openssl.tar.gz" && mv "$OPENSSL_VERSION" openssl
 	[ ! -d x264 ] && tar -xf "${DOWNLOAD_DIR}/x264.tar.gz" && mv "$X264_VERSION" x264
