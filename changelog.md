@@ -1,11 +1,13 @@
 # Build Changelog
 
-**Commit:** 0f1f345c3724ad3608ce5675f2a863ce56b23837
+**Commit:** 8a34faa250fad7dc05aa9a554b4aaafd9e7425e7
 **Author:** Andreas Rheinhardt <andreas.rheinhardt@outlook.com>
-**Date:** Fri Sep 26 16:17:45 2025 +0200
+**Date:** Fri Sep 26 22:16:40 2025 +0200
 
-avcodec/x86/qpeldsp_init: Fix compilation without external assembly
+swscale/ppc/swscale_ppc_template: Fix av_unused placement
 
-Broken in 2cf9e733c6a666600423a0967f23341d9f09e3c8.
+Forgotten in d6cb0d2c2bb8469f17d59dd82c8221b98e169d1a.
 
+Reviewed-by: Sean McGovern <gseanmcg@gmail.com>
+Reviewed-by: Niklas Haas <ffmpeg@haasn.dev>
 Signed-off-by: Andreas Rheinhardt <andreas.rheinhardt@outlook.com>

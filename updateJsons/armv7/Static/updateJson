@@ -1,6 +1,6 @@
 {
-  "versionCode": 33,
-  "version": "8.0-git--0f1f345",
-  "zipUrl": "https://github.com/KaluaBilla/ffmpeg-android/releases/download/build-159/ffmpeg-8.0-0f1f345-Static-android-armeabi-v7a.zip",
+  "versionCode": 34,
+  "version": "8.0-git--8a34faa",
+  "zipUrl": "https://github.com/KaluaBilla/ffmpeg-android/releases/download/build-161/ffmpeg-8.0-8a34faa-Static-android-armeabi-v7a.zip",
   "changelog": "https://raw.githubusercontent.com/KaluaBilla/ffmpeg-android/main/changelog.md"
 }
