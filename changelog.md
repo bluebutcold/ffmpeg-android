@@ -1,13 +1,13 @@
 # Build Changelog
 
-**Commit:** fa72f9a2921556923fa598317db4fcdc3c85ac24
-**Author:** Kacper Michajłow <kasper93@gmail.com>
-**Date:** Thu Sep 25 20:35:33 2025 +0200
+**Commit:** 6d8732f397bfb07f2292e15a61904665abe13ce3
+**Author:** James Almer <jamrial@gmail.com>
+**Date:** Tue Sep 16 21:45:00 2025 -0300
 
-forgejo/workflows: include size and mtime in cache hash
+avformat/movenc: clear subsample information on fragment flush
 
-In case some file has been updated. Generally fate samples shouldn't be
-replaced to preserve compatibility with older revisions, but before
-merge it may happen that files is replaced.
+Don't keep around information from a previous traf atom.
 
-Signed-off-by: Kacper Michajłow <kasper93@gmail.com>
+Fixes issue #20492.
+
+Signed-off-by: James Almer <jamrial@gmail.com>
