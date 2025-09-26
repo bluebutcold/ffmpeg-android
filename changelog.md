@@ -1,13 +1,12 @@
 # Build Changelog
 
-**Commit:** 6d8732f397bfb07f2292e15a61904665abe13ce3
-**Author:** James Almer <jamrial@gmail.com>
-**Date:** Tue Sep 16 21:45:00 2025 -0300
+**Commit:** a54d6b1d91ba17f6e1316997dd5f0ced4cee8ee5
+**Author:** Andreas Rheinhardt <andreas.rheinhardt@outlook.com>
+**Date:** Tue Sep 23 05:01:41 2025 +0200
 
-avformat/movenc: clear subsample information on fragment flush
+avcodec/x86/rnd_template: Merge into hpeldsp_init.c
 
-Don't keep around information from a previous traf atom.
+It is now only included exactly once.
 
-Fixes issue #20492.
-
-Signed-off-by: James Almer <jamrial@gmail.com>
+Reviewed-by: Lynne <dev@lynne.ee>
+Signed-off-by: Andreas Rheinhardt <andreas.rheinhardt@outlook.com>
