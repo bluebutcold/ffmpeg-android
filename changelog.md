@@ -1,9 +1,12 @@
 # Build Changelog
 
-**Commit:** 635cb4543f1bb08b645740406077dad845d5d7d4
-**Author:** Andreas Rheinhardt <andreas.rheinhardt@outlook.com>
-**Date:** Wed Sep 24 04:34:47 2025 +0200
+**Commit:** 0fdb5829e38dabea9cbe4073a35b6c6315e7508e
+**Author:** Kaarle Ritvanen <kaarle.ritvanen@datakunkku.fi>
+**Date:** Tue Apr 29 14:35:00 2025 +0300
 
-avcodec/bsf/ahx_to_mp2: Don't output uninitialized data
+avformat/rtsp: set AVFMTCTX_UNSEEKABLE flag
 
-Signed-off-by: Andreas Rheinhardt <andreas.rheinhardt@outlook.com>
+for live RTP streams. Some external applications, such as Qt Multimedia,
+depend on this flag being set correctly.
+
+Signed-off-by: Kaarle Ritvanen <kaarle.ritvanen@datakunkku.fi>
