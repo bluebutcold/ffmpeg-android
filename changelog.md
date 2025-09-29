@@ -1,12 +1,11 @@
 # Build Changelog
 
-**Commit:** 0fdb5829e38dabea9cbe4073a35b6c6315e7508e
-**Author:** Kaarle Ritvanen <kaarle.ritvanen@datakunkku.fi>
-**Date:** Tue Apr 29 14:35:00 2025 +0300
+**Commit:** d975dbd7b70e0b2f3f3b2950e5513c299b838810
+**Author:** James Almer <jamrial@gmail.com>
+**Date:** Sun Sep 28 23:51:19 2025 -0300
 
-avformat/rtsp: set AVFMTCTX_UNSEEKABLE flag
+avcodec/libdav1d: bump minimum supported version to 1.0.0
 
-for live RTP streams. Some external applications, such as Qt Multimedia,
-depend on this flag being set correctly.
+This allows us to remove old deprecated options.
 
-Signed-off-by: Kaarle Ritvanen <kaarle.ritvanen@datakunkku.fi>
+Signed-off-by: James Almer <jamrial@gmail.com>
