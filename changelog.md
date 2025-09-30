@@ -1,11 +1,20 @@
 # Build Changelog
 
-**Commit:** d975dbd7b70e0b2f3f3b2950e5513c299b838810
-**Author:** James Almer <jamrial@gmail.com>
-**Date:** Sun Sep 28 23:51:19 2025 -0300
+**Commit:** bc561013c9a809a90c0d1b84413814ba612f7c44
+**Author:** Jack Lau <jacklau1222@qq.com>
+**Date:** Thu Sep 18 09:23:31 2025 +0800
 
-avcodec/libdav1d: bump minimum supported version to 1.0.0
+avformat/whip: add RTX initial support
 
-This allows us to remove old deprecated options.
+Refer to RFC 4588.
 
-Signed-off-by: James Almer <jamrial@gmail.com>
+Add and set the basic param of RTX like
+ssrc, payload_type, srtp.
+
+Modify the SDP to add RTX info so that
+the peer be able to parse the RTX packet.
+
+There are more pateches to make RTX really
+work.
+
+Signed-off-by: Jack Lau <jacklau1222@qq.com>
