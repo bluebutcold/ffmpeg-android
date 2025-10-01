@@ -1,9 +1,9 @@
 # Build Changelog
 
-**Commit:** 8cb1ff78ac62ff0f652b0cb06369ba50d5e946c6
-**Author:** Michael Niedermayer <michael@niedermayer.cc>
-**Date:** Sat Sep 20 01:56:20 2025 +0200
+**Commit:** 5511641365b83afa6449ae0b89d01b78556d941d
+**Author:** James Almer <jamrial@gmail.com>
+**Date:** Mon Sep 29 22:33:49 2025 -0300
 
-avformat/dhav: Factorize some code in get_duration()
+avcodec/atrac9dec: use av_zero_extend()
 
-Signed-off-by: Michael Niedermayer <michael@niedermayer.cc>
+Signed-off-by: James Almer <jamrial@gmail.com>
