@@ -208,17 +208,17 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Send Telegram notification
-        if: success()
-        run: |
-          curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
-            -d chat_id="@ffmpegandroid" \
-            -d parse_mode="Markdown" \
-            -d text="🚀 **FFmpeg Android Build ${{ github.run_number }}**
+      #- name: Send Telegram notification
+        #if: success()
+        #run: |
+          #curl -s -X POST "https://api.telegram.org/bot${{ secrets.TELEGRAM_TOKEN }}/sendMessage" \
+            #-d chat_id="@ffmpegandroid" \
+            #-d parse_mode="Markdown" \
+            #-d text="🚀 **FFmpeg Android Build ${{ github.run_number }}**
 
-          📅 **Build Date:** ${{ env.BUILD_DATE }}
-          🔗 **Repo Commit:** [View Commit](https://github.com/FFmpeg/FFmpeg/commit/${{ needs.check-ffmpeg-commit.outputs.ffmpeg_commit }})
-          📦 **Release:** [Download](https://github.com/${{ github.repository }}/releases/tag/build-${{ github.run_number }})"
+          #📅 **Build Date:** ${{ env.BUILD_DATE }}
+          #🔗 **Repo Commit:** [View Commit](https://github.com/FFmpeg/FFmpeg/commit/${{ needs.check-ffmpeg-commit.outputs.ffmpeg_commit }})
+          #📦 **Release:** [Download](https://github.com/${{ github.repository }}/releases/tag/build-${{ github.run_number }})"
 
   update-jsons:
     runs-on: ubuntu-latest
