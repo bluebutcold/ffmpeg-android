@@ -10,7 +10,7 @@ cat >control <<EOF
 Package: ffmpeg
 Architecture: ${ARCH}
 Version: ${FFMPEG_V}
-Maintainer: bluebutcold
+Maintainer: KaluaBilla
 Homepage: https://ffmpeg.org
 Breaks: ffmpeg-dev
 Replaces: ffmpeg-dev
