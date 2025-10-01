@@ -1,9 +1,12 @@
 # Build Changelog
 
-**Commit:** 5511641365b83afa6449ae0b89d01b78556d941d
-**Author:** James Almer <jamrial@gmail.com>
-**Date:** Mon Sep 29 22:33:49 2025 -0300
+**Commit:** 1a02412170144f07711428ddc2d1051c4284ee0a
+**Author:** Zhao Zhili <zhilizhao@tencent.com>
+**Date:** Tue Sep 23 22:08:02 2025 +0800
 
-avcodec/atrac9dec: use av_zero_extend()
+avformat/movenc_ttml: fix memleaks
 
-Signed-off-by: James Almer <jamrial@gmail.com>
+Memory leaks can happen on normal case when break from while loop
+early, and it can happen on error path with goto cleanup.
+
+Signed-off-by: Zhao Zhili <zhilizhao@tencent.com>
