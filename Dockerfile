@@ -32,7 +32,8 @@ RUN apk add --no-cache \
     ruby \
     curl \
     wget \
-    zip
+    zip \
+    glib-dev
 
 RUN python3 -m pip install --no-cache-dir --break-system-packages meson
 
