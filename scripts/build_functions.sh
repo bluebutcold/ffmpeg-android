@@ -278,29 +278,6 @@ build_speex() {
 		LDFLAGS="$LDFLAGS -L$PREFIX/lib"
 }
 
-build_bzip2() {
-	echo "[+] Building bzip2 for $ARCH..."
-	cd "$BUILD_DIR/bzip2" || exit 1
-	
-	make clean || true
-	
-	[ -f Makefile.bak ] && cp Makefile.bak Makefile
-	cp Makefile Makefile.bak
-	sed -i '/^test:/,/^$/c\test:\n\t@echo "Skipping tests during cross-compilation"' Makefile
-	
-	make -j"$(nproc)" \
-		CC="$CC" \
-		AR="$AR" \
-		RANLIB="$RANLIB" \
-		CFLAGS="$CFLAGS -I$PREFIX/include"
-	
-	make install PREFIX="$PREFIX"
-	
-	generate_pkgconfig "bz2" "Lossless data compression library" "1.0.8" "-lbz2"
-	
-	echo "✔ bzip2 built successfully"
-}
-
 build_libpng() {
 	echo "[+] Building libpng for $ARCH..."
 	cd "$BUILD_DIR/libpng" || exit 1
@@ -1039,6 +1016,13 @@ build_freetype() {
         -Dtests=disabled \
         -Derror_strings=false
 }
+
+build_bzip2() {
+    meson_build "bzip2" "$BUILD_DIR/bzip2" "$CROSS_FILE_TEMPLATE" \
+	     -Ddocs=disabled
+}
+
+		  
 
 build_harfbuzz() {
     meson_build "harfbuzz" "$BUILD_DIR/harfbuzz" "$CROSS_FILE_TEMPLATE" \
