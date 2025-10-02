@@ -40,6 +40,11 @@ ENV API_LEVEL=
 ENV PATH="/root/.cargo/bin:${PATH}"
 RUN cargo install cargo-c
 
+RUN rustup target add aarch64-linux-android \
+    armv7-linux-androideabi \
+    i686-linux-android \
+    x86_64-linux-android
+
 
 RUN wget -q https://dl.google.com/android/repository/android-ndk-r29-beta4-linux.zip -O /tmp/ndk.zip \
     && unzip -q /tmp/ndk.zip -d /opt \
