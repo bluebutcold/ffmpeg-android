@@ -107,7 +107,7 @@ jobs:
           chmod +x $HOME/.cargo/bin/cargo-c*
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
           export PATH="$HOME/.cargo/bin:$PATH"
-          cargo-c --version
+          cargo-cinstall --version
     
               
       - name: Add Rust Android targets  
