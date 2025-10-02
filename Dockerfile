@@ -31,7 +31,8 @@ RUN apk add --no-cache \
     texinfo \
     ruby \
     curl \
-    wget
+    wget \
+    zip
 
 RUN python3 -m pip install --no-cache-dir --break-system-packages meson
 
