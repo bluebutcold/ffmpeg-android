@@ -6,7 +6,7 @@ LOCK_FILE="${ROOT_DIR}/git-sources.lock"
 # Version definitions
 FFMPEG_VERSION="ffmpeg-8.0"
 ZLIB_VERSION="zlib-1.3.1"
-BROTLI_VERSION="1.1.0"
+#BROTLI_VERSION="1.1.0"
 BZIP2_VERSION="bzip2-1.0.8"
 OPENSSL_VERSION="openssl-3.5.3"
 X264_VERSION="x264-master"
@@ -45,26 +45,17 @@ ICONV_URL="https://ftp.gnu.org/pub/gnu/libiconv/libiconv-1.18.tar.gz"
 FFMPEG_URL="https://ffmpeg.org/releases/${FFMPEG_VERSION}.tar.xz"
 ZLIB_URL="https://zlib.net/${ZLIB_VERSION}.tar.gz"
 LZO_URL="https://www.oberhumer.com/opensource/lzo/download/${LZO_VERSION}.tar.gz"
-BROTLI_URL="https://github.com/google/brotli/archive/refs/tags/v${BROTLI_VERSION}.tar.gz"
 XZ_URL="https://github.com/tukaani-project/xz/releases/download/v5.8.1/${XZ_VERSION}.tar.gz"
-ZSTD_URL="https://github.com/facebook/zstd/releases/download/v1.5.7/${ZSTD_VERSION}.tar.gz"
-BZIP2_URL="https://github.com/libarchive/bzip2/archive/refs/tags/${BZIP2_VERSION}.tar.gz"
 OPENSSL_URL="https://github.com/openssl/openssl/releases/download/${OPENSSL_VERSION}/${OPENSSL_VERSION}.tar.gz"
-X264_URL="https://code.videolan.org/videolan/x264/-/archive/master/${X264_VERSION}.tar.gz"
-X265_URL="http://ftp.videolan.org/pub/videolan/x265/${X265_VERSION}.tar.gz"
 LAME_URL="https://sourceforge.net/projects/lame/files/lame/3.100/${LAME_VERSION}.tar.gz/download"
 OPUS_URL="https://github.com/xiph/opus/releases/download/v1.5.2/${OPUS_VERSION}.tar.gz"
 VORBIS_URL="https://downloads.xiph.org/releases/vorbis/${VORBIS_VERSION}.tar.xz"
 OGG_URL="https://downloads.xiph.org/releases/ogg/${OGG_VERSION}.tar.gz"
-DAV1D_URL="https://code.videolan.org/videolan/dav1d/-/archive/master/${DAV1D_VERSION}.tar.gz"
 LIBASS_URL="https://github.com/libass/libass/releases/download/0.17.4/${LIBASS_VERSION}.tar.gz"
 LIBPNG_URL="https://download.sourceforge.net/libpng/${LIBPNG_VERSION}.tar.gz"
-#FONTCONFIG_URL="https://www.freedesktop.org/software/fontconfig/release/${FONTCONFIG_VERSION}.tar.xz"
 FRIBIDI_URL="https://github.com/fribidi/fribidi/releases/download/v1.0.16/${FRIBIDI_VERSION}.tar.xz"
-BLURAY_URL="https://code.videolan.org/videolan/libbluray/-/archive/master/${BLURAY_VERSION}.tar.gz"
 SPEEX_URL="http://downloads.xiph.org/releases/speex/${SPEEX_VERSION}.tar.gz"
 LIBEXPAT_URL="https://github.com/libexpat/libexpat/releases/download/R_2_7_1/${LIBEXPAT_VERSION}.tar.gz"
-BUDFREAD_URL="https://code.videolan.org/videolan/libudfread/-/archive/master/${BUDFREAD_VERSION}.tar.gz"
 OPENMPT_URL="https://lib.openmpt.org/files/libopenmpt/src/${OPENMPT_VERSION}+release.autotools.tar.gz"
 LIBGSM_URL="https://www.quut.com/gsm/${LIBGSM_VERSION}.tar.gz"
 XVID_URL="https://downloads.xvid.com/downloads/${XVID_VERSION}.tar.gz"
@@ -72,7 +63,6 @@ LIBSSH_URL="https://www.libssh.org/files/0.11/${LIBSSH_VERSION}.tar.xz"
 LIBBS2B_URL="https://sourceforge.net/projects/bs2b/files/libbs2b/3.1.0/${LIBBS2B_VERSION}.tar.gz/download"
 FFTW_URL="https://www.fftw.org/${FFTW_VERSION}.tar.gz"
 LIBFFI_URL="https://github.com/libffi/libffi/releases/download/v3.5.2/${LIBFFI_VERSION}.tar.gz"
-SVTAV1_URL="https://gitlab.com/AOMediaCodec/SVT-AV1/-/archive/v3.1.0/${SVTAV1_VERSION}.tar.gz"
 NCURSES_URL="https://ftp.gnu.org/gnu/ncurses/${NCURSES_VERSION}.tar.gz"
 
 # GitHub repos that will be cloned with --depth 1
@@ -124,6 +114,14 @@ declare -A GITHUB_REPOS=(
 	["shine"]="https://github.com/toots/shine.git"
 	["zvbi"]="https://github.com/zapping-vbi/zvbi.git"
 	["libklvanc"]="https://github.com/stoth68000/libklvanc.git"
+    ["brotli"]="https://github.com/google/brotli.git"
+    ["bzip2"]="https://gitlab.com/federicomenaquintero/bzip2.git"
+    ["x264"]="https://code.videolan.org/videolan/x264.git"
+    ["x265"]="https://bitbucket.org/multicoreware/x265_git.git"
+    ["dav1d"]="https://code.videolan.org/videolan/dav1d.git"
+    ["budfread"]="https://code.videolan.org/videolan/libudfread.git"
+    ["bluray"]="https://code.videolan.org/videolan/libbluray.git"
+    ["svtav1"]="https://gitlab.com/AOMediaCodec/SVT-AV1.git"
 	["FFmpeg"]="https://github.com/FFmpeg/FFmpeg.git"
 )
 
@@ -255,38 +253,26 @@ download_sources() {
 	echo "Downloading source archives..."
 	{
 		download_file "$ZLIB_URL" "zlib.tar.gz" &
-		download_file "$BROTLI_URL" "brotli.tar.gz" &
 		download_file "$XZ_URL" "xz.tar.gz" &
-		#download_file "$ZSTD_URL" "zstd.tar.gz" &
-		download_file "$BZIP2_URL" "bzip2.tar.gz" &
 		download_file "$OPENSSL_URL" "openssl.tar.gz" &
-		download_file "$X264_URL" "x264.tar.gz" &
-		download_file "$X265_URL" "x265.tar.gz" &
-		wait
-
 		download_file "$LIBGSM_URL" "libgsm.tar.gz" &
 		download_file "$LAME_URL" "lame.tar.gz" &
 		download_file "$OPUS_URL" "opus.tar.gz" &
 		download_file "$VORBIS_URL" "vorbis.tar.xz" &
 		download_file "$OGG_URL" "ogg.tar.gz" &
-		download_file "$DAV1D_URL" "dav1d.tar.gz" &
-		download_file "$LIBASS_URL" "libass.tar.gz" &
 		wait
 
+        download_file "$LIBASS_URL" "libass.tar.gz" &
 		download_file "$LIBPNG_URL" "libpng.tar.gz" &
-		#download_file "$FONTCONFIG_URL" "fontconfig.tar.xz" &
 		download_file "$FRIBIDI_URL" "fribidi.tar.xz" &
-		download_file "$BLURAY_URL" "bluray.tar.gz" &
 		download_file "$SPEEX_URL" "speex.tar.gz" &
 		download_file "$LIBEXPAT_URL" "libexpat.tar.gz" &
-		download_file "$BUDFREAD_URL" "budfread.tar.gz" &
 		download_file "$OPENMPT_URL" "openmpt.tar.gz" &
-		wait
-
 		download_file "$XVID_URL" "xvid.tar.gz" &
 		download_file "$LIBSSH_URL" "libssh.tar.xz" &
+
+        wait
 		download_file "$LIBBS2B_URL" "libbs2b.tar.gz" &
-		download_file "$SVTAV1_URL" "svtav1.tar.gz" &
 		download_file "$FFTW_URL" "fftw.tar.gz" &
 		download_file "$LIBFFI_URL" "libffi.tar.gz" &
 		if [ -z "$LATEST_GIT" ]; then
@@ -342,30 +328,20 @@ prepare_sources() {
 	mkdir -p "$arch_build_dir"
 	cd "$arch_build_dir" || exit 1
 	[ ! -d zlib ] && tar -xf "${DOWNLOAD_DIR}/zlib.tar.gz" && mv "$ZLIB_VERSION" zlib
-	[ ! -d brotli ] && tar -xf "${DOWNLOAD_DIR}/brotli.tar.gz" && mv "brotli-${BROTLI_VERSION}" brotli
 	[ ! -d xz ] && tar -xf "${DOWNLOAD_DIR}/xz.tar.gz" && mv "$XZ_VERSION" xz
-	#[ ! -d zstd ] && tar -xf "${DOWNLOAD_DIR}/zstd.tar.gz" && mv "$ZSTD_VERSION" zstd
-	[ ! -d bzip2 ] && tar -xf "${DOWNLOAD_DIR}/bzip2.tar.gz" && mv "bzip2-${BZIP2_VERSION}" bzip2
 	[ ! -d openssl ] && tar -xf "${DOWNLOAD_DIR}/openssl.tar.gz" && mv "$OPENSSL_VERSION" openssl
-	[ ! -d x264 ] && tar -xf "${DOWNLOAD_DIR}/x264.tar.gz" && mv "$X264_VERSION" x264
-	[ ! -d x265 ] && tar -xf "${DOWNLOAD_DIR}/x265.tar.gz" && mv "$X265_VERSION" x265
 	[ ! -d lame ] && tar -xf "${DOWNLOAD_DIR}/lame.tar.gz" && mv "$LAME_VERSION" lame
 	[ ! -d libpng ] && tar -xf "${DOWNLOAD_DIR}/libpng.tar.gz" && mv "$LIBPNG_VERSION" libpng
 	[ ! -d opus ] && tar -xf "${DOWNLOAD_DIR}/opus.tar.gz" && mv "$OPUS_VERSION" opus
 	[ ! -d vorbis ] && tar -xf "${DOWNLOAD_DIR}/vorbis.tar.xz" && mv "$VORBIS_VERSION" vorbis
 	[ ! -d ogg ] && tar -xf "${DOWNLOAD_DIR}/ogg.tar.gz" && mv "$OGG_VERSION" ogg
-	[ ! -d dav1d ] && tar -xf "${DOWNLOAD_DIR}/dav1d.tar.gz" && mv "$DAV1D_VERSION"* dav1d
 	[ ! -d libass ] && tar -xf "${DOWNLOAD_DIR}/libass.tar.gz" && mv "$LIBASS_VERSION" libass
-#	[ ! -d fontconfig ] && tar -xf "${DOWNLOAD_DIR}/fontconfig.tar.xz" && mv "$FONTCONFIG_VERSION" fontconfig
 	[ ! -d fribidi ] && tar -xf "${DOWNLOAD_DIR}/fribidi.tar.xz" && mv "$FRIBIDI_VERSION" fribidi
-	[ ! -d bluray ] && tar -xf "${DOWNLOAD_DIR}/bluray.tar.gz" && mv "$BLURAY_VERSION"* bluray
 	[ ! -d speex ] && tar -xf "${DOWNLOAD_DIR}/speex.tar.gz" && mv "$SPEEX_VERSION" speex
 	[ ! -d libexpat ] && tar -xf "${DOWNLOAD_DIR}/libexpat.tar.gz" && mv "$LIBEXPAT_VERSION" libexpat
-	[ ! -d budfread ] && tar -xf "${DOWNLOAD_DIR}/budfread.tar.gz" && mv "$BUDFREAD_VERSION" budfread
 	[ ! -d openmpt ] && tar -xf "${DOWNLOAD_DIR}/openmpt.tar.gz" && mv "$OPENMPT_VERSION"* openmpt
 	[ ! -d libgsm ] && tar -xf "${DOWNLOAD_DIR}/libgsm.tar.gz" && mv gsm* libgsm
 	[ ! -d libssh ] && tar -xf "${DOWNLOAD_DIR}/libssh.tar.xz" && mv "$LIBSSH_VERSION" libssh
-	[ ! -d svtav1 ] && tar -xf "${DOWNLOAD_DIR}/svtav1.tar.gz" && mv "$SVTAV1_VERSION" svtav1
 	[ ! -d xvidcore ] && tar -xf "${DOWNLOAD_DIR}/xvid.tar.gz"
 	[ ! -d libbs2b ] && tar -xf "${DOWNLOAD_DIR}/libbs2b.tar.gz" && mv "$LIBBS2B_VERSION" libbs2b
 	[ ! -d fftw ] && tar -xf "${DOWNLOAD_DIR}/fftw.tar.gz" && mv "$FFTW_VERSION" fftw
