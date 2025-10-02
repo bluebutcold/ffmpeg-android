@@ -1,0 +1,34 @@
+name: Docker test
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        arch: [aarch64, x86_64, riscv64, x86, armv7]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Pull prebuilt container
+        run: docker pull ghcr.io/kaluabilla/ffmpeg-android:latest
+
+      - name: Run build inside container
+        run: |
+          mkdir -p module
+          docker run --rm \
+            -e ARCH=${{ matrix.arch }} \
+            -v ${{ github.workspace }}:/opt/ffmpeg-android \
+            ghcr.io/kaluabilla/ffmpeg-android:latest \
+            bash build.sh
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ffmpeg-${{ matrix.arch }}
+          path: module/*
