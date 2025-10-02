@@ -29,13 +29,14 @@ RUN apk add --no-cache \
     yasm \
     jq \
     texinfo \
-    ruby
+    ruby \
+    curl \
+    wget
 
 RUN python3 -m pip install --no-cache-dir --break-system-packages meson
+
 RUN curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
-ENV ANDROID_NDK_ROOT=/opt/android-ndk
-ENV ARCH=
-ENV API_LEVEL=
+
 ENV PATH="/root/.cargo/bin:${PATH}"
 
 RUN mkdir -p /root/.cargo/bin \
@@ -47,12 +48,14 @@ RUN rustup target add aarch64-linux-android \
     armv7-linux-androideabi \
     i686-linux-android \
     x86_64-linux-android
-    
 
-RUN wget https://dl.google.com/android/repository/android-ndk-r29-beta4-linux.zip -O /tmp/ndk.zip \
+
+ENV ANDROID_NDK_ROOT=/opt/android-ndk
+RUN wget -q https://dl.google.com/android/repository/android-ndk-r29-beta4-linux.zip -O /tmp/ndk.zip \
     && unzip -q /tmp/ndk.zip -d /opt \
     && mv /opt/android-ndk-r29-beta4 $ANDROID_NDK_ROOT \
     && rm /tmp/ndk.zip
+
 
 WORKDIR /opt
 RUN git clone https://github.com/KaluaBilla/ffmpeg-android.git
