@@ -115,13 +115,6 @@ declare -A GITHUB_REPOS=(
 	["zvbi"]="https://github.com/zapping-vbi/zvbi.git"
 	["libklvanc"]="https://github.com/stoth68000/libklvanc.git"
     ["brotli"]="https://github.com/google/brotli.git"
-    ["bzip2"]="https://gitlab.com/federicomenaquintero/bzip2.git"
-    ["x264"]="https://code.videolan.org/videolan/x264.git"
-    ["x265"]="https://bitbucket.org/multicoreware/x265_git.git"
-    ["dav1d"]="https://code.videolan.org/videolan/dav1d.git"
-    ["budfread"]="https://code.videolan.org/videolan/libudfread.git"
-    ["bluray"]="https://code.videolan.org/videolan/libbluray.git"
-    ["svtav1"]="https://gitlab.com/AOMediaCodec/SVT-AV1.git"
 	["FFmpeg"]="https://github.com/FFmpeg/FFmpeg.git"
 )
 
@@ -149,6 +142,13 @@ declare -A OTHER_GIT_REPOS=(
 	["gdk-pixbuf"]="https://gitlab.gnome.org/GNOME/gdk-pixbuf.git"
 	["librsvg"]="https://gitlab.gnome.org/GNOME/librsvg.git"
 	["fontconfig"]="https://gitlab.freedesktop.org/fontconfig/fontconfig.git"
+	["bzip2"]="https://gitlab.com/federicomenaquintero/bzip2.git"
+    ["x264"]="https://code.videolan.org/videolan/x264.git"
+    ["x265"]="https://bitbucket.org/multicoreware/x265_git.git"
+    ["dav1d"]="https://code.videolan.org/videolan/dav1d.git"
+    ["budfread"]="https://code.videolan.org/videolan/libudfread.git"
+    ["bluray"]="https://code.videolan.org/videolan/libbluray.git"
+    ["svtav1"]="https://gitlab.com/AOMediaCodec/SVT-AV1.git"
 )
 
 # Extra files
