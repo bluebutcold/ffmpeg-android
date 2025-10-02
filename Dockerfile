@@ -2,7 +2,6 @@ FROM alpine:3.20
 
 RUN apk add --no-cache \
     build-base \
-    curl \
     bash \
     gcompat \
     cmake \
@@ -38,15 +37,19 @@ ENV ANDROID_NDK_ROOT=/opt/android-ndk
 ENV ARCH=
 ENV API_LEVEL=
 ENV PATH="/root/.cargo/bin:${PATH}"
-RUN cargo install cargo-c
+
+RUN mkdir -p /root/.cargo/bin \
+    && wget -q https://github.com/lu-zero/cargo-c/releases/download/v0.10.16/cargo-c-x86_64-unknown-linux-musl.tar.gz -O /tmp/cargo-c-musl.tar.gz \
+    && tar -xzf /tmp/cargo-c-musl.tar.gz -C /root/.cargo/bin \
+    && rm /tmp/cargo-c-musl.tar.gz
 
 RUN rustup target add aarch64-linux-android \
     armv7-linux-androideabi \
     i686-linux-android \
     x86_64-linux-android
+    
 
-
-RUN wget -q https://dl.google.com/android/repository/android-ndk-r29-beta4-linux.zip -O /tmp/ndk.zip \
+RUN wget https://dl.google.com/android/repository/android-ndk-r29-beta4-linux.zip -O /tmp/ndk.zip \
     && unzip -q /tmp/ndk.zip -d /opt \
     && mv /opt/android-ndk-r29-beta4 $ANDROID_NDK_ROOT \
     && rm /tmp/ndk.zip
