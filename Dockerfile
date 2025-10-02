@@ -60,5 +60,9 @@ RUN wget -q https://dl.google.com/android/repository/android-ndk-r29-beta4-linux
 WORKDIR /opt
 RUN git clone https://github.com/KaluaBilla/ffmpeg-android.git
 WORKDIR /opt/ffmpeg-android
+ENV ROOT_DIR=/opt/ffmpeg-android
+RUN bash -c "source scripts/download_sources.sh && download_sources"
+
+VOLUME /opt/ffmpeg-android/module
 
 CMD ["bash", "build.sh"]
