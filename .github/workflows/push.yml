@@ -20,11 +20,12 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Build Docker image
         run: |
-          docker build -t ghcr.io/${{ github.repository_owner.toLower() }}/ffmpeg-android:latest .
+          LOWERCASE_USER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+          docker build -t ghcr.io/$LOWERCASE_USER/ffmpeg-android:latest .
 
       - name: Push Docker image to GHCR
         run: |
-          docker push ghcr.io/${{ github.repository_owner.toLower() }}/ffmpeg-android:latest
+          LOWERCASE_USER=$(echo "${GITHUB_REPOSITORY_OWNER}" | tr '[:upper:]' '[:lower:]')
+          docker push ghcr.io/$LOWERCASE_USER/ffmpeg-android:latest
