@@ -106,6 +106,7 @@ jobs:
           tar -xzf /tmp/cargo-c.tar.gz -C $HOME/.cargo/bin
           chmod +x $HOME/.cargo/bin/cargo-c*
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          export PATH="$HOME/.cargo/bin:$PATH"
           cargo-c --version
     
               
