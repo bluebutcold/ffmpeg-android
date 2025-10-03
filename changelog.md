@@ -1,12 +1,11 @@
 # Build Changelog
 
-**Commit:** 1a02412170144f07711428ddc2d1051c4284ee0a
-**Author:** Zhao Zhili <zhilizhao@tencent.com>
-**Date:** Tue Sep 23 22:08:02 2025 +0800
+**Commit:** f1d5114103a8164869a279326043645e7bacdc86
+**Author:** Marton Balint <cus@passwd.hu>
+**Date:** Thu Oct 2 00:27:29 2025 +0200
 
-avformat/movenc_ttml: fix memleaks
+avformat/tls_openssl: do not cleanup tls after a successful dtls_start()
 
-Memory leaks can happen on normal case when break from while loop
-early, and it can happen on error path with goto cleanup.
+Regression since 8e11e2cdb82299e7f0b6d8884bf2bc65c1c3f5e8.
 
-Signed-off-by: Zhao Zhili <zhilizhao@tencent.com>
+Signed-off-by: Marton Balint <cus@passwd.hu>
