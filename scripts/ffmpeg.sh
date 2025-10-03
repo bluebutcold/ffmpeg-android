@@ -144,6 +144,7 @@ build_ffmpeg() {
 		--enable-librubberband
 		--enable-libshine
 		--enable-libklvanc
+		--enable-liboapv 
 		"${FLAGS[@]}"
 		"${NEON[@]}"
 		"${ASM_FLAG[@]}"
