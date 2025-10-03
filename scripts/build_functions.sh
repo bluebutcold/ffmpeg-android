@@ -1207,6 +1207,13 @@ build_x265() {
 
 	ninja -j"$(nproc)"
 	ninja install
+
+	generate_pkgconfig \
+    "x265" \
+    "H.265/HEVC video encoder" \
+    "3.5" \
+    "-lx265"
+
 	echo "✓ x265 built successfully"
 }
 
