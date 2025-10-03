@@ -115,6 +115,7 @@ declare -A GITHUB_REPOS=(
 	["zvbi"]="https://github.com/zapping-vbi/zvbi.git"
 	["libklvanc"]="https://github.com/stoth68000/libklvanc.git"
     ["brotli"]="https://github.com/google/brotli.git"
+	["openapv"]="https://github.com/AcademySoftwareFoundation/openapv.git"
 	["FFmpeg"]="https://github.com/FFmpeg/FFmpeg.git"
 )
 
