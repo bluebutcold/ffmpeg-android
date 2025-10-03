@@ -1527,8 +1527,10 @@ build_openapv() {
     PASSED_FLAGS=(-DOAPV_BUILD_SHARED_LIB=OFF -DOAPV_BUILD_STATIC_LIB=ON -DOAPV_BUILD_APPS=OFF -DENABLE_TESTS=OFF)
     [[ "$ARCH" == "aarch64" || "$ARCH" == "armv7" ]] && PASSED_FLAGS+=(-DARM=1)
     cmake_build "OpenAPV" "$BUILD_DIR/openapv" true "${PASSED_FLAGS[@]}"
+    local file1="${PREFIX}/lib/liboapv.a"
+    local file2="${PREFIX}/lib/oapv/liboapv.a"
+   [ -e "$file2" ] && [ ! -e "$file1" ] && ln -s "$file2" "$file1"
 }
-
 
 build_fftw() {
 	cmake_build "fftw" "$BUILD_DIR/fftw" true \
