@@ -588,6 +588,7 @@ build_quirc
 build_chromaprint
 build_avisynth
 build_lcevcdec
+build_openapv
 
 ### Final cleanup + FFmpeg
 cleanup_pcfiles
