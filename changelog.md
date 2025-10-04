@@ -1,14 +1,13 @@
 # Build Changelog
 
-**Commit:** 8fad52bd57d5bcedce8dc4ae3166c1a50f895690
+**Commit:** e05f8acabff468c1382277c1f31fa8e9d90c3202
 **Author:** Andreas Rheinhardt <andreas.rheinhardt@outlook.com>
-**Date:** Tue Sep 30 00:32:27 2025 +0200
+**Date:** Wed Oct 1 08:27:14 2025 +0200
 
-avcodec/x86/h264_qpel: Use ptrdiff_t for strides
+avfilter/blend_modes: Don't build duplicate functions
 
-Avoids having to sign-extend the strides in the assembly
-(it also is more correct given that the qpel_mc_func
-already uses ptrdiff_t).
+Some of the blend mode functions only depend on the underlying type
+and therefore need only one version for 9, 10, 12, 14, 16 bits.
+This saved 35104B with GCC and 26880B with Clang.
 
-Reviewed-by: James Almer <jamrial@gmail.com>
 Signed-off-by: Andreas Rheinhardt <andreas.rheinhardt@outlook.com>
