@@ -1,21 +1,14 @@
 # Build Changelog
 
-**Commit:** ab7d1c64c9aa9186acb1d988d020e59f2d3defce
+**Commit:** 8fad52bd57d5bcedce8dc4ae3166c1a50f895690
 **Author:** Andreas Rheinhardt <andreas.rheinhardt@outlook.com>
-**Date:** Wed Oct 1 10:46:39 2025 +0200
+**Date:** Tue Sep 30 00:32:27 2025 +0200
 
-avcodec/x86/h263_loopfilter: Port loop filter to SSE2
+avcodec/x86/h264_qpel: Use ptrdiff_t for strides
 
-Old benchmarks:
-h263dsp.h_loop_filter_c:                                41.2 ( 1.00x)
-h263dsp.h_loop_filter_mmx:                              39.5 ( 1.04x)
-h263dsp.v_loop_filter_c:                                43.5 ( 1.00x)
-h263dsp.v_loop_filter_mmx:                              16.9 ( 2.57x)
+Avoids having to sign-extend the strides in the assembly
+(it also is more correct given that the qpel_mc_func
+already uses ptrdiff_t).
 
-New benchmarks:
-h263dsp.h_loop_filter_c:                                41.6 ( 1.00x)
-h263dsp.h_loop_filter_sse2:                             28.2 ( 1.48x)
-h263dsp.v_loop_filter_c:                                42.4 ( 1.00x)
-h263dsp.v_loop_filter_sse2:                             15.1 ( 2.81x)
-
+Reviewed-by: James Almer <jamrial@gmail.com>
 Signed-off-by: Andreas Rheinhardt <andreas.rheinhardt@outlook.com>
