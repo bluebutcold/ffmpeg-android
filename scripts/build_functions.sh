@@ -1524,6 +1524,8 @@ build_libqrencode() {
 }
 
 build_openapv() {
+    sed -i 's/\bsad_16b_neon_8x2n\b/oapv_sad_16b_neon_8x2n/g' \
+    "$BUILD_DIR/openapv/src/neon/oapv_sad_neon.c"
     PASSED_FLAGS=(-DOAPV_BUILD_SHARED_LIB=OFF -DOAPV_BUILD_STATIC_LIB=ON -DOAPV_BUILD_APPS=OFF -DENABLE_TESTS=OFF)
     [[ "$ARCH" == "aarch64" || "$ARCH" == "armv7" ]] && PASSED_FLAGS+=(-DARM=1)
     cmake_build "OpenAPV" "$BUILD_DIR/openapv" true "${PASSED_FLAGS[@]}"
