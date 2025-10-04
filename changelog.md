@@ -1,11 +1,21 @@
 # Build Changelog
 
-**Commit:** f1d5114103a8164869a279326043645e7bacdc86
-**Author:** Marton Balint <cus@passwd.hu>
-**Date:** Thu Oct 2 00:27:29 2025 +0200
+**Commit:** ab7d1c64c9aa9186acb1d988d020e59f2d3defce
+**Author:** Andreas Rheinhardt <andreas.rheinhardt@outlook.com>
+**Date:** Wed Oct 1 10:46:39 2025 +0200
 
-avformat/tls_openssl: do not cleanup tls after a successful dtls_start()
+avcodec/x86/h263_loopfilter: Port loop filter to SSE2
 
-Regression since 8e11e2cdb82299e7f0b6d8884bf2bc65c1c3f5e8.
+Old benchmarks:
+h263dsp.h_loop_filter_c:                                41.2 ( 1.00x)
+h263dsp.h_loop_filter_mmx:                              39.5 ( 1.04x)
+h263dsp.v_loop_filter_c:                                43.5 ( 1.00x)
+h263dsp.v_loop_filter_mmx:                              16.9 ( 2.57x)
 
-Signed-off-by: Marton Balint <cus@passwd.hu>
+New benchmarks:
+h263dsp.h_loop_filter_c:                                41.6 ( 1.00x)
+h263dsp.h_loop_filter_sse2:                             28.2 ( 1.48x)
+h263dsp.v_loop_filter_c:                                42.4 ( 1.00x)
+h263dsp.v_loop_filter_sse2:                             15.1 ( 2.81x)
+
+Signed-off-by: Andreas Rheinhardt <andreas.rheinhardt@outlook.com>

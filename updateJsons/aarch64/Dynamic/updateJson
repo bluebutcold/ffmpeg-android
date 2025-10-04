@@ -1,6 +1,6 @@
 {
-  "versionCode": 44,
-  "version": "8.0-git--f1d5114",
-  "zipUrl": "https://github.com/KaluaBilla/ffmpeg-android/releases/download/build-237/ffmpeg-8.0-f1d5114-Dynamic-android-arm64-v8a.zip",
+  "versionCode": 45,
+  "version": "8.0-git--ab7d1c6",
+  "zipUrl": "https://github.com/KaluaBilla/ffmpeg-android/releases/download/build-251/ffmpeg-8.0-ab7d1c6-Dynamic-android-arm64-v8a.zip",
   "changelog": "https://raw.githubusercontent.com/KaluaBilla/ffmpeg-android/main/changelog.md"
 }
